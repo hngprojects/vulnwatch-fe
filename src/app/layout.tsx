@@ -16,10 +16,13 @@ const geistMono = Geist_Mono({
 });
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "Next Starter";
+const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "VulnWatch AI — Intelligent Vulnerability Detection";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
+  icons: {
+    icon: "/images/logo-auth.png",
+  },
   title: {
     default: appName,
     template: `%s · ${appName}`,
