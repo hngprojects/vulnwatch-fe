@@ -1,0 +1,130 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [staging, main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    env:
+      HOST: ${{ secrets.HOST }}
+      USERNAME: ${{ secrets.USERNAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint code
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Set environment variables for build
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env.local
+            echo "NEXT_PUBLIC_APP_URL=https://vuln-watch.hng14.com" >> .env.local
+            echo "API_BASE_URL=https://api.vuln-watch.hng14.com" >> .env.local
+          else
+            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env.local
+            echo "NEXT_PUBLIC_APP_URL=https://staging.vuln-watch.hng14.com" >> .env.local
+            echo "API_BASE_URL=https://api.staging.vuln-watch.hng14.com" >> .env.local
+          fi
+
+      - name: Build Next.js application
+        run: pnpm build
+
+      - name: Prepare standalone build
+        run: |
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+
+      - name: Archive build artifacts
+        run: |
+          cd .next/standalone
+          tar -czf ../../boilerplate.tar.gz .
+
+      - name: Copy artifacts to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: boilerplate.tar.gz
+          target: ~/frontend-build-artifacts/
+
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              DEPLOY_DIR="/var/www/frontend-production"
+              APP_NAME="frontend-production"
+              PORT=3001
+            else
+              DEPLOY_DIR="/var/www/frontend-staging"
+              APP_NAME="frontend-staging"
+              PORT=3000
+            fi
+
+            mkdir -p $DEPLOY_DIR
+            mkdir -p ~/frontend-build-artifacts
+
+            # Clear old build to prevent stale files from persisting
+            rm -rf $DEPLOY_DIR/*
+
+            # Extract new build
+            tar -xzf ~/frontend-build-artifacts/boilerplate.tar.gz -C $DEPLOY_DIR
+
+            # Clean up artifact from server after extraction
+            rm -f ~/frontend-build-artifacts/boilerplate.tar.gz
+
+            cd $DEPLOY_DIR
+
+            # Restart PM2 if already running, otherwise start fresh
+            if pm2 describe $APP_NAME > /dev/null 2>&1; then
+              pm2 restart $APP_NAME
+            else
+              PORT=$PORT pm2 start server.js --name "$APP_NAME"
+            fi
+
+            pm2 save
+
+      - name: Clean up local artifact
+        run: rm -f boilerplate.tar.gz
