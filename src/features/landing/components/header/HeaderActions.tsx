@@ -7,14 +7,14 @@ export function HeaderActions() {
     <div className="flex items-center gap-3">
       <Link
         href={ROUTES.LOGIN}
-        className="border-primary text-body flex h-12 items-center justify-center gap-1.5 rounded-xl border bg-white px-6 py-3 text-base leading-6 font-medium transition-opacity duration-200 hover:opa
+        className="border-primary text-body flex h-12 items-center justify-center gap-1.5 rounded-xl border bg-white px-6 py-3 text-base leading-6 font-medium transition-opacity duration-200 hover:opacity-80"
       >
         Log in
       </Link>
 
       <Link
         href={ROUTES.REGISTER}
-        className="border-secondary bg-primary flex h-12 items-center justify-center gap-1.5 rounded-xl border py-3 pr-4 pl-6 text-base leading-6 font-medium text-white transition-opacity duration-200
+        className="border-secondary bg-primary flex h-12 items-center justify-center gap-1.5 rounded-xl border py-3 pr-4 pl-6 text-base leading-6 font-medium text-white transition-opacity duration-200 hover:opacity-90"
       >
         Start Free Trial
         <ArrowRight
