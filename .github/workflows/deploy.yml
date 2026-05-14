@@ -74,8 +74,7 @@ jobs:
 
       - name: Archive build artifacts
         run: |
-          cd .next/standalone
-          tar -czf ../../boilerplate.tar.gz .
+          tar -czf boilerplate.tar.gz -C .next/standalone .
 
       - name: Copy artifacts to server
         uses: appleboy/scp-action@v0.1.7
