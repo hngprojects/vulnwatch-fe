@@ -4,7 +4,7 @@ export const FAQS_DATA: FAQType[] = [
   {
     question: "What is Vulnwatch, how does it work?",
     answer:
-      "VulnWatch continuously monitors your domain infrastructure, DNS records, SSL certificates, subdomains, and email security, and uses AI to detect misconfigurations, exposure risks, and active threats.",
+      "VulnWatch continuously monitors your domain infrastructure, DNS records, SSL certificates, subdomains, and email security, and uses AI to detect misconfigurations, exposure risks, and active th
   },
   {
     question: "Do i need technical expertise to use Vulnwatch?",
@@ -14,11 +14,117 @@ export const FAQS_DATA: FAQType[] = [
   {
     question: "What kind of risk does Vulnwatch detect?",
     answer:
-      "VulnWatch monitors for SSL/TLS certificate issues, DNS misconfigurations, exposed subdomains, email authentication gaps (SPF, DKIM, and DMARC), open ports, and web application vulnerabilities.",
+      "VulnWatch monitors for SSL/TLS certificate issues, DNS misconfigurations, exposed subdomains, email authentication gaps (SPF, DKIM, and DMARC), open ports, and web application vulnerabilities."
   },
   {
     question: "Is Vulnwatch suitabale for small business?",
     answer:
-      "Absolutely. VulnWatch was designed with small and growing teams in mind. Flexible pricing means you only pay for what you need, and automated continuous monitoring gives you enterprise-grade security.",
+      "Absolutely. VulnWatch was designed with small and growing teams in mind. Flexible pricing means you only pay for what you need, and automated continuous monitoring gives you enterprise-grade se
+  },
+];
+
+export type FaqCategoryId =
+  | "getting-started"
+  | "domain-verification"
+  | "vulnerability-scanning"
+  | "monitoring-alert"
+  | "security-privacy"
+  | "billing-plans"
+  | "others";
+
+export type FaqCategory = {
+  id: FaqCategoryId;
+  label: string;
+};
+
+export type FaqGroup = {
+  id: FaqCategoryId;
+  title: string;
+  questions: FAQType[];
+};
+
+export const FAQ_PAGE_CATEGORIES: FaqCategory[] = [
+  { id: "getting-started", label: "Getting Started" },
+  { id: "domain-verification", label: "Domain Verification" },
+  { id: "vulnerability-scanning", label: "Vulnerability Scanning" },
+  { id: "monitoring-alert", label: "Monitoring & Alert" },
+  { id: "security-privacy", label: "Security & Privacy" },
+  { id: "billing-plans", label: "Billing & Plans" },
+  { id: "others", label: "Others" },
+];
+
+export const FAQ_PAGE_GROUPS: FaqGroup[] = [
+  {
+    id: "getting-started",
+    title: "Categories",
+    questions: [
+      {
+        question: "What is VulnWatch",
+        answer:
+          "VulnWatch is a cybersecurity platform that helps users detect, monitor, and manage vulnerabilities across their domains and systems.",
+      },
+      {
+        question: "How does VulnWatch work?",
+        answer:
+          "Add your domain, verify ownership, and VulnWatch runs safe public-data checks to find exposed services, weak configuration, and changes that need attention.",
+      },
+      {
+        question: "Who can use VulnWatch?",
+        answer:
+          "Business owners, product teams, developers, agencies, and security teams can use VulnWatch to understand website risks without heavy tooling.",
+      },
+    ],
+  },
+  {
+    id: "domain-verification",
+    title: "Domain Verification",
+    questions: [
+      {
+        question: "Why do i need to verify my domain?",
+        answer:
+          "Verification confirms that you own or manage the domain before VulnWatch starts tracking its security posture.",
+      },
+      {
+        question: "How do I verify my domain?",
+        answer:
+          "You can verify your domain by adding the provided DNS record or uploading the verification file shown in your dashboard.",
+      },
+      {
+        question: "How long does verification take?",
+        answer:
+          "Most domains verify within a few minutes, though DNS changes can sometimes take longer depending on your provider.",
+      },
+      {
+        question: "What happens if verification fails?",
+        answer:
+          "VulnWatch will show what could not be confirmed so you can update the DNS record, retry, or contact support.",
+      },
+    ],
+  },
+  {
+    id: "vulnerability-scanning",
+    title: "Vulnerability Scanning",
+    questions: [
+      {
+        question: "What does the scan check for?",
+        answer:
+          "Scans check public security signals such as SSL status, DNS configuration, exposed services, subdomains, and common website risks.",
+      },
+      {
+        question: "Do I need verification before scanning",
+        answer:
+          "Yes. Verification is required so scans are only run for domains you own or are authorized to manage.",
+      },
+      {
+        question: "How long does a scan take?",
+        answer:
+          "A standard scan usually completes in a few minutes, depending on the size of the domain and its public footprint.",
+      },
+      {
+        question: "Can VulnWatch scan subdomains?",
+        answer:
+          "Yes. VulnWatch can discover and monitor subdomains that are visible from public records and safe checks.",
+      },
+    ],
   },
 ];

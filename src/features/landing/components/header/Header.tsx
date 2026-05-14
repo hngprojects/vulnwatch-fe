@@ -27,11 +27,11 @@ export function Header() {
           >
             {/* Mobile Logo */}
             <Image
-              src="/images/logo-mobile.jpg"
+              src="/images/logo-footer.png"
               alt="VulnWatch AI Mobile"
-              width={160}
-              height={40}
-              className="block h-8 w-auto object-contain md:hidden"
+              width={96}
+              height={75}
+              className="block h-10 w-auto object-contain md:hidden"
               priority
             />
             {/* Desktop Logo */}

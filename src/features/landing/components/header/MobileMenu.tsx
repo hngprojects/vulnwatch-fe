@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { X, ArrowRight } from "lucide-react";
 import { NAV_LINKS } from "../../constants/nav-links";
 import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/utils";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -11,17 +14,36 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   return (
     <>
       {/* Backdrop — fades in/out */}
       <div
         onClick={onClose}
         aria-hidden="true"
-        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
-        style={{
-          opacity: isOpen ? 1 : 0,
-          pointerEvents: isOpen ? "auto" : "none",
-        }}
+        className={cn(
+          "fixed inset-0 z-60 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ease-in-out lg:hidden",
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
       />
 
       {/* Drawer — slides down from top */}
@@ -30,13 +52,27 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         aria-modal="true"
         aria-label="Mobile navigation menu"
         aria-hidden={!isOpen}
-        className="fixed inset-x-0 top-0 z-50 flex flex-col bg-white px-5 pt-5 pb-8 shadow-xl transition-transform duration-300 ease-in-out"
-        style={{
-          transform: isOpen ? "translateY(0)" : "translateY(-100%)",
-        }}
+        className={cn(
+          "fixed inset-x-0 top-0 z-70 flex max-h-dvh flex-col bg-white px-5 pt-3 pb-8 shadow-xl transition-transform duration-300 ease-in-out lg:hidden",
+          isOpen ? "translate-y-0" : "pointer-events-none -translate-y-full",
+        )}
       >
         {/* Close button */}
-        <div className="flex items-center justify-end">
+        <div className="flex min-h-12 items-center justify-between">
+          <Link
+            href={ROUTES.HOME}
+            onClick={onClose}
+            aria-label="VulnWatch AI home"
+            className="flex shrink-0 items-center"
+          >
+            <Image
+              src="/images/logo-footer.png"
+              alt="VulnWatch AI"
+              width={96}
+              height={75}
+              className="h-10 w-auto object-contain"
+            />
+          </Link>
           <button
             type="button"
             onClick={onClose}
@@ -83,7 +119,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           >
             Start Free Trial
             <ArrowRight
-              className="h-[11px] w-[14px] shrink-0 stroke-white"
+              className="h-2.75 w-3.5 shrink-0 stroke-white"
               strokeWidth={1.4}
             />
           </Link>
