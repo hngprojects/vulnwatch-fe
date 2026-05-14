@@ -152,7 +152,7 @@ export function Contact() {
                   {...register("name")}
                   type="text"
                   placeholder="Name"
-                  className="focus:border-primary h-[46px] rounded-[10px] border border-[#DCDCDC] bg-white px-3 text-[14px] font-semibold text-[#2B2B2B] transition-colors outline-none placeholder:text
+                  className="focus:border-primary h-[46px] rounded-[10px] border border-[#DCDCDC] bg-white px-3 text-[14px] font-semibold text-[#2B2B2B] transition-colors outline-none placeholder:text-[#999999]"
                 />
 
                 <label className="sr-only" htmlFor="contact-email">
@@ -163,7 +163,7 @@ export function Contact() {
                   {...register("email")}
                   type="email"
                   placeholder="Email Address"
-                  className="focus:border-primary h-[46px] rounded-[10px] border border-[#DCDCDC] bg-white px-3 text-[14px] font-semibold text-[#2B2B2B] transition-colors outline-none placeholder:text
+                  className="focus:border-primary h-[46px] rounded-[10px] border border-[#DCDCDC] bg-white px-3 text-[14px] font-semibold text-[#2B2B2B] transition-colors outline-none placeholder:text-[#999999]"
                 />
 
                 <label className="sr-only" htmlFor="contact-phone">
@@ -174,7 +174,7 @@ export function Contact() {
                   {...register("phone")}
                   type="tel"
                   placeholder="Phone Number"
-                  className="focus:border-primary h-[46px] rounded-[10px] border border-[#DCDCDC] bg-white px-3 text-[14px] font-semibold text-[#2B2B2B] transition-colors outline-none placeholder:text
+                  className="focus:border-primary h-[46px] rounded-[10px] border border-[#DCDCDC] bg-white px-3 text-[14px] font-semibold text-[#2B2B2B] transition-colors outline-none placeholder:text-[#999999]"
                 />
 
                 <label className="sr-only" htmlFor="contact-service">
@@ -204,7 +204,7 @@ export function Contact() {
                 id="contact-message"
                 {...register("message")}
                 placeholder="Message"
-                className="focus:border-primary min-h-[160px] w-full resize-none rounded-[10px] border border-[#DCDCDC] bg-white px-3 py-3 text-[14px] font-semibold text-[#2B2B2B] transition-colors ou
+                className="focus:border-primary min-h-[160px] w-full resize-none rounded-[10px] border border-[#DCDCDC] bg-white px-3 py-3 text-[14px] font-semibold text-[#2B2B2B] transition-colors outline-none placeholder:text-[#999999]"
               />
 
               <button

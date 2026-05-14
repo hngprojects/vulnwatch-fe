@@ -19,7 +19,7 @@ const FramerButton = ({
     <button
       type={type}
       disabled={disabled || isLoading}
-      className="bg-primary text-primary-foreground flex h-12 w-full items-center justify-center rounded-lg text-sm font-semibold transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabl
+      className="bg-primary text-primary-foreground flex h-12 w-full items-center justify-center rounded-lg text-sm font-semibold transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {isLoading ? "Loading..." : text}
     </button>
