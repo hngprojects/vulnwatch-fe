@@ -16,12 +16,19 @@ const legalTabs: LegalTab[] = [
   {
     id: "privacy-policy",
     label: "Privacy Policy",
-    intro:
-      "Your privacy and data security are important to us. This Privacy Policy explains how we collect, use, process, and safeguard information when you access and use our platform. By using our servi
+    intro: [
+      "Your privacy and data security are important to us.",
+      "This Privacy Policy explains how we collect, use, process, and safeguard information when you access and use our platform.",
+      "By using our service, you agree to the practices outlined in this policy.",
+    ].join(" "),
     sections: [
       {
         title: "Information We Collect",
-        body: "We collect information that is reasonably necessary to provide, secure, and improve our services. This may include your account information like your email, organization details, techni
+        body: [
+          "We collect information that is reasonably necessary to provide, secure, and improve our services.",
+          "This may include your account information like your email, organization details, technical data, vulnerability scan results,",
+          "device information, and usage analytics.",
+        ].join(" "),
       },
       {
         title: "How We Use Information",
@@ -29,7 +36,10 @@ const legalTabs: LegalTab[] = [
       },
       {
         title: "Data Protection and Security",
-        body: "We implement industry standard safeguards to protect customer information against unauthorized access, disclosure, or misuse. Security measures include encryption, secure domain access 
+        body: [
+          "We implement industry standard safeguards to protect customer information against unauthorized access, disclosure, or misuse.",
+          "Security measures include encryption, secure your domain, access controls, monitoring systems, and regular security reviews.",
+        ].join(" "),
       },
       {
         title: "Data Retention",
@@ -126,7 +136,7 @@ export function LegalDocs() {
         <div className="mx-auto max-w-[1120px]">
           <div className="relative border-b border-[#E8E8E8]">
             <div
-              className="grid grid-cols-3 md:flex"
+              className="grid grid-cols-3 md:flex md:gap-12 lg:gap-16"
               role="tablist"
               aria-label="Legal documents"
             >
@@ -145,9 +155,12 @@ export function LegalDocs() {
                     aria-selected={isActive}
                     aria-controls={`${tab.id}-panel`}
                     onClick={() => setActiveTab(tab)}
-                    className={`relative flex min-h-14 items-center justify-center px-1 py-3 text-center text-[11px] leading-4 font-medium tracking-[-0.3px] transition-colors sm:text-[12px] md:min-h-0
-                      isActive ? "text-[#072E28]" : "text-[#666666]"
-                    }`}
+                    className={[
+                      "relative flex min-h-14 cursor-pointer items-center justify-center px-1 py-3 text-center",
+                      "text-[11px] leading-4 font-medium tracking-[-0.3px] transition-colors sm:text-[12px]",
+                      "md:min-h-0 md:text-[1rem]",
+                      isActive ? "text-[#072E28]" : "text-[#666666]",
+                    ].join(" ")}
                   >
                     {tab.label}
                   </button>
