@@ -119,8 +119,10 @@ jobs:
 
             # Always delete and restart fresh to avoid stale PM2 config
             pm2 delete $APP_NAME || true
-            PORT=$PORT pm2 start server.js --name "$APP_NAME"
+            export PORT=$PORT
+            pm2 start server.js --name "$APP_NAME"
             pm2 save
+            pm2 list
 
       - name: Clean up local artifact
         run: rm -f boilerplate.tar.gz
