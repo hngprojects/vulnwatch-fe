@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
+
 
 const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
@@ -16,10 +18,13 @@ const geistMono = Geist_Mono({
 });
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "Next Starter";
+const appName = process.env.NEXT_PUBLIC_APP_NAME ?? "VulnWatch AI — Intelligent Vulnerability Detection";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
+  icons: {
+    icon: "/images/logo-auth.png",
+  },
   title: {
     default: appName,
     template: `%s · ${appName}`,
@@ -37,7 +42,10 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", figtree.variable)}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Toaster richColors position="top-right" />
+      </body>
     </html>
   );
 }
