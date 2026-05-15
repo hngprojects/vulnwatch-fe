@@ -5,6 +5,12 @@ type AuthState = {
   logout: () => void;
 };
 
+declare global {
+  interface Window {
+    __AUTH_STATE?: AuthState;
+  }
+}
+
 const isBrowser = typeof window !== "undefined";
 
 const getInitialState = (): AuthState => {
@@ -22,30 +28,30 @@ const getInitialState = (): AuthState => {
       localStorage.setItem("auth_email", safeEmail);
       
       // Also update the in-memory state for instant updates
-      if (typeof window !== "undefined" && (window as any).__AUTH_STATE) {
-        (window as any).__AUTH_STATE.token = safeToken;
-        (window as any).__AUTH_STATE.email = safeEmail;
+      if (typeof window !== "undefined" && window.__AUTH_STATE) {
+        window.__AUTH_STATE.token = safeToken;
+        window.__AUTH_STATE.email = safeEmail;
       }
     },
     logout: () => {
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_email");
-      if (typeof window !== "undefined" && (window as any).__AUTH_STATE) {
-        (window as any).__AUTH_STATE.token = null;
-        (window as any).__AUTH_STATE.email = null;
+      if (typeof window !== "undefined" && window.__AUTH_STATE) {
+        window.__AUTH_STATE.token = null;
+        window.__AUTH_STATE.email = null;
       }
     },
   };
 };
 
 // Use window to hold the state to prevent Next.js module scoping issues during fast refresh or chunk splitting
-if (isBrowser && !(window as any).__AUTH_STATE) {
-  (window as any).__AUTH_STATE = getInitialState();
+if (isBrowser && !window.__AUTH_STATE) {
+  window.__AUTH_STATE = getInitialState();
 }
 
 export const useAuthStore = {
   getState: (): AuthState => {
     if (!isBrowser) return getInitialState();
-    return (window as any).__AUTH_STATE || getInitialState();
+    return window.__AUTH_STATE || getInitialState();
   },
 };

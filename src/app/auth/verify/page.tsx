@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/link";
 import Link from "next/link";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { authService } from "@/features/auth/services/auth.services";
@@ -39,7 +38,7 @@ function VerifyEmailContent() {
           setStatus("error");
           setMessage(response.error?.message || "Failed to verify email. The link might be expired.");
         }
-      } catch (err) {
+      } catch {
         setStatus("error");
         setMessage("An unexpected error occurred. Please try again later.");
       }
@@ -54,6 +53,7 @@ function VerifyEmailContent() {
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="mb-4">
             <Link href="/">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/logo-auth.png"
                 alt="VulnWatch AI Logo"
