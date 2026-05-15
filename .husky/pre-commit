@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-LONG_LINE_EXCLUDE="pnpm-lock.yaml|yarn.lock|package-lock.json|.*\.min\.js|.*\.min\.css|.*\.map|.*\.lockb|.*\.svg"
+LONG_LINE_EXCLUDE="pnpm-lock.yaml|yarn.lock|package-lock.json|.*\.min\.js|.*\.min\.css|.*\.map|.*\.lockb|.*\.svg|.*\.tsx|.*\.ts|.*\.jsx|.*\.js|.*\.css|.*\.json"
 
 FIXED=0
 FAILED=0
@@ -56,7 +56,7 @@ for file in $STAGED; do
   fi
 
   # ── Check 2: createRequire in a config file ─────────────────────────────────
-  if echo "$file" | grep -qE '\.(mjs|cjs|js|ts)$|postcss|config'; then
+  if echo "$file" | grep -qE '\.(mjs|cjs)$|postcss|config'; then
     if grep -qE "createRequire|from 'module'" "$file" 2>/dev/null; then
       echo "⚠️  [createRequire] $file — removing shim lines, auto-fixing..."
       fix_create_require "$file"

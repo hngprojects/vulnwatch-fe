@@ -13,15 +13,18 @@ export default function ScanSetupForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm<ConfigureScanSchemaType>({
+  } = useForm({
     defaultValues: {
       domain: "",
       scanType: "QUICK_SCAN",
-      emailNotification: undefined,
+      emailNotification: false,
     },
     resolver: zodResolver(configureScanSchema),
   });
+
+  const selectedScanType = watch("scanType");
 
   const onSubmit = (data: ConfigureScanSchemaType) => {
     console.log(data);
@@ -46,7 +49,8 @@ export default function ScanSetupForm() {
             <ScanTypeButton
               key={scan.title}
               {...scan}
-              selectedTitle="Quick Scan"
+              isSelected={selectedScanType === scan.value}
+              value={scan.value}
               {...register("scanType")}
             />
           ))}
