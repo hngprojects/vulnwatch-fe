@@ -3,8 +3,7 @@ import { InfoIcon } from "lucide-react";
 import React from "react";
 import { cn } from "@/lib/utils";
 
-export interface InputFieldProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   description?: string;
   error?: string;
@@ -24,7 +23,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
     ref,
   ) => {
     const labelClassName =
-      "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70";
+      "text-sm font-medium text-neutral-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70";
 
     const id = props.id || label;
 
@@ -37,7 +36,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
               id={id}
               ref={ref}
               className={cn(
-                "h-4 w-4 rounded border-gray-300 text-scan-primary-900 focus:ring-scan-primary-900",
+                "h-4 w-4 rounded border-gray-300 text-scan-primary-900 accent-scan-primary-900 focus:ring-scan-primary-900",
                 className,
               )}
               {...props}
