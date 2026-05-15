@@ -58,4 +58,20 @@ export const authService = {
     });
     return res.json();
   },
+
+  async verify(
+    userId: string,
+    token: string,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const res = await fetch(
+      `${PROXY_BASE}/verify?userId=${encodeURIComponent(userId)}&token=${encodeURIComponent(token)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return res.json();
+  },
 };
