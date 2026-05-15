@@ -55,10 +55,46 @@ jobs:
 
       - name: Force Next standalone output for CI deploy
         run: |
-          if [ -f next.config.mjs ] || [ -f next.config.js ] || [ -f next.config.ts ]; then
-            echo "Found existing Next config. Cannot safely patch unknown structure in deploy-only workflow."
-            echo "Tell FE guys to output: 'standalone' in next.config.*"
-            exit 1
+          if [ -f next.config.mjs ]; then
+            mv next.config.mjs next.config.base.mjs
+            cat > next.config.mjs <<'EOF'
+          import baseConfig from "./next.config.base.mjs";
+
+          const withStandalone = (cfg) =>
+            typeof cfg === "function"
+              ? (...args) => ({ ...(cfg(...args) || {}), output: "standalone" })
+              : { ...(cfg || {}), output: "standalone" };
+
+          export default withStandalone(baseConfig);
+          EOF
+
+          elif [ -f next.config.js ]; then
+            mv next.config.js next.config.base.js
+            cat > next.config.js <<'EOF'
+          const baseConfig = require("./next.config.base.js");
+
+          const withStandalone = (cfg) =>
+            typeof cfg === "function"
+              ? (...args) => ({ ...(cfg(...args) || {}), output: "standalone" })
+              : { ...(cfg || {}), output: "standalone" };
+
+          module.exports = withStandalone(baseConfig);
+          EOF
+
+          elif [ -f next.config.ts ]; then
+            mv next.config.ts next.config.base.ts
+            cat > next.config.ts <<'EOF'
+          import type { NextConfig } from "next";
+          import baseConfig from "./next.config.base";
+
+          const withStandalone = (cfg: any): NextConfig | ((...args: any[]) => NextConfig) =>
+            typeof cfg === "function"
+              ? (...args: any[]) => ({ ...(cfg(...args) || {}), output: "standalone" })
+              : { ...(cfg || {}), output: "standalone" };
+
+          export default withStandalone(baseConfig as any) as any;
+          EOF
+
           else
             cat > next.config.js <<'EOF'
           /** @type {import('next').NextConfig} */
