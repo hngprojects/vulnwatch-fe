@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { cva } from "class-variance-authority";
 
 const countBadgeVariants = cva(
-  "p-1 rounded-full text-sm text-white size-6 flex items-center justify-center",
+  "p-1 rounded-full text-xs text-white size-5 flex items-center justify-center aspect-square",
   {
     variants: {
       variant: {
@@ -45,14 +45,17 @@ export default function FindingsItemCard({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 p-3 rounded space-y-0!",
+        "sm:flex items-center gap-3 space-y-5 sm:space-y-0! p-3 rounded",
         scanResultsVariants({ variant }),
       )}
     >
-      <Link href="#" className="font-medium underline">
-        {variant[0].toUpperCase() + variant.slice(1)}
-      </Link>
-      <p className={cn(countBadgeVariant, "font-medium!")}>{severityCount}</p>
+      <div className="flex items-center gap-2">
+        <Link href="#" className="font-semibold underline">
+          {variant[0].toUpperCase() + variant.slice(1).replaceAll("_", " ")}
+          {variant !== "pass" && " fixes"}
+        </Link>
+        <p className={cn(countBadgeVariant)}>{severityCount}</p>
+      </div>
       <p>{description}</p>
     </div>
   );

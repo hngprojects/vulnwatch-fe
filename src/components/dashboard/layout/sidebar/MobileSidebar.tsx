@@ -15,7 +15,7 @@ export default function MobileSidebar() {
     <div className="lg:hidden">
       {/* Trigger Button */}
       <div className="p-4 flex items-center justify-between">
-        <BrandLogoIcon orientation="horizontal" size={40} />
+        <BrandLogoIcon orientation="horizontal" size={150} />
         <Button variant="ghost" size="icon" onClick={toggleMenu}>
           <Menu className="size-6" />
         </Button>

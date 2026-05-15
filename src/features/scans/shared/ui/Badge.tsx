@@ -20,9 +20,11 @@ const variants = cva(
 export default function Badge({
   variant,
   label,
+  className,
 }: {
   variant: "neutral" | "critical" | "warning" | "pass";
   label: string;
+  className?: string;
 }) {
-  return <div className={variants({ variant })}>{label}</div>;
+  return <div className={variants({ variant, className })}>{label}</div>;
 }

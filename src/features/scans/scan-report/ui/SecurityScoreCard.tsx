@@ -35,8 +35,13 @@ export default function SecurityScoreCard({ score }: Props) {
                 ? "#edb428"
                 : ""
           }
+          size={200}
         />
-        <Badge variant={variant} label={`Your domain is ${getStatus()}`} />
+        <Badge
+          className="w-full text-center"
+          variant={variant}
+          label={`Your domain is ${getStatus()}`}
+        />
       </div>
     </Card>
   );

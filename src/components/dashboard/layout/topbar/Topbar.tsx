@@ -1,6 +1,6 @@
-import SearchBox from "@/components/SearchBox";
 import Link from "next/link";
 import UserAvatarButton from "./UserAvatarButton";
+import SearchBox from "@/components/SearchBox";
 
 export default function DashboardTopbar() {
   return (

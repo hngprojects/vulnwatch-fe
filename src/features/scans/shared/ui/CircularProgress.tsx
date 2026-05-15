@@ -12,8 +12,8 @@ export function CircularProgress({
   color = "#CC1F1F",
 }: CircularProgressProps) {
   const r = (size - strokeWidth) / 2;
-  const circ = 2 * Math.PI * r;
-  const offset = circ * (1 - value / 100);
+  const circ = Number((2 * Math.PI * r).toFixed(2));
+  const offset = Number((circ * (1 - value / 100)).toFixed(2));
   const center = size / 2;
 
   return (
@@ -43,10 +43,10 @@ export function CircularProgress({
       {/* Label */}
       <text
         x={center}
-        y={center - 6}
+        y={center - 10}
         textAnchor="middle"
         dominantBaseline="middle"
-        fontSize="22"
+        fontSize="32"
         fontWeight="500"
         fill={color}
       >
@@ -54,10 +54,10 @@ export function CircularProgress({
       </text>
       <text
         x={center}
-        y={center + 14}
+        y={center + 16}
         textAnchor="middle"
         dominantBaseline="middle"
-        fontSize="11"
+        fontSize="16"
         fill="#9ca3af"
       >
         /100

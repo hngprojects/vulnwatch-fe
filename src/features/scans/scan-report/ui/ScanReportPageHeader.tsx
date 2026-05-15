@@ -21,7 +21,7 @@ export default function ScanReportPageHeader() {
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 gap-y-2 flex-wrap">
         <div className="flex items-center gap-2">
           <Globe size={18} />
           <span>mycompany.com</span>
@@ -40,7 +40,7 @@ export default function ScanReportPageHeader() {
           {status}
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="items-center gap-4 hidden md:flex">
         <Button
           variant="outline"
           className="border-[1.5px] border-primary text-primary flex items-center gap-2"

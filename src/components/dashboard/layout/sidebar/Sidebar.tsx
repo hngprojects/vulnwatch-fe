@@ -29,7 +29,11 @@ function NavLink({ link }: { link: NavLink }) {
   );
 }
 
-export default function DashboardSidebar({ className }: { className?: string }) {
+export default function DashboardSidebar({
+  className,
+}: {
+  className?: string;
+}) {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navLinks = getNavLinks(() => setIsLogoutModalOpen(true));
 
@@ -41,7 +45,9 @@ export default function DashboardSidebar({ className }: { className?: string }) 
         className,
       )}
     >
-      <BrandLogoIcon className="p-4" />
+      <div className="flex justify-center items-center">
+        <BrandLogoIcon orientation="vertical" size={200} />
+      </div>
       <nav>
         <ul className="flex flex-col gap-2">
           {navLinks.primary.map((link) => (
