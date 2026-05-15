@@ -16,8 +16,10 @@ function NavLink({ link }: { link: NavLink }) {
     <li key={link.label} className="flex items-center gap-3">
       <Link
         href={link.href || "#"}
-        className={`flex items-center w-full gap-3 px-4 p-2 hover:bg-gray-100 rounded-lg cursor-pointer ${
-          isActive ? "bg-scan-primary-900 text-white" : ""
+        className={`flex items-center w-full gap-3 px-4 p-2 rounded-lg cursor-pointer ${
+          isActive
+            ? "bg-scan-primary-900 text-white pointer-events-none"
+            : "hover:bg-gray-200"
         }`}
       >
         <div className={cn(isActive && "text-scan-primary-500")}>
@@ -45,8 +47,8 @@ export default function DashboardSidebar({
         className,
       )}
     >
-      <div className="flex justify-center items-center">
-        <BrandLogoIcon orientation="vertical" size={200} />
+      <div className="flex justify-center items-center py-4">
+        <BrandLogoIcon orientation="vertical" />
       </div>
       <nav>
         <ul className="flex flex-col gap-2">

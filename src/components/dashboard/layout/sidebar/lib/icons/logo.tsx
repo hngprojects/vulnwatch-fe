@@ -13,7 +13,11 @@ export function BrandLogoIcon({
   orientation = "vertical",
 }: BrandLogoIconProps) {
   const numericSize =
-    typeof size === "number" ? size : parseInt(size as string, 10) || 50;
+    typeof size === "number"
+      ? orientation === "horizontal"
+        ? size
+        : size - 50
+      : parseInt(size as string, 10) || 50;
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -29,7 +33,7 @@ export function BrandLogoIcon({
         style={{ width: numericSize, height: "auto" }}
       />
       {orientation === "vertical" && (
-        <p className="font-bold text-sm text-[#4F4F4F]">VULN WATCH</p>
+        <p className="font-bold text-md text-[#4F4F4F]">VULN WATCH</p>
       )}
     </div>
   );
