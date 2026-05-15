@@ -8,6 +8,7 @@ import ScanTypeButton from "./ScanTypeButton";
 import { useForm } from "react-hook-form";
 import { configureScanSchema, ConfigureScanSchemaType } from "../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 
 export default function ScanSetupForm() {
   const {
@@ -23,11 +24,12 @@ export default function ScanSetupForm() {
     },
     resolver: zodResolver(configureScanSchema),
   });
+  const router = useRouter();
 
   const selectedScanType = watch("scanType");
 
   const onSubmit = (data: ConfigureScanSchemaType) => {
-    console.log(data);
+    router.push("/scan/progress");
   };
 
   return (

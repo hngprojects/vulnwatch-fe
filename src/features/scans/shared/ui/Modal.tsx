@@ -5,8 +5,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 export default function Modal({
   open,
@@ -24,9 +24,13 @@ export default function Modal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          {title && <DialogTitle>{title}</DialogTitle>}
-          {description && <DialogDescription>{description}</DialogDescription>}
+        <DialogHeader className={cn(!title && !description && "sr-only")}>
+          <DialogTitle className={cn(!title && "sr-only")}>
+            {title || "Modal Title"}
+          </DialogTitle>
+          <DialogDescription className={cn(!description && "sr-only")}>
+            {description || "Modal Description"}
+          </DialogDescription>
         </DialogHeader>
         {children}
       </DialogContent>

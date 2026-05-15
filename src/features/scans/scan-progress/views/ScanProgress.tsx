@@ -62,8 +62,6 @@ export default function ScanProgress() {
       <Modal
         open={isScanCompleteModalOpen}
         onOpenChange={setIsScanCompleteModalOpen}
-        title=""
-        description=""
       >
         <div className="relative">
           <div className="absolute -top-12 size-20 grid -translate-y-1/2  place-items-center left-1/2 translate-x-[-50%] bg-scan-green-400 p-3 rounded-full border-4 border-white">

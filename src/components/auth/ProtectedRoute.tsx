@@ -15,11 +15,11 @@ export default function ProtectedRoute({
 
   useEffect(() => {
     if (!token) {
-      router.push("/login");
+      // router.push("/login");
     }
   }, [token, router]);
 
-  if (!token) return null;
+  // if (!token) return null;
 
   return <>{children}</>;
 }
