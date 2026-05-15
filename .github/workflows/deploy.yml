@@ -52,6 +52,23 @@ jobs:
             echo "NEXT_PUBLIC_APP_URL=https://staging.vuln-watch.hng14.com" >> .env.local
             echo "API_BASE_URL=https://api.staging.vuln-watch.hng14.com" >> .env.local
           fi
+
+      - name: Force Next standalone output for CI deploy
+        run: |
+          if [ -f next.config.mjs ] || [ -f next.config.js ] || [ -f next.config.ts ]; then
+            echo "Found existing Next config. Cannot safely patch unknown structure in deploy-only workflow."
+            echo "Tell FE guys to output: 'standalone' in next.config.*"
+            exit 1
+          else
+            cat > next.config.js <<'EOF'
+          /** @type {import('next').NextConfig} */
+          const nextConfig = {
+            output: 'standalone',
+          };
+          module.exports = nextConfig;
+          EOF
+          fi
+
       - name: Build Next.js application
         run: pnpm build
       - name: Prepare standalone build
@@ -61,6 +78,7 @@ jobs:
       - name: Verify standalone output
         run: |
           test -f .next/standalone/server.js || (echo "Missing .next/standalone/server.js"; exit 1)
+
       - name: Copy artifacts to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -70,6 +88,7 @@ jobs:
           source: ".next/standalone/*"
           target: ${{ github.ref_name == 'main' && '/var/www/frontend-production' || '/var/www/frontend-staging' }}
           strip_components: 2
+
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
         with:
