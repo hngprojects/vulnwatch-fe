@@ -5,7 +5,7 @@ const sections = [
   {
     id: "who-we-are",
     heading: "Who we are",
-    body: "VulnWatch AI is a surface intelligence and website security platform built to help businesses identify visible security weaknesses before attackers exploit them. We simplify complex cybersecurity signals into clear, practical actions.",
+    body: "VulnWatch AI is a surface intelligence and website security platform built to help businesses identify visible security weaknesses before attackers exploit them. We simplify complex cyberse
     image: "/images/landing-page/Rectangle 34624202.jpg",
     alt: "Who we are",
     imageLeft: true,
@@ -13,7 +13,7 @@ const sections = [
   {
     id: "our-mission",
     heading: "Our mission",
-    body: "Our mission is to make cybersecurity understandable and actionable for every business, not just security professionals. We believe teams should be able to identify and fix critical web risks without needing a dedicated security staff.",
+    body: "Our mission is to make cybersecurity understandable and actionable for every business not just security professionals. We believe businesses should be able to identify and fix critical webs
     image: "/images/landing-page/Rectangle 34624202 (1).jpg",
     alt: "Our mission",
     imageLeft: false,
@@ -24,7 +24,7 @@ const AboutUs = () => {
   return (
     <main>
       <div
-        className="px-5 py-16 text-center md:px-20 md:py-24"
+        className="px-5 py-16 text-center md:px-20 "
         style={{
           background:
             "linear-gradient(179.2deg, #FFFFFF 53.96%, #A0E870 176.19%, #A0E870 267.79%)",
