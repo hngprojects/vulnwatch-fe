@@ -27,9 +27,9 @@ export function Header() {
           >
             {/* Mobile Logo */}
             <Image
-              src="/images/logo-mobile.jpg"
-              alt="VulnWatch AI Mobile"
-              width={160}
+              src="/images/logo.jpg"
+              alt="VulnWatch AI"
+              width={140}
               height={40}
               className="block h-8 w-auto object-contain md:hidden"
               priority
