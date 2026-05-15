@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { NavLinks } from "./NavLinks";
 import { HeaderActions } from "./HeaderActions";
 import { MobileMenu } from "./MobileMenu";
@@ -31,7 +31,7 @@ export function Header() {
               alt="VulnWatch AI Mobile"
               width={96}
               height={75}
-              className="block h-10 w-auto object-contain md:hidden"
+              className="block h-14 w-auto object-contain md:hidden"
               priority
             />
             {/* Desktop Logo */}
@@ -58,12 +58,18 @@ export function Header() {
           {/* Mobile hamburger button */}
           <button
             type="button"
-            aria-label="Open navigation menu"
+            aria-label={
+              mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"
+            }
             aria-expanded={mobileMenuOpen}
-            onClick={() => setMobileMenuOpen(true)}
-            className="text-primary flex items-center justify-center p-2 lg:hidden"
+            onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
+            className="text-primary flex h-11 w-11 items-center justify-center rounded-lg transition-colors hover:bg-gray-50 lg:hidden"
           >
-            <Menu className="h-6 w-6" />
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
       </header>

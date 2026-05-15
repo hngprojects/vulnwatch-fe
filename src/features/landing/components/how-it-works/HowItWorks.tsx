@@ -33,9 +33,9 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="overflow-x-hidden">
+    <section id="how-it-works" className="scroll-mt-24 overflow-x-hidden">
       <div className="bg-background md:bg-[#F1FCEA] md:py-14">
-        <div className="mx-auto max-w-[1440px] px-5 md:px-20">
+        <div className="mx-auto max-w-360 px-5 md:px-20">
           <div className="bg-background mx-auto max-w-2xl px-8 py-10 text-center md:border-0 md:bg-transparent md:px-0 md:py-0">
             <span className="bg-cards text-header mb-6 inline-block rounded-lg px-5 py-2 text-sm font-bold">
               How It Works
@@ -52,7 +52,7 @@ const HowItWorks = () => {
       </div>
 
       <div className="bg-background pb-0 md:bg-[#F1FCEA]">
-        <div className="mx-auto max-w-[1440px] px-3 md:px-0">
+        <div className="mx-auto max-w-360 px-3 md:px-0">
           <div className="rounded-3xl bg-[#F1FCEA] pt-10 pb-0 md:border-0">
             <div className="mx-auto max-w-275 md:px-20">
               <div className="flex flex-col gap-6 md:gap-0">

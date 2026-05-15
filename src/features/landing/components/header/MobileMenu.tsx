@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { X, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { NAV_LINKS } from "../../constants/nav-links";
 import { ROUTES } from "@/constants/routes";
-import { cn } from "@/lib/utils";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -34,76 +32,40 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     };
   }, [isOpen, onClose]);
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <>
-      {/* Backdrop — fades in/out */}
       <div
         onClick={onClose}
         aria-hidden="true"
-        className={cn(
-          "fixed inset-0 z-60 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ease-in-out lg:hidden",
-          isOpen ? "opacity-100" : "pointer-events-none opacity-0",
-        )}
+        className="fixed inset-x-0 top-[72px] bottom-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
       />
 
-      {/* Drawer — slides down from top */}
-      <div
+      <nav
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
-        aria-hidden={!isOpen}
-        className={cn(
-          "fixed inset-x-0 top-0 z-70 flex max-h-dvh flex-col bg-white px-5 pt-3 pb-8 shadow-xl transition-transform duration-300 ease-in-out lg:hidden",
-          isOpen ? "translate-y-0" : "pointer-events-none -translate-y-full",
-        )}
+        className="fixed inset-x-0 top-[72px] z-[60] max-h-[calc(100dvh-72px)] overflow-y-auto border-t border-gray-100 bg-white px-5 py-6 shadow-xl lg:hidden"
       >
-        {/* Close button */}
-        <div className="flex min-h-12 items-center justify-between">
-          <Link
-            href={ROUTES.HOME}
-            onClick={onClose}
-            aria-label="VulnWatch AI home"
-            className="flex shrink-0 items-center"
-          >
-            <Image
-              src="/images/logo-footer.png"
-              alt="VulnWatch AI"
-              width={96}
-              height={75}
-              className="h-10 w-auto object-contain"
-            />
-          </Link>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close navigation menu"
-            className="text-primary flex items-center justify-center rounded-lg p-2 transition-colors hover:bg-gray-50"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
+        <ul className="flex flex-col gap-5">
+          {NAV_LINKS.map(({ label, href }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                onClick={onClose}
+                className="font-geist text-primary block rounded-lg px-2 py-2 text-lg font-medium transition-colors hover:bg-gray-50"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
-        {/* Nav links */}
-        <nav aria-label="Mobile navigation" className="mt-6">
-          <ul className="flex flex-col gap-6">
-            {NAV_LINKS.map(({ label, href }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  onClick={onClose}
-                  className="font-geist text-primary text-lg font-normal transition-opacity hover:opacity-70"
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="mt-6 border-t border-gray-100" />
 
-        {/* Divider */}
-        <div className="mt-8 border-t border-gray-100" />
-
-        {/* CTA buttons */}
         <div className="mt-6 flex flex-col gap-3">
           <Link
             href={ROUTES.LOGIN}
@@ -124,7 +86,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             />
           </Link>
         </div>
-      </div>
+      </nav>
     </>
   );
 }

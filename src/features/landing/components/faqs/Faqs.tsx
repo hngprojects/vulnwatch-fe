@@ -1,9 +1,15 @@
+import { Card, CardContent } from "@/components/ui/card";
+import FaqAccordion from "./FaqAccordion";
 import {
   FAQ_PAGE_CATEGORIES,
   FAQ_PAGE_GROUPS,
+  FAQS_DATA,
   type FaqCategoryId,
 } from "@/features/landing/constants/faqs";
+import { Button } from "./ui/button";
+import UserAvatarCascade from "../testimonials/UserAvatarCascade";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import {
   Bell,
   ChevronDown,
@@ -16,6 +22,10 @@ import {
   SquareDashed,
   type LucideIcon,
 } from "lucide-react";
+
+type FAQsProps = {
+  variant?: "section" | "page";
+};
 
 const categoryIcons: Record<FaqCategoryId, LucideIcon> = {
   "getting-started": Rocket,
@@ -42,7 +52,7 @@ const SupportCard = ({ className = "" }: { className?: string }) => (
       </p>
       <Link
         href="/contact"
-        className="mt-2 inline-flex text-[14px] leading-4 font-medium text-[#111111] md:text-[12px]"
+        className="mt-2 inline-flex text-[14px] leading-4 font-medium text-[#111111] md:text-[14px]"
       >
         Contact Support
       </Link>
@@ -73,7 +83,7 @@ const FaqQuestion = ({
   </details>
 );
 
-const FAQs = () => (
+const FaqPage = () => (
   <main className="bg-white text-[#2B2B2B]">
     <section className="bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFFFF_45%,#E4FFD8_100%)] px-4 py-8 text-center sm:py-12 md:py-16 lg:py-20 xl:py-23">
       <div className="mx-auto max-w-215">
@@ -105,11 +115,12 @@ const FAQs = () => (
                   <li key={id}>
                     <a
                       href={`#${id}`}
-                      className={`flex min-h-9.75 w-full items-center gap-4 rounded-md border border-[#EFEFEF] px-5 text-[14px] leading-5 transition-colors sm:min-h-12 md:text-[15px] lg:min-h-14 lg:px
+                      className={cn(
+                        "flex min-h-9.75 w-full items-center gap-4 rounded-md border border-[#EFEFEF] px-5 text-[14px] leading-5 transition-colors sm:min-h-12 md:text-[15px] lg:min-h-14 lg:px-6",
                         isActive
                           ? "border-primary bg-primary text-white"
-                          : "bg-white text-[#222222] hover:border-[#D9D9D9]"
-                      }`}
+                          : "bg-white text-[#222222] hover:border-[#D9D9D9]",
+                      )}
                     >
                       <Icon className="h-5 w-5 shrink-0 stroke-[1.4] xl:h-6 xl:w-6" />
                       <span>{label}</span>
@@ -158,5 +169,59 @@ const FAQs = () => (
     </section>
   </main>
 );
+
+const FaqSection = () => {
+  return (
+    <section id="faqs" className="w-full bg-white py-12 md:py-24">
+      <div className="mx-auto max-w-7xl md:px-6 lg:px-8">
+        <div className="grid items-center gap-16 bg-[#FAFAFA] px-4 py-10 sm:px-6 md:grid-cols-[min-content_1fr] md:rounded-4xl md:p-14">
+          <div className="space-y-12">
+            <div className="space-y-4">
+              <h1 className="mb-2 text-4xl font-semibold text-[#2b2b2b] md:text-[40px]">
+                Frequently asked questions
+              </h1>
+              <p className="text-muted-foreground">
+                Have Questions? Here are quick answers to some of the most
+                common queries
+              </p>
+            </div>
+            <Card>
+              <CardContent className="space-y-3">
+                <div className="space-y-1 leading-tight">
+                  <h3 className="text-lg font-bold text-[#2b2b2b]">
+                    More questions?
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    We’re always ready to help you out.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
+                  <UserAvatarCascade />
+                  <Button
+                    className="bg-[#A0E870] px-8 text-black hover:bg-[#A0E870]"
+                    href="/contact"
+                  >
+                    Contact support
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* FAQList */}
+          <FaqAccordion faqs={FAQS_DATA} />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const FAQs = ({ variant = "section" }: FAQsProps) => {
+  if (variant === "page") {
+    return <FaqPage />;
+  }
+
+  return <FaqSection />;
+};
 
 export default FAQs;
