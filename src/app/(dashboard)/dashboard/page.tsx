@@ -2,21 +2,10 @@
 
 import { useAuthStore } from "@/store/auth.store";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function DashboardPage() {
-  const { token, email, logout } = useAuthStore.getState();
+  const { email, logout } = useAuthStore.getState();
   const router = useRouter();
-
-  useEffect(() => {
-    // Simple check: if no token, redirect to login
-    // In a real app, this would be handled by middleware/proxy
-    if (!token) {
-      // router.push("/login");
-    }
-  }, [token, router]);
-
-  if (!token) return null;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAFAFA] p-8">
