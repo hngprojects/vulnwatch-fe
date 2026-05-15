@@ -2,7 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
+
 import Link from "next/link";
 import Image from "next/image";
 
@@ -109,9 +110,16 @@ export function LoginForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-primary font-geist flex h-[44px] w-full items-center justify-center rounded-[8px] px-6 py-4 text-[16px] leading-[24px] font-medium tracking-[0.02em] text-[#FFFFFF] transition-opacity hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+              className="bg-primary font-geist flex h-[44px] w-full items-center justify-center gap-2 rounded-[8px] px-6 py-4 text-[16px] leading-[24px] font-medium tracking-[0.02em] text-[#FFFFFF] transition-opacity hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Sign In
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Signing In...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </button>
 
             <p className="font-geist text-center text-[14px] leading-[24px] font-normal text-[#3D4947]">
@@ -126,7 +134,7 @@ export function LoginForm() {
 
             <AuthDivider />
 
-            <SocialAuthButton text="Sign up with Google" />
+            <SocialAuthButton text="Sign in with Google" />
           </div>
         </form>
       </AuthCard>
