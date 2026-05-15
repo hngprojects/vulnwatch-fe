@@ -22,10 +22,11 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
     },
     ref,
   ) => {
+    const generatedId = React.useId();
+    const id = props.id || label || generatedId;
+
     const labelClassName =
       "text-sm font-medium text-neutral-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70";
-
-    const id = props.id || label;
 
     if (type === "checkbox")
       return (

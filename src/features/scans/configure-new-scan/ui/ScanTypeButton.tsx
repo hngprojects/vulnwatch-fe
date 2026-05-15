@@ -25,25 +25,25 @@ const ScanTypeButton = React.forwardRef<HTMLInputElement, ScanTypeButtonProps>(
         )}
       >
         <input type="radio" className="sr-only" ref={ref} {...props} />
-        <div className="space-y-2 flex gap-4 items-start sm:flex-col sm:items-center h-full sm:text-center">
-          <div
+        <span className="space-y-2 flex gap-4 items-start sm:flex-col sm:items-center h-full sm:text-center">
+          <span
             className={cn(
               "size-9! aspect-square bg-neutral-200 text-neutral-900 rounded-full flex items-center justify-center mb-0!",
               isSelected && "text-white bg-scan-primary-900",
             )}
           >
             {icon}
-          </div>
-          <div className="space-y-2 h-full flex flex-col">
-            <h3 className="text-lg font-semibold">{title}</h3>
-            <p className="text-sm text-center text-muted-foreground">
+          </span>
+          <span className="space-y-2 h-full flex flex-col">
+            <span className="block text-lg font-semibold">{title}</span>
+            <span className="block text-sm text-center text-muted-foreground">
               {description}
-            </p>
-            <p className="text-sm text-muted-foreground mt-auto">
+            </span>
+            <span className="block text-sm text-muted-foreground mt-auto">
               {timeDuration}
-            </p>
-          </div>
-        </div>
+            </span>
+          </span>
+        </span>
       </label>
     );
   },
