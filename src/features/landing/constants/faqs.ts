@@ -4,7 +4,9 @@ export const FAQS_DATA: FAQType[] = [
   {
     question: "What is Vulnwatch, how does it work?",
     answer:
-      "VulnWatch continuously monitors your domain infrastructure, DNS records, SSL certificates, subdomains, and email security, and uses AI to detect misconfigurations, exposure risks, and active th
+      "VulnWatch continuously monitors your domain infrastructure, DNS records, " +
+      "SSL certificates, subdomains, and email security, and uses AI to detect " +
+      "misconfigurations, exposure risks, and active threats.",
   },
   {
     question: "Do i need technical expertise to use Vulnwatch?",
@@ -14,12 +16,16 @@ export const FAQS_DATA: FAQType[] = [
   {
     question: "What kind of risk does Vulnwatch detect?",
     answer:
-      "VulnWatch monitors for SSL/TLS certificate issues, DNS misconfigurations, exposed subdomains, email authentication gaps (SPF, DKIM, and DMARC), open ports, and web application vulnerabilities."
+      "VulnWatch monitors for SSL/TLS certificate issues, DNS misconfigurations, " +
+      "exposed subdomains, email authentication gaps (SPF, DKIM, and DMARC), " +
+      "open ports, and web application vulnerabilities.",
   },
   {
     question: "Is Vulnwatch suitabale for small business?",
     answer:
-      "Absolutely. VulnWatch was designed with small and growing teams in mind. Flexible pricing means you only pay for what you need, and automated continuous monitoring gives you enterprise-grade se
+      "Absolutely. VulnWatch was designed with small and growing teams in mind. " +
+      "Flexible pricing means you only pay for what you need, and automated " +
+      "continuous monitoring gives you enterprise-grade security.",
   },
 ];
 

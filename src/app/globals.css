@@ -85,6 +85,216 @@
   }
 }
 
+@layer components {
+  .faq-support-card {
+    @apply flex items-center gap-5 rounded-[18px] border border-[#E8E8E8];
+    @apply bg-[#F7F7F7] px-5 py-6 text-[#2B2B2B];
+  }
+
+  .faq-question {
+    @apply rounded-md border border-[#E7E7E7] bg-white;
+  }
+
+  .faq-question[open] {
+    @apply bg-[#F7F7F7];
+  }
+
+  .faq-question-summary {
+    @apply flex min-h-11.25 cursor-pointer list-none items-center;
+    @apply justify-between gap-2 px-4 py-3 text-left;
+    @apply text-[14px] leading-5 font-medium text-[#111111];
+  }
+
+  .faq-question-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-question-answer {
+    @apply px-4 pb-5 text-[14px] leading-5.25 text-black;
+  }
+
+  .faq-page {
+    @apply bg-white text-[#2B2B2B];
+  }
+
+  .faq-page-hero {
+    @apply px-4 py-8 text-center;
+    background: linear-gradient(180deg, #ffffff 0%, #ffffff 45%, #e4ffd8 100%);
+  }
+
+  .faq-page-hero-inner {
+    @apply mx-auto max-w-215;
+  }
+
+  .faq-page-title {
+    @apply text-[22px] leading-5.5 font-semibold text-[#3A3A3A];
+  }
+
+  .faq-page-description {
+    @apply mx-auto mt-3 max-w-155 text-[16px] leading-5.5 text-[#666666];
+  }
+
+  .faq-page-content {
+    @apply px-3.25 py-8;
+  }
+
+  .faq-page-shell {
+    @apply mx-auto max-w-7xl rounded-[7px] border border-[#D9D9D9] bg-white;
+  }
+
+  .faq-sidebar-title {
+    @apply px-2 pt-3 text-[15px] leading-6 font-medium text-[#222222];
+  }
+
+  .faq-category-link {
+    @apply flex min-h-9.75 w-full items-center gap-4 rounded-md;
+    @apply border border-[#EFEFEF] px-5 text-[14px] leading-5 transition-colors;
+  }
+
+  .faq-category-link-active {
+    @apply border-primary bg-primary text-white;
+  }
+
+  .faq-category-link-inactive {
+    @apply bg-white text-[#222222];
+  }
+
+  .faq-category-link-inactive:hover {
+    @apply border-[#D9D9D9];
+  }
+
+  .faq-group-title {
+    @apply mb-3 text-[17px] leading-6 font-semibold text-[#222222];
+  }
+
+  .faq-show-more-button {
+    @apply mt-11 flex min-h-14.25 w-full items-center justify-center gap-2;
+    @apply rounded-md border border-[#E7E7E7] bg-white px-4;
+    @apply text-[16px] leading-6 font-semibold text-[#222222];
+  }
+
+  @media (min-width: 640px) {
+    .faq-page-hero {
+      @apply py-12;
+    }
+
+    .faq-page-content {
+      @apply px-6;
+    }
+
+    .faq-page-title {
+      @apply text-[32px] leading-10;
+    }
+
+    .faq-category-link {
+      @apply min-h-12;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .faq-page-hero {
+      @apply py-16;
+    }
+
+    .faq-page-title {
+      @apply text-[44px] leading-13.5;
+    }
+
+    .faq-page-description {
+      @apply mt-5 text-[16px] leading-7;
+    }
+
+    .faq-sidebar-title {
+      @apply text-[20px] leading-7;
+    }
+
+    .faq-group-title {
+      @apply text-[20px] leading-7;
+    }
+
+    .faq-question-answer {
+      @apply text-[14px] leading-6;
+    }
+
+    .faq-category-link {
+      @apply text-[15px];
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .faq-page-hero {
+      @apply py-20;
+    }
+
+    .faq-page-content {
+      @apply px-8 py-10;
+    }
+
+    .faq-page-shell {
+      @apply grid grid-cols-[280px_1fr] rounded-xl px-6 py-8;
+    }
+
+    .faq-page-title {
+      @apply text-[56px] leading-16.5 font-bold;
+    }
+
+    .faq-page-description {
+      @apply mt-6 text-[18px] leading-8;
+    }
+
+    .faq-sidebar-title {
+      @apply px-0 pt-0 text-[22px] font-semibold;
+    }
+
+    .faq-sidebar {
+      @apply border-r border-[#E5E5E5] pr-8;
+    }
+
+    .faq-category-link {
+      @apply min-h-14 px-6;
+    }
+
+    .faq-group-title {
+      @apply mb-4 text-[22px];
+    }
+
+    .faq-question-answer {
+      @apply px-5;
+    }
+
+    .faq-show-more-button {
+      @apply mt-12;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .faq-page-hero {
+      @apply py-23;
+    }
+
+    .faq-page-shell {
+      @apply grid-cols-[390px_1fr] px-10 py-10;
+    }
+
+    .faq-page-title {
+      @apply text-[64px] leading-21;
+    }
+
+    .faq-sidebar-title,
+    .faq-group-title {
+      @apply text-[24px] leading-8;
+    }
+
+    .faq-sidebar {
+      @apply pr-14;
+    }
+
+    .faq-question-answer {
+      @apply px-6 pb-6 text-[15px] leading-7;
+    }
+  }
+}
+
 @layer utilities {
   .wrapper {
     margin-inline: auto;
