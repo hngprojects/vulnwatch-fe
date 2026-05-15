@@ -157,7 +157,7 @@ const FaqPage = () => (
 
           <button
             type="button"
-            className="mt-11 flex min-h-14.25 w-full items-center justify-center gap-2 rounded-md border border-[#E7E7E7] bg-white px-4 text-[16px] leading-6 font-semibold text-[#222222] lg:mt-12 lg:m
+            className="mt-11 flex min-h-14.25 w-full items-center justify-center gap-2 rounded-md border border-[#E7E7E7] bg-white px-4 text-[16px] leading-6 font-semibold text-[#222222] lg:mt-12"
           >
             Show more category
             <ChevronDown className="h-4 w-4 stroke-2 text-[#57D132] xl:h-5 xl:w-5" />
