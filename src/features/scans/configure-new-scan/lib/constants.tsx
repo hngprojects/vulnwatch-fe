@@ -61,16 +61,16 @@ export const WHAT_HAPPENS_NEXT = [
         <path
           d="M20.9999 21.0006L14.7142 14.7148"
           stroke="#072E28"
-          stroke-width="2"
-          stroke-miterlimit="10"
-          stroke-linecap="square"
+          strokeWidth="2"
+          strokeMiterlimit="10"
+          strokeLinecap="square"
         />
         <path
           d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z"
           stroke="#072E28"
-          stroke-width="2"
-          stroke-miterlimit="10"
-          stroke-linecap="square"
+          strokeWidth="2"
+          strokeMiterlimit="10"
+          strokeLinecap="square"
         />
       </svg>
     ),
@@ -88,14 +88,14 @@ export const WHAT_HAPPENS_NEXT = [
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M16.7314 13.5771L17.5771 12.1486H21.6114L22.8571 10L20.3657 5.71429H16.8571L15.6457 3.58857H14.2857V2.14857H16.5028L17.7143 4.28571H19.5314L17.0286 0H12.1486V5.71429H14.1257L14.96 7.14286H12.1486V10H14.7314L15.9314 7.86286H19.1428L19.9657 9.29143H16.7657L15.5657 11.4286H12.1486V16.4343H16.0343L15.2114 17.8629H12.1486V20H17.0286L20.7771 13.5771H18.3886L17.5543 15.0057H14.2857V13.5771H16.7314Z"
           fill="#072E28"
         />
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M6.12572 13.5771L5.28 12.1486H1.24571L0 10L2.49143 5.71429H6L7.21143 3.58857H8.57143V2.14857H6.35429L5.14286 4.28571H3.32571L5.82857 0H10.72V5.71429H8.73143L7.89714 7.14286H10.72V10H8.12572L6.92572 7.86286H3.71429L2.89143 9.29143H6.09143L7.29143 11.4286H10.72V16.4343H6.82286L7.64571 17.8629H10.72V20H5.82857L2.08 13.5771H4.46857L5.30286 15.0057H8.57143V13.5771H6.12572Z"
           fill="#072E28"
         />
@@ -117,36 +117,36 @@ export const WHAT_HAPPENS_NEXT = [
         <path
           d="M14.81 21C16.125 21 17.1905 19.9346 17.1905 18.6196C17.1905 13.8642 17.1905 8.13576 17.1905 3.3804C17.1905 2.06543 16.1245 1 14.8095 1H7.306C6.92714 1 6.56376 1.15051 6.29586 1.41842L1.41842 6.29586C1.15051 6.56376 1 6.92714 1 7.306C1 11.077 1 14.848 1 18.619C1 19.934 2.06545 21 3.38043 21C6.94181 21 11.2487 21 14.81 21Z"
           stroke="#072E28"
-          stroke-width="2"
-          stroke-miterlimit="10"
-          stroke-linecap="square"
+          strokeWidth="2"
+          strokeMiterlimit="10"
+          strokeLinecap="square"
         />
         <path
           d="M7.19048 1V7.19048H1"
           stroke="#072E28"
-          stroke-width="2"
-          stroke-miterlimit="10"
+          strokeWidth="2"
+          strokeMiterlimit="10"
         />
         <path
           d="M4.33337 11H13.8572"
           stroke="#072E28"
-          stroke-width="2"
-          stroke-miterlimit="10"
-          stroke-linecap="square"
+          strokeWidth="2"
+          strokeMiterlimit="10"
+          strokeLinecap="square"
         />
         <path
           d="M13.8571 7.19141H10.5238"
           stroke="#072E28"
-          stroke-width="2"
-          stroke-miterlimit="10"
-          stroke-linecap="square"
+          strokeWidth="2"
+          strokeMiterlimit="10"
+          strokeLinecap="square"
         />
         <path
           d="M4.33337 14.8086H13.8572"
           stroke="#072E28"
-          stroke-width="2"
-          stroke-miterlimit="10"
-          stroke-linecap="square"
+          strokeWidth="2"
+          strokeMiterlimit="10"
+          strokeLinecap="square"
         />
       </svg>
     ),
