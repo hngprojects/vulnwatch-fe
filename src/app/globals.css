@@ -23,6 +23,18 @@
   --color-body: var(--body);
   --color-header: var(--header);
   --color-cards: var(--cards);
+
+   /* Scan page */
+  --color-scan-primary-400: #a0e870;
+  --color-scan-primary-900: #072e28;
+
+  --color-scan-blue-400: #0c0f8b;
+  --color-scan-green-400: #1cb162;
+  --color-scan-orange-400: #dd6414;
+  --color-scan-purple-400: #8a1af4;
+  --color-scan-yellow-400: #cc9513;
+  --color-scan-yellow-900: #072e28;
+  --color-scan-red-400: #d00416;
 }
 
 :root {

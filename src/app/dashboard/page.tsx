@@ -12,7 +12,7 @@ export default function DashboardPage() {
     // Simple check: if no token, redirect to login
     // In a real app, this would be handled by middleware/proxy
     if (!token) {
-      router.push("/login");
+      // router.push("/login");
     }
   }, [token, router]);
 
@@ -25,12 +25,19 @@ export default function DashboardPage() {
           Welcome to VulnWatch AI
         </h1>
         <p className="text-[#666666] mb-8 text-lg">
-          You are logged in as <span className="font-semibold text-[#C68A00]">{email}</span>
+          You are logged in as{" "}
+          <span className="font-semibold text-[#C68A00]">{email}</span>
         </p>
-        
+
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8 text-amber-800 text-sm">
-          <p><strong>Note:</strong> The full dashboard interface is currently under development.</p>
-          <p>All authentication routes are now correctly proxied to the staging backend.</p>
+          <p>
+            <strong>Note:</strong> The full dashboard interface is currently
+            under development.
+          </p>
+          <p>
+            All authentication routes are now correctly proxied to the staging
+            backend.
+          </p>
         </div>
 
         <button
