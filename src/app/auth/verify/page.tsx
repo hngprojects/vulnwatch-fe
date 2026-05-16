@@ -78,7 +78,7 @@ function VerifyEmailContent() {
                 <p className="text-center text-[#666666]">{message}</p>
                 <Link
                   href="/login"
-                  className="bg-primary mt-4 flex h-[44px] w-full items-center justify-center rounded-[8px] px-6 text-[16px] font-medium text-white transition-opacity hover:opacity-90 active:scale-[0.
+                  className="bg-primary mt-4 flex h-[44px] w-full items-center justify-center rounded-[8px] px-6 text-[16px] font-medium text-white transition-opacity hover:opacity-90 active:scale-95"
                 >
                   Go to Login
                 </Link>
@@ -92,7 +92,7 @@ function VerifyEmailContent() {
                 <p className="text-center text-red-500">{message}</p>
                 <Link
                   href="/login"
-                  className="mt-4 flex h-[44px] w-full items-center justify-center rounded-[8px] border border-[#C68A00] px-6 text-[16px] font-medium text-[#C68A00] transition-colors hover:bg-[#C68A00
+                  className="mt-4 flex h-[44px] w-full items-center justify-center rounded-[8px] border border-[#C68A00] px-6 text-[16px] font-medium text-[#C68A00] transition-colors hover:bg-[#C68A00] hover:text-white"
                 >
                   Back to Login
                 </Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { NAV_LINKS } from "../../constants/nav-links";
@@ -9,17 +9,53 @@ import { ROUTES } from "@/constants/routes";
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  toggleButtonId?: string;
 }
 
-export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps) {
+  const menuRef = useRef<HTMLElement>(null);
+  const firstFocusableRef = useRef<HTMLAnchorElement>(null);
+
   useEffect(() => {
     if (!isOpen) return;
 
     const previousBodyOverflow = document.body.style.overflow;
+    const previousActiveElement = document.activeElement as HTMLElement;
+
+    // Set initial focus to the menu
+    if (menuRef.current) {
+      menuRef.current.focus();
+    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
+        return;
+      }
+
+      // Focus trap: Tab key handling
+      if (event.key === "Tab") {
+        if (!menuRef.current) return;
+
+        const focusableElements = menuRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey) {
+          // Shift + Tab
+          if (document.activeElement === firstElement || document.activeElement === menuRef.current) {
+            event.preventDefault();
+            lastElement?.focus();
+          }
+        } else {
+          // Tab
+          if (document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement?.focus();
+          }
+        }
       }
     };
 
@@ -29,8 +65,18 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     return () => {
       document.body.style.overflow = previousBodyOverflow;
       window.removeEventListener("keydown", handleKeyDown);
+
+      // Restore focus to toggle button when menu closes
+      if (previousActiveElement && toggleButtonId) {
+        const toggleButton = document.querySelector(`[aria-controls="${toggleButtonId}"]`) as HTMLElement;
+        if (toggleButton) {
+          toggleButton.focus();
+        } else if (previousActiveElement) {
+          previousActiveElement.focus();
+        }
+      }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, toggleButtonId]);
 
   if (!isOpen) {
     return null;
@@ -45,15 +91,19 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
       />
 
       <nav
+        ref={menuRef}
+        id={toggleButtonId}
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
+        tabIndex={-1}
         className="fixed inset-x-0 top-[72px] z-[60] max-h-[calc(100dvh-72px)] overflow-y-auto border-t border-gray-100 bg-white px-5 py-6 shadow-xl lg:hidden"
       >
         <ul className="flex flex-col gap-5">
-          {NAV_LINKS.map(({ label, href }) => (
+          {NAV_LINKS.map(({ label, href }, index) => (
             <li key={href}>
               <Link
+                ref={index === 0 ? firstFocusableRef : undefined}
                 href={href}
                 onClick={onClose}
                 className="font-geist text-primary block rounded-lg px-2 py-2 text-lg font-medium transition-colors hover:bg-gray-50"

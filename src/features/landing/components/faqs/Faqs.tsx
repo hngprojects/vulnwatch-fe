@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent } from "@/components/ui/card";
 import FaqAccordion from "./FaqAccordion";
 import {
@@ -22,6 +24,7 @@ import {
   SquareDashed,
   type LucideIcon,
 } from "lucide-react";
+import { useState } from "react";
 
 type FAQsProps = {
   variant?: "section" | "page";
@@ -83,88 +86,109 @@ const FaqQuestion = ({
   </Details>
 );
 
-const FaqPage = () => (
-  <main className="faq-page">
-    <section className="faq-page-hero">
-      <div className="faq-page-hero-inner">
-        <h1 className="faq-page-title">
-          Frequently Asked{" "}
-          <span className="text-primary">Questions</span>
-        </h1>
-        <p className="faq-page-description">
-          Everything you need to know about domain verification, vulnerability
-          scanning, monitoring, and security reports in VulnWatch.
-        </p>
-      </div>
-    </section>
+const FaqPage = () => {
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
-    <section className="faq-page-content">
-      <div className="faq-page-shell">
-        <aside className="faq-sidebar">
-          <h2 className="faq-sidebar-title">Categories</h2>
+  const handleToggleCategories = () => {
+    setShowAllCategories((prev) => !prev);
+  };
 
-          <nav aria-label="FAQ categories" className="mt-5 lg:mt-6">
-            <ul className="space-y-2 lg:space-y-3">
-              {FAQ_PAGE_CATEGORIES.map(({ id, label }) => {
-                const Icon = categoryIcons[id];
-                const isActive = id === "getting-started";
+  // Show first 3 groups initially, all groups when expanded
+  const displayedGroups = showAllCategories
+    ? FAQ_PAGE_GROUPS
+    : FAQ_PAGE_GROUPS.slice(0, 3);
 
-                return (
-                  <li key={id}>
-                    <a
-                      href={`#${id}`}
-                      className={cn(
-                        "faq-category-link",
-                        isActive
-                          ? "faq-category-link-active"
-                          : "faq-category-link-inactive",
-                      )}
-                    >
-                      <Icon className="h-5 w-5 shrink-0 stroke-[1.4] xl:h-6 xl:w-6" />
-                      <span>{label}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          <SupportCard className="mt-10 hidden lg:flex" />
-        </aside>
-
-        <div className="pt-8 lg:pt-0 lg:pl-8 xl:pl-14">
-          <div className="space-y-6 lg:space-y-7">
-            {FAQ_PAGE_GROUPS.map((group, groupIndex) => (
-              <section key={group.id} id={group.id} className="scroll-mt-24">
-                <h2 className="faq-group-title">{group.title}</h2>
-                <div className="space-y-2 lg:space-y-3">
-                  {group.questions.map((faq, questionIndex) => (
-                    <FaqQuestion
-                      key={faq.question}
-                      question={faq.question}
-                      answer={faq.answer}
-                      isDefaultOpen={groupIndex === 0 && questionIndex === 0}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            className="faq-show-more-button"
-          >
-            Show more category
-            <ChevronDown className="h-4 w-4 stroke-2 text-[#57D132] xl:h-5 xl:w-5" />
-          </button>
-
-          <SupportCard className="mt-5 lg:hidden" />
+  return (
+    <main className="faq-page">
+      <section className="faq-page-hero">
+        <div className="faq-page-hero-inner">
+          <h1 className="faq-page-title">
+            Frequently Asked{" "}
+            <span className="text-primary">Questions</span>
+          </h1>
+          <p className="faq-page-description">
+            Everything you need to know about domain verification, vulnerability
+            scanning, monitoring, and security reports in VulnWatch.
+          </p>
         </div>
-      </div>
-    </section>
-  </main>
-);
+      </section>
+
+      <section className="faq-page-content">
+        <div className="faq-page-shell">
+          <aside className="faq-sidebar">
+            <h2 className="faq-sidebar-title">Categories</h2>
+
+            <nav aria-label="FAQ categories" className="mt-5 lg:mt-6">
+              <ul className="space-y-2 lg:space-y-3">
+                {FAQ_PAGE_CATEGORIES.map(({ id, label }) => {
+                  const Icon = categoryIcons[id];
+                  const isActive = id === "getting-started";
+
+                  return (
+                    <li key={id}>
+                      <a
+                        href={`#${id}`}
+                        className={cn(
+                          "faq-category-link",
+                          isActive
+                            ? "faq-category-link-active"
+                            : "faq-category-link-inactive",
+                        )}
+                      >
+                        <Icon className="h-5 w-5 shrink-0 stroke-[1.4] xl:h-6 xl:w-6" />
+                        <span>{label}</span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+
+            <SupportCard className="mt-10 hidden lg:flex" />
+          </aside>
+
+          <div className="pt-8 lg:pt-0 lg:pl-8 xl:pl-14">
+            <div className="space-y-6 lg:space-y-7">
+              {displayedGroups.map((group, groupIndex) => (
+                <section key={group.id} id={group.id} className="scroll-mt-24">
+                  <h2 className="faq-group-title">{group.title}</h2>
+                  <div className="space-y-2 lg:space-y-3">
+                    {group.questions.map((faq, questionIndex) => (
+                      <FaqQuestion
+                        key={faq.question}
+                        question={faq.question}
+                        answer={faq.answer}
+                        isDefaultOpen={groupIndex === 0 && questionIndex === 0}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            {FAQ_PAGE_GROUPS.length > 3 && (
+              <button
+                type="button"
+                onClick={handleToggleCategories}
+                className="faq-show-more-button"
+              >
+                {showAllCategories ? "Show less" : "Show more category"}
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 stroke-2 text-[#57D132] transition-transform xl:h-5 xl:w-5",
+                    showAllCategories && "rotate-180",
+                  )}
+                />
+              </button>
+            )}
+
+            <SupportCard className="mt-5 lg:hidden" />
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+};
 
 const FaqSection = () => {
   return (

@@ -62,6 +62,7 @@ export function Header() {
               mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"
             }
             aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
             onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
             className="text-primary flex h-11 w-11 items-center justify-center rounded-lg transition-colors hover:bg-gray-50 lg:hidden"
           >
@@ -78,6 +79,7 @@ export function Header() {
       <MobileMenu
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
+        toggleButtonId="mobile-menu"
       />
     </>
   );

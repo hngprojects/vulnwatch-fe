@@ -110,7 +110,7 @@ export function LoginForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-primary font-geist flex h-[44px] w-full items-center justify-center gap-2 rounded-[8px] px-6 py-4 text-[16px] leading-[24px] font-medium tracking-[0.02em] text-[#FFFFFF] tr
+              className="bg-primary font-geist flex h-[44px] w-full items-center justify-center gap-2 rounded-[8px] px-6 py-4 text-[16px] leading-[24px] font-medium tracking-[0.02em] text-[#FFFFFF] transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
