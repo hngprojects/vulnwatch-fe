@@ -67,13 +67,15 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
       window.removeEventListener("keydown", handleKeyDown);
 
       // Restore focus to toggle button when menu closes
-      if (previousActiveElement && toggleButtonId) {
-        const toggleButton = document.querySelector(`[aria-controls="${toggleButtonId}"]`) as HTMLElement;
+      if (toggleButtonId) {
+        const toggleButton = document.getElementById(toggleButtonId);
         if (toggleButton) {
           toggleButton.focus();
-        } else if (previousActiveElement) {
+        } else if (previousActiveElement && document.contains(previousActiveElement)) {
           previousActiveElement.focus();
         }
+      } else if (previousActiveElement && document.contains(previousActiveElement)) {
+        previousActiveElement.focus();
       }
     };
   }, [isOpen, onClose, toggleButtonId]);
