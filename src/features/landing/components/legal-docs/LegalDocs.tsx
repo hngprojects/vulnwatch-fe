@@ -181,7 +181,7 @@ export function LegalDocs() {
             aria-labelledby={`${activeTab.id}-tab`}
             className="animate-in fade-in-0 slide-in-from-bottom-1 pt-8 duration-300 md:pt-10"
           >
-            <h2 className="font-geist text-[26px] leading-8.5] font-semibold tracking-[-1px] text-[#111111] md:text-[32px] md:leading-10">
+            <h2 className="font-geist text-[26px] leading-8.5 font-semibold tracking-[-1px] text-[#111111] md:text-[32px] md:leading-10">
               Introduction
             </h2>
             <p className="mt-4 max-w-262.5 text-[14px] leading-6 tracking-[-0.45px] text-[#666666] md:text-[16px] md:leading-7">
