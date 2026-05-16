@@ -2,10 +2,8 @@ name: Build and Deploy
 on:
   push:
     branches: [staging, main]
-
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
     if: github.event.repository.fork == false
@@ -17,10 +15,8 @@ jobs:
       HOST: ${{ secrets.HOST }}
       USERNAME: ${{ secrets.USERNAME }}
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -31,26 +27,20 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
-
       - name: Install dependencies
         run: pnpm install
-
       - name: Lint code
         run: pnpm lint
-
       - name: Type check
         run: pnpm typecheck
-
       - name: Set environment variables for build
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
@@ -63,13 +53,67 @@ jobs:
             echo "API_BASE_URL=https://api.staging.vuln-watch.hng14.com" >> .env.local
           fi
 
+      - name: Force Next standalone output for CI deploy
+        run: |
+          if [ -f next.config.mjs ]; then
+            mv next.config.mjs next.config.base.mjs
+            cat > next.config.mjs <<'EOF'
+          import baseConfig from "./next.config.base.mjs";
+
+          const withStandalone = (cfg) =>
+            typeof cfg === "function"
+              ? (...args) => ({ ...(cfg(...args) || {}), output: "standalone" })
+              : { ...(cfg || {}), output: "standalone" };
+
+          export default withStandalone(baseConfig);
+          EOF
+
+          elif [ -f next.config.js ]; then
+            mv next.config.js next.config.base.js
+            cat > next.config.js <<'EOF'
+          const baseConfig = require("./next.config.base.js");
+
+          const withStandalone = (cfg) =>
+            typeof cfg === "function"
+              ? (...args) => ({ ...(cfg(...args) || {}), output: "standalone" })
+              : { ...(cfg || {}), output: "standalone" };
+
+          module.exports = withStandalone(baseConfig);
+          EOF
+
+          elif [ -f next.config.ts ]; then
+            mv next.config.ts next.config.base.ts
+            cat > next.config.ts <<'EOF'
+          import type { NextConfig } from "next";
+          import baseConfig from "./next.config.base";
+
+          const withStandalone = (cfg: any): NextConfig | ((...args: any[]) => NextConfig) =>
+            typeof cfg === "function"
+              ? (...args: any[]) => ({ ...(cfg(...args) || {}), output: "standalone" })
+              : { ...(cfg || {}), output: "standalone" };
+
+          export default withStandalone(baseConfig as any) as any;
+          EOF
+
+          else
+            cat > next.config.js <<'EOF'
+          /** @type {import('next').NextConfig} */
+          const nextConfig = {
+            output: 'standalone',
+          };
+          module.exports = nextConfig;
+          EOF
+          fi
+
       - name: Build Next.js application
         run: pnpm build
-
       - name: Prepare standalone build
         run: |
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
+      - name: Verify standalone output
+        run: |
+          test -f .next/standalone/server.js || (echo "Missing .next/standalone/server.js"; exit 1)
 
       - name: Copy artifacts to server
         uses: appleboy/scp-action@v0.1.7
@@ -77,8 +121,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: .next/standalone/
-          target: /home/${{ secrets.USERNAME }}/frontend-build-staging/
+          source: ".next/standalone/*"
+          target: ${{ github.ref_name == 'main' && '/var/www/frontend-production' || '/var/www/frontend-staging' }}
           strip_components: 2
 
       - name: Deploy on server
@@ -92,30 +136,18 @@ jobs:
               DEPLOY_DIR="/var/www/frontend-production"
               APP_NAME="frontend-production"
               PORT=3001
-              STAGING_DIR="/home/${{ secrets.USERNAME }}/frontend-build-production"
             else
               DEPLOY_DIR="/var/www/frontend-staging"
               APP_NAME="frontend-staging"
               PORT=3000
-              STAGING_DIR="/home/${{ secrets.USERNAME }}/frontend-build-staging"
             fi
-
-            # Clear old build
-            rm -rf $DEPLOY_DIR/*
-
-            # Move new build into place
-            mkdir -p $DEPLOY_DIR
-            cp -r $STAGING_DIR/. $DEPLOY_DIR/
-
             # Verify server.js exists
             if [ ! -f "$DEPLOY_DIR/server.js" ]; then
               echo "ERROR: server.js not found in $DEPLOY_DIR"
-              ls $DEPLOY_DIR
+              ls -la "$DEPLOY_DIR"
               exit 1
             fi
-
-            cd $DEPLOY_DIR
-
+            cd "$DEPLOY_DIR"
             # Always delete and restart fresh to avoid stale PM2 config
             pm2 delete $APP_NAME || true
             export PORT=$PORT

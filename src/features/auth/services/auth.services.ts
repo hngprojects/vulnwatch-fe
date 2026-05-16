@@ -34,12 +34,14 @@ export const authService = {
   async register(
     data: SignUpFormData,
   ): Promise<ApiResponse<{ token: string; email: string }>> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { confirmPassword, ...registerData } = data;
     const res = await fetch(`${PROXY_BASE}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email: data.email, password: data.password }),
+      body: JSON.stringify(registerData),
     });
     return res.json();
   },
@@ -54,6 +56,22 @@ export const authService = {
       },
       body: JSON.stringify(data),
     });
+    return res.json();
+  },
+
+  async verify(
+    userId: string,
+    token: string,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const res = await fetch(
+      `${PROXY_BASE}/verify?userId=${encodeURIComponent(userId)}&token=${encodeURIComponent(token)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return res.json();
   },
 };
