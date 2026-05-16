@@ -66,15 +66,19 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
       document.body.style.overflow = previousBodyOverflow;
       window.removeEventListener("keydown", handleKeyDown);
 
-      // Restore focus to toggle button when menu closes
+      // Restore focus when menu closes
       if (toggleButtonId) {
         const toggleButton = document.getElementById(toggleButtonId);
         if (toggleButton) {
           toggleButton.focus();
-        } else if (previousActiveElement && document.contains(previousActiveElement)) {
-          previousActiveElement.focus();
+          return;
         }
       } else if (previousActiveElement && document.contains(previousActiveElement)) {
+        previousActiveElement.focus();
+      }
+
+      // Fall back to previously focused element
+      if (previousActiveElement && document.contains(previousActiveElement)) {
         previousActiveElement.focus();
       }
     };
