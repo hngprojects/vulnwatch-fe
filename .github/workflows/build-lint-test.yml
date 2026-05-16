@@ -1,8 +1,10 @@
 name: Build, Lint and Test
 
 on:
+  push:
+    branches: [dev, staging, main]
   pull_request:
-    branches: [staging, main]
+    branches: [dev, staging, main]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
