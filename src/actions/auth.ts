@@ -15,7 +15,8 @@ type RegisterResponse = {
 export async function registerUser(
   values: RegisterPayload,
 ): Promise<RegisterResponse> {
-  const response = await fetch("/api/proxy/register", {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const response = await fetch(`${apiBase}/api/Auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

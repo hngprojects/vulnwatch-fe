@@ -4,9 +4,7 @@ import type {
   ForgotPasswordFormData,
 } from "@/types/auth.types";
 
-// NOTE: Using local proxy routes to bypass CORS during development.
-// Revert to NEXT_PUBLIC_API_URL once the backend team enables CORS.
-const PROXY_BASE = "/api/proxy";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export interface ApiResponse<T> {
   isSuccess: boolean;
@@ -21,7 +19,7 @@ export const authService = {
   async login(
     data: LoginFormData,
   ): Promise<ApiResponse<{ token: string; email: string }>> {
-    const res = await fetch(`${PROXY_BASE}/login`, {
+    const res = await fetch(`${API_BASE}/api/Auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,7 +34,7 @@ export const authService = {
   ): Promise<ApiResponse<{ token: string; email: string }>> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...registerData } = data;
-    const res = await fetch(`${PROXY_BASE}/register`, {
+    const res = await fetch(`${API_BASE}/api/Auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -49,7 +47,7 @@ export const authService = {
   async forgotPassword(
     data: ForgotPasswordFormData,
   ): Promise<ApiResponse<{ message: string }>> {
-    const res = await fetch(`${PROXY_BASE}/forgot-password`, {
+    const res = await fetch(`${API_BASE}/api/Auth/forgot-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,8 +61,11 @@ export const authService = {
     userId: string,
     token: string,
   ): Promise<ApiResponse<{ message: string }>> {
+    // Backend double-decodes the token, so we encode twice to preserve '+'.
+    const doubleEncodedToken = encodeURIComponent(encodeURIComponent(token));
+
     const res = await fetch(
-      `${PROXY_BASE}/verify?userId=${encodeURIComponent(userId)}&token=${encodeURIComponent(token)}`,
+      `${API_BASE}/api/Auth/verify?userId=${encodeURIComponent(userId)}&token=${doubleEncodedToken}`,
       {
         method: "GET",
         headers: {
