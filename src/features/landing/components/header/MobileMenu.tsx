@@ -73,6 +73,8 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
           toggleButton.focus();
           return;
         }
+      } else if (previousActiveElement && document.contains(previousActiveElement)) {
+        previousActiveElement.focus();
       }
 
       // Fall back to previously focused element
