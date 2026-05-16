@@ -40,7 +40,9 @@ export function SocialAuthButton({
     try {
       setIsLoading(true);
 
-      const response = await fetch("/api/proxy/google", {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+      const response = await fetch(`${apiBase}/api/Auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id_token: credentialResponse.credential }),
