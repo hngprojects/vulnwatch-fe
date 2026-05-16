@@ -1,16 +1,17 @@
 name: Build and Deploy
 on:
-  push:
+  pull_request:
     branches: [staging, main]
+    types: [closed]
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 jobs:
   build:
-    if: github.event.repository.fork == false
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
-      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      name: ${{ github.event.pull_request.base.ref == 'main' && 'production' || 'staging' }}
     env:
       HOST: ${{ secrets.HOST }}
       USERNAME: ${{ secrets.USERNAME }}
@@ -43,7 +44,7 @@ jobs:
         run: pnpm typecheck
       - name: Set environment variables for build
         run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
+          if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
             echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env.local
             echo "NEXT_PUBLIC_APP_URL=https://vuln-watch.hng14.com" >> .env.local
             echo "API_BASE_URL=https://api.vuln-watch.hng14.com" >> .env.local
@@ -122,7 +123,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ".next/standalone/*"
-          target: ${{ github.ref_name == 'main' && '/var/www/frontend-production' || '/var/www/frontend-staging' }}
+          target: ${{ github.event.pull_request.base.ref == 'main' && '/var/www/frontend-production' || '/var/www/frontend-staging' }}
           strip_components: 2
 
       - name: Deploy on server
@@ -132,7 +133,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            if [ "${{ github.ref_name }}" = "main" ]; then
+            if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
               DEPLOY_DIR="/var/www/frontend-production"
               APP_NAME="frontend-production"
               PORT=3001
