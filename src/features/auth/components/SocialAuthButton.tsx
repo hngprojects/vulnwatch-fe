@@ -14,7 +14,20 @@ export function SocialAuthButton({
   text = "Sign up with Google",
 }: SocialAuthButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [buttonWidth, setButtonWidth] = useState(300);
   const router = useRouter();
+
+  React.useEffect(() => {
+    const updateWidth = () => {
+      // Calculate a reasonable width: either the container width or a fixed max
+      const width = Math.min(window.innerWidth - 64, 400); 
+      setButtonWidth(width);
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
 
   const handleGoogleSuccess = async (credentialResponse: {
     credential?: string;
@@ -27,7 +40,7 @@ export function SocialAuthButton({
     try {
       setIsLoading(true);
 
-      const response = await fetch("/api/social/google", {
+      const response = await fetch("/api/proxy/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id_token: credentialResponse.credential }),
@@ -78,7 +91,7 @@ export function SocialAuthButton({
         itp_support={false}
         theme="outline"
         size="large"
-        width={800}
+        width={buttonWidth}
         text={text === "Sign up with Google" ? "signup_with" : "signin_with"}
         shape="rectangular"
       />
