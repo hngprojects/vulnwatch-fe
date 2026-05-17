@@ -4,8 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-geist: var(--font-geist);
-  --font-inter: var(--font-inter);
+  --font-geist: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-inter: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
