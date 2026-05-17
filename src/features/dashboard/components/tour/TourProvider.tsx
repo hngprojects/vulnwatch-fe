@@ -20,7 +20,7 @@ export function TourProvider() {
         <div className="fixed inset-0 z-50 pointer-events-none">
 
             {/* Backdrop - blocks page interaction */}
-            <div className='absolute inset-0 pointer-events-auto' />
+            <div className='absolute inset-0 pointer-events-auto bg-black/30' />
 
             <div className={`absolute pointer-events-auto ${positionClasses[currentStep.position]}`}>
                 <TourCard

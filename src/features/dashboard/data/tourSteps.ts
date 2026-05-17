@@ -29,7 +29,7 @@ export const tourSteps: TourStep[] = [
         id: 2,
         label: 'TOUR 2 OF 4 - HOW IT WORKS',
         title: 'Three steps to full security visibility',
-        description: 'First verify you own the domain, then we run a passive non-intrusive scan, and finally the AI turns the results into plain- English actions you can act on immediately.',
+        description: 'First verify you own the domain, then we run a passive non-intrusive scan, and finally the AI turns the results into plain-English actions you can act on immediately.',
         position: 'step-2',
         arrow: 'left',
         mobileArrow: 'left',
