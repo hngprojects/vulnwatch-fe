@@ -48,7 +48,6 @@ export function SocialAuthButton({
       });
 
       const data = await response.json();
-      console.log("Google login response:", data);
       if (data.isSuccess && data.value.accessToken) {
         toast.success("Google login successful!");
         
