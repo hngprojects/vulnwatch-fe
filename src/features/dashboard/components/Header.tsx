@@ -33,9 +33,7 @@ export function DashboardHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { email } = useAuthStore.getState();
-  const displayEmail = email ?? "user@company.com";
-  const displayName = displayEmail.split("@")[0] ?? "User";
+  const displayName = "User";
   const initials = displayName.slice(0, 2).toUpperCase();
 
   const handleLogout = () => {
@@ -116,7 +114,6 @@ export function DashboardHeader() {
                 <span className="text-sm font-medium text-[#111827] capitalize">
                   {displayName}
                 </span>
-                <span className="text-xs text-[#6B7280] mt-0.5">{displayEmail}</span>
               </div>
               <ChevronDown className="h-4 w-4 text-[#9CA3AF]" />
             </button>
@@ -130,7 +127,6 @@ export function DashboardHeader() {
                 <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-20 py-1">
                   <div className="px-3 py-2 border-b border-[#F3F4F6]">
                     <p className="text-sm font-medium text-[#111827] capitalize">{displayName}</p>
-                    <p className="text-xs text-[#6B7280] truncate">{displayEmail}</p>
                   </div>
                   <Link
                     href="/settings"
