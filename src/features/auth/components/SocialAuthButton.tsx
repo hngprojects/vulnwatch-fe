@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
@@ -9,6 +10,14 @@ import { useAuthStore } from "@/store/auth.store";
 interface SocialAuthButtonProps {
   text?: string;
 }
+
+type AccessTokenPayload = {
+  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"?: string;
+};
+
+type GoogleIdTokenPayload = {
+  picture?: string;
+};
 
 export function SocialAuthButton({
   text = "Sign up with Google",
@@ -51,16 +60,31 @@ export function SocialAuthButton({
       if (data.isSuccess && data.value.accessToken) {
         toast.success("Google login successful!");
         
-        // Decode JWT to get picture
+        // Decode tokens to get picture and email
         let picture = "";
+        let email: string | null = null;
         try {
-          const payload = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
-          picture = payload.picture;
+          const googlePayload = jwtDecode<GoogleIdTokenPayload>(
+            credentialResponse.credential
+          );
+          picture = googlePayload.picture ?? "";
         } catch (e) {
           console.error("Failed to decode Google token:", e);
         }
 
-        useAuthStore.getState().login(data.value.accessToken, picture);
+        try {
+          const accessPayload = jwtDecode<AccessTokenPayload>(
+            data.value.accessToken
+          );
+          email =
+            accessPayload[
+              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+            ] ?? null;
+        } catch (e) {
+          console.error("Failed to decode access token:", e);
+        }
+
+        useAuthStore.getState().login(data.value.accessToken, email, picture);
         router.push("/dashboard");
       } else {
         toast.error(data.message || "Backend rejected token");
