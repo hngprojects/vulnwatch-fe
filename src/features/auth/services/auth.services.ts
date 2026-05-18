@@ -18,7 +18,8 @@ export const authService = {
   async login(
     data: LoginFormData,
   ): Promise<ApiResponse<{ token: string; email: string }>> {
-    const res = await fetch("/api/auth/login", {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const res = await fetch(`${API_BASE}/api/Auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +34,8 @@ export const authService = {
   ): Promise<ApiResponse<{ token: string; email: string }>> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...registerData } = data;
-    const res = await fetch("/api/auth/register", {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const res = await fetch(`${API_BASE}/api/Auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +48,8 @@ export const authService = {
   async forgotPassword(
     data: ForgotPasswordFormData,
   ): Promise<ApiResponse<{ message: string }>> {
-    const res = await fetch("/api/auth/forgot-password", {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const res = await fetch(`${API_BASE}/api/Auth/forgot-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +62,8 @@ export const authService = {
   async resetPassword(
     data: Pick<ResetPasswordFormData, "email" | "token" | "newPassword">,
   ): Promise<ApiResponse<{ message: string }>> {
-    const res = await fetch("/api/auth/reset-password", {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const res = await fetch(`${API_BASE}/api/Auth/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,8 +80,9 @@ export const authService = {
     // Backend double-decodes the token, so we encode twice to preserve '+'.
     const doubleEncodedToken = encodeURIComponent(encodeURIComponent(token));
 
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
     const res = await fetch(
-      `/api/auth/verify?userId=${encodeURIComponent(userId)}&token=${doubleEncodedToken}`,
+      `${API_BASE}/api/Auth/verify?userId=${encodeURIComponent(userId)}&token=${doubleEncodedToken}`,
       {
         method: "GET",
         headers: {
