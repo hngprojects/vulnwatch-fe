@@ -79,7 +79,7 @@ export const authService = {
     const doubleEncodedToken = encodeURIComponent(encodeURIComponent(token));
 
     const res = await fetch(
-      `${API_BASE}/api/Auth/verify?userId=${encodeURIComponent(userId)}&token=${doubleEncodedToken}`,
+      `/api/auth/verify?userId=${encodeURIComponent(userId)}&token=${doubleEncodedToken}`,
       {
         method: "GET",
         headers: {
