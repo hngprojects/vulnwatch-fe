@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function HowItWorks() {
   return (
     <main className="bg-white text-[#111]">
-      <section className="relative overflow-hidden">
+      <section id="how-it-works" className="relative overflow-hidden scroll-mt-24">
         <div className="absolute inset-0 bg-gradient-to-b from-[#f9f9f9] via-[#f5ffe8] to-[#eefad9]" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 sm:py-14 md:py-24">

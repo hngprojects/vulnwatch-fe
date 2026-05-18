@@ -5,7 +5,7 @@ const sections = [
   {
     id: "who-we-are",
     heading: "Who we are",
-    body: 'VulnWatch AI is a surface intelligence and website security platform built to help businesses identify visible security weaknesses before attackers exploit them. We simplify complex cybersecurity into clear, actionable insights that every business can understand and act on — no dedicated security team required.',
+    body: "VulnWatch AI is a surface intelligence and website security platform built to help businesses identify visible security weaknesses before attackers exploit them. We simplify complex cybersecurity into clear, understandable insights that help you protect your digital presence.",
     image: "/images/landing-page/Rectangle 34624202.jpg",
     alt: "Who we are",
     imageLeft: true,
@@ -13,7 +13,7 @@ const sections = [
   {
     id: "our-mission",
     heading: "Our mission",
-    body: 'Our mission is to make cybersecurity understandable and actionable for every business — not just security professionals. We believe businesses should be able to identify and fix critical website vulnerabilities on their own, without needing deep technical expertise or a dedicated security team.',
+    body: "Our mission is to make cybersecurity understandable and actionable for every business — not just security professionals. We believe businesses should be able to identify and fix critical weaknesses without needing a dedicated security team or deep technical expertise.",
     image: "/images/landing-page/Rectangle 34624202 (1).jpg",
     alt: "Our mission",
     imageLeft: false,

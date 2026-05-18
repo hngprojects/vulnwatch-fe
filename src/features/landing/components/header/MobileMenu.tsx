@@ -1,73 +1,127 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { X, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { NAV_LINKS } from "../../constants/nav-links";
 import { ROUTES } from "@/constants/routes";
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  toggleButtonId?: string;
 }
 
-export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps) {
+  const menuRef = useRef<HTMLElement>(null);
+  const firstFocusableRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousActiveElement = document.activeElement as HTMLElement;
+
+    // Set initial focus to the menu
+    if (menuRef.current) {
+      menuRef.current.focus();
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      // Focus trap: Tab key handling
+      if (event.key === "Tab") {
+        if (!menuRef.current) return;
+
+        const focusableElements = menuRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey) {
+          // Shift + Tab
+          if (document.activeElement === firstElement || document.activeElement === menuRef.current) {
+            event.preventDefault();
+            lastElement?.focus();
+          }
+        } else {
+          // Tab
+          if (document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement?.focus();
+          }
+        }
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+
+      // Restore focus when menu closes
+      if (toggleButtonId) {
+        const toggleButton = document.getElementById(toggleButtonId);
+        if (toggleButton) {
+          toggleButton.focus();
+          return;
+        }
+      } else if (previousActiveElement && document.contains(previousActiveElement)) {
+        previousActiveElement.focus();
+      }
+
+      // Fall back to previously focused element
+      if (previousActiveElement && document.contains(previousActiveElement)) {
+        previousActiveElement.focus();
+      }
+    };
+  }, [isOpen, onClose, toggleButtonId]);
+
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <>
-      {/* Backdrop — fades in/out */}
       <div
         onClick={onClose}
         aria-hidden="true"
-        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
-        style={{
-          opacity: isOpen ? 1 : 0,
-          pointerEvents: isOpen ? "auto" : "none",
-        }}
+        className="fixed inset-x-0 top-[72px] bottom-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
       />
 
-      {/* Drawer — slides down from top */}
-      <div
+      <nav
+        ref={menuRef}
+        id={toggleButtonId}
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
-        aria-hidden={!isOpen}
-        className="fixed inset-x-0 top-0 z-50 flex flex-col bg-white px-5 pt-5 pb-8 shadow-xl transition-transform duration-300 ease-in-out"
-        style={{
-          transform: isOpen ? "translateY(0)" : "translateY(-100%)",
-        }}
+        tabIndex={-1}
+        className="fixed inset-x-0 top-[72px] z-[60] max-h-[calc(100dvh-72px)] overflow-y-auto border-t border-gray-100 bg-white px-5 py-6 shadow-xl lg:hidden"
       >
-        {/* Close button */}
-        <div className="flex items-center justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close navigation menu"
-            className="text-primary flex items-center justify-center rounded-lg p-2 transition-colors hover:bg-gray-50"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
+        <ul className="flex flex-col gap-5">
+          {NAV_LINKS.map(({ label, href }, index) => (
+            <li key={href}>
+              <Link
+                ref={index === 0 ? firstFocusableRef : undefined}
+                href={href}
+                onClick={onClose}
+                className="font-geist text-primary block rounded-lg px-2 py-2 text-lg font-medium transition-colors hover:bg-gray-50"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
-        {/* Nav links */}
-        <nav aria-label="Mobile navigation" className="mt-6">
-          <ul className="flex flex-col gap-6">
-            {NAV_LINKS.map(({ label, href }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  onClick={onClose}
-                  className="font-geist text-primary text-lg font-normal transition-opacity hover:opacity-70"
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="mt-6 border-t border-gray-100" />
 
-        {/* Divider */}
-        <div className="mt-8 border-t border-gray-100" />
-
-        {/* CTA buttons */}
         <div className="mt-6 flex flex-col gap-3">
           <Link
             href={ROUTES.LOGIN}
@@ -83,12 +137,12 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           >
             Start Free Trial
             <ArrowRight
-              className="h-[11px] w-[14px] shrink-0 stroke-white"
+              className="h-2.75 w-3.5 shrink-0 stroke-white"
               strokeWidth={1.4}
             />
           </Link>
         </div>
-      </div>
+      </nav>
     </>
   );
 }
