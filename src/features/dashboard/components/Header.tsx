@@ -33,7 +33,9 @@ export function DashboardHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const displayName = "User";
+  const { email, picture } = useAuthStore.getState();
+  const displayEmail = email ?? "user@company.com";
+  const displayName = displayEmail.split("@")[0] ?? "User";
   const initials = displayName.slice(0, 2).toUpperCase();
 
   const handleLogout = () => {
@@ -97,9 +99,9 @@ export function DashboardHeader() {
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex items-center gap-2 hover:bg-[#F3F4F6] rounded-lg px-2 py-1.5 transition-colors"
             >
-              {useAuthStore.getState().picture ? (
+              {picture ? (
                 <Image
-                  src={useAuthStore.getState().picture!}
+                  src={picture}
                   alt={displayName}
                   width={32}
                   height={32}
@@ -114,6 +116,7 @@ export function DashboardHeader() {
                 <span className="text-sm font-medium text-[#111827] capitalize">
                   {displayName}
                 </span>
+                <span className="text-xs text-[#6B7280] mt-0.5">{displayEmail}</span>
               </div>
               <ChevronDown className="h-4 w-4 text-[#9CA3AF]" />
             </button>
@@ -127,6 +130,7 @@ export function DashboardHeader() {
                 <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-20 py-1">
                   <div className="px-3 py-2 border-b border-[#F3F4F6]">
                     <p className="text-sm font-medium text-[#111827] capitalize">{displayName}</p>
+                    <p className="text-xs text-[#6B7280] truncate">{displayEmail}</p>
                   </div>
                   <Link
                     href="/settings"
