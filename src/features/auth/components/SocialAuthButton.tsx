@@ -40,15 +40,16 @@ export function SocialAuthButton({
     try {
       setIsLoading(true);
 
-      const response = await fetch("/social/google", {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+      const response = await fetch(`${apiBase}/api/Auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_token: credentialResponse.credential }),
+        body: JSON.stringify({ idToken: credentialResponse.credential }),
       });
 
       const data = await response.json();
-
-      if (data.success && data.token) {
+      console.log("Google login response:", data);
+      if (data.isSuccess && data.value.accessToken) {
         toast.success("Google login successful!");
         
         // Decode JWT to get picture
@@ -60,7 +61,7 @@ export function SocialAuthButton({
           console.error("Failed to decode Google token:", e);
         }
 
-        useAuthStore.getState().login(data.token, data.email, picture);
+        useAuthStore.getState().login(data.value.accessToken, picture);
         router.push("/dashboard");
       } else {
         toast.error(data.message || "Backend rejected token");
