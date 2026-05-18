@@ -41,14 +41,22 @@ export function ResetPasswordForm() {
     const email = searchParams.get("email") ?? "";
     const token = searchParams.get("token") ?? "";
 
+    // Only set state asynchronously to avoid direct setState in effect
     if (!email || !token) {
-      setLinkError("Invalid reset link. Missing parameters.");
+      // Only set if not already set
+      if (linkError !== "Invalid reset link. Missing parameters.") {
+        setTimeout(() => setLinkError("Invalid reset link. Missing parameters."), 0);
+      }
       return;
     }
 
     setValue("email", email);
     setValue("token", token);
-  }, [searchParams, setValue]);
+    // Clear error if params are present
+    if (linkError) {
+      setTimeout(() => setLinkError(null), 0);
+    }
+  }, [searchParams, setValue, linkError]);
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     try {
