@@ -5,8 +5,6 @@ import type {
   ResetPasswordFormData,
 } from "@/types/auth.types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
 export interface ApiResponse<T> {
   isSuccess: boolean;
   value: T | null;
@@ -79,7 +77,7 @@ export const authService = {
     const doubleEncodedToken = encodeURIComponent(encodeURIComponent(token));
 
     const res = await fetch(
-      `${API_BASE}/api/Auth/verify?userId=${encodeURIComponent(userId)}&token=${doubleEncodedToken}`,
+      `/api/auth/verify?userId=${encodeURIComponent(userId)}&token=${doubleEncodedToken}`,
       {
         method: "GET",
         headers: {

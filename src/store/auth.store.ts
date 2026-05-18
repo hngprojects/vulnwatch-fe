@@ -15,6 +15,19 @@ declare global {
 }
 
 const isBrowser = typeof window !== "undefined";
+const COOKIE_NAME = "auth_token";
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+
+const setAuthCookie = (token: string) => {
+  if (!isBrowser) return;
+  const encoded = encodeURIComponent(token);
+  document.cookie = `${COOKIE_NAME}=${encoded}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+};
+
+const clearAuthCookie = () => {
+  if (!isBrowser) return;
+  document.cookie = `${COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+};
 
 const getInitialState = (): AuthState => {
   if (!isBrowser) {
@@ -38,6 +51,7 @@ const getInitialState = (): AuthState => {
 
       localStorage.setItem("auth_token", safeToken);
       localStorage.setItem("auth_email", safeEmail);
+      setAuthCookie(safeToken);
       if (safePicture) {
         localStorage.setItem("auth_picture", safePicture);
       } else {
@@ -54,6 +68,7 @@ const getInitialState = (): AuthState => {
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_email");
       localStorage.removeItem("auth_picture");
+      clearAuthCookie();
       if (isBrowser && window.__AUTH_STATE) {
         window.__AUTH_STATE.token = null;
         window.__AUTH_STATE.email = null;
