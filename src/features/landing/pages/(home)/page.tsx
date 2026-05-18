@@ -2,7 +2,7 @@ import FAQs from "@/features/landing/components/faqs/Faqs";
 import Features from "@/features/landing/components/feature-section/features";
 import { Hero } from "@/features/landing/components/hero/Hero";
 import Testimonials from "@/features/landing/components/testimonials/Testimonials";
-import HowItWorks from "@/features/landing/components/how-it-works/HowItWorks";
+import HowItWorksSummary from "@/features/landing/components/how-it-works/HowItWorksSummary";
 import { TrustTransparency } from "@/features/landing/components/trust-transparency/TrustTransparency";
 import PricingSection from "@/features/landing/components/pricing-section";
 import WhyChoose from "@/features/landing/components/why-choose/WhyChoose";
@@ -22,7 +22,7 @@ export default function Home() {
     <>
       <Hero />
       <Features />
-      <HowItWorks />
+      <HowItWorksSummary />
       <WhyChoose />
       <PricingSection />
       <Testimonials />

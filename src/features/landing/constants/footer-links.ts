@@ -13,14 +13,14 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     title: "Product",
     links: [
       { label: "Contact", href: "/contact" },
-      { label: "Legal Docs", href: "#" },
+      { label: "Legal Docs", href: "/legal-docs" },
     ],
   },
   {
     title: "Company",
     links: [
       { label: "Contact", href: "/contact" },
-      { label: "Legal Docs", href: "#" },
+      { label: "Legal Docs", href: "/legal-docs" },
     ],
   },
   {
