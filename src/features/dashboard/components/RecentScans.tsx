@@ -1,14 +1,7 @@
-import type { Scan, RiskLevel, ScanStatus } from "@/types/dashboard.types";
+import type { Scan, RiskLevel } from "@/types/dashboard.types";
 import { ScanLine, Target, ChevronRight } from "lucide-react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
 
-const RISK_STYLES: Record<RiskLevel, string> = {
-  Critical: "bg-red-100 text-red-700",
-  High: "bg-orange-100 text-orange-700",
-  Medium: "bg-amber-100 text-amber-700",
-  Low: "bg-green-100 text-green-700",
-};
+
 
 const RISK_DOTS: Record<RiskLevel, string> = {
   Critical: "bg-red-500",

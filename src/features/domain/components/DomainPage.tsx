@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, PlusCircle } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DomainStatsCards from "./DomainStatsCards";
 import DomainTable from "./DomainTable";
@@ -63,20 +63,14 @@ export default function DomainPage() {
 
       <DomainStatsCards total={total} pending={pending} verified={verified} />
 
-      {loading ? (
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] flex items-center justify-center min-h-75">
-          <Loader2 size={24} className="animate-spin text-[#072E28]" />
-        </div>
-      ) : error ? (
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] flex flex-col items-center justify-center min-h-75 gap-3">
-          <p className="text-sm text-[#6B7280]">{error}</p>
-          <Button variant="outline" onClick={fetchDomains} className="text-sm">
-            Retry
-          </Button>
-        </div>
-      ) : (
-        <DomainTable domains={domains} onAddDomain={() => setModalOpen(true)} />
-      )}
+      {/* DomainTable always renders — loading/error handled inside */}
+      <DomainTable
+        domains={domains}
+        loading={loading}
+        error={error}
+        onAddDomain={() => setModalOpen(true)}
+        onRetry={fetchDomains}
+      />
 
       <AddDomainModal
         open={modalOpen}
