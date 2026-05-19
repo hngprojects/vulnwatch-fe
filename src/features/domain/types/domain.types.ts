@@ -17,6 +17,19 @@ export interface CreateDomainPayload {
   domain: string;
 }
 
+export interface CreateDomainInstructions {
+  txtRecord: string;
+  value: string;
+}
+
+export interface CreateDomainResponse {
+  id: string;
+  domainName: string;
+  verificationToken: string;
+  status: DomainStatus;
+  instructions: CreateDomainInstructions;
+}
+
 export interface DomainLinks {
   self: string;
   next: string | null;

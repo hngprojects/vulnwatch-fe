@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Globe,
   ArrowLeft,
@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { domainService } from "../services/domain.service";
 import type { Domain } from "../types/domain.types";
@@ -36,6 +37,8 @@ function Stepper() {
 
 export default function VerifyMethodPage({ domainId }: { domainId: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ?? "";
   const [domain, setDomain] = useState<Domain | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,7 +81,10 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
           </p>
         </div>
         <Button
-          onClick={() => router.push(`/domain/${domainId}/verify/dns`)}
+          onClick={() => {
+            toast.info("Proceeding to DNS verification...");
+            router.push(`/domain/${domainId}/verify/dns?token=${encodeURIComponent(token)}`);
+          }}
           className="bg-[#072E28] text-white hover:bg-[#072E28]/90 rounded-lg shrink-0 ml-4"
         >
           Continue

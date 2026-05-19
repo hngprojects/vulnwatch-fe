@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DomainEmptyState from "./DomainEmptyState";
+import DomainDetailsModal from "./DomainDetailsModal";
 import type { Domain, DomainStatus, VerificationMethod } from "../types/domain.types";
 
 interface Props {
@@ -83,6 +84,7 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
   const [statusFilter, setStatusFilter] = useState<DomainStatus | "ALL">("ALL");
   const [filterOpen, setFilterOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [detailsDomain, setDetailsDomain] = useState<Domain | null>(null);
 
   const filtered = domains.filter((d) => {
     const matchesSearch = d.domain.toLowerCase().includes(search.toLowerCase());
@@ -265,6 +267,7 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
                       <Button
                         size="sm"
                         variant="outline"
+                        onClick={() => setDetailsDomain(domain)}
                         className="text-xs h-8 px-3 rounded-lg border-[#E5E7EB] text-[#374151] hover:bg-[#F9FAFB]"
                       >
                         View Details
@@ -297,6 +300,12 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
           </table>
         </div>
       )}
+
+      <DomainDetailsModal
+        domain={detailsDomain}
+        open={detailsDomain !== null}
+        onOpenChange={(open) => { if (!open) setDetailsDomain(null); }}
+      />
     </div>
   );
 }
