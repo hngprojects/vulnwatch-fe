@@ -23,8 +23,8 @@ export function FooterColumn({ title, links }: FooterColumnProps) {
           <li key={label}>
             <Link
               href={href}
-              className="font-inter text-[16px] leading-[24px] font-normal tracking-[-0.005em] transition-opacity duration-200 hover:opacity-70"
-              style={{ color: "#737373" }}
+              className="font-inter text-[16px] text-[#737373] leading-[24px] font-normal tracking-[-0.005em]
+              transition-all duration-200 hover:text-primary hover:translate-x-1"
             >
               {label}
             </Link>

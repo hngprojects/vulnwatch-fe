@@ -1,14 +1,14 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import FaqAccordion from "./FaqAccordion";
+import FaqAccordion from "../faqs/FaqAccordion";
 import {
   FAQ_PAGE_CATEGORIES,
   FAQ_PAGE_GROUPS,
   FAQS_DATA,
   type FaqCategoryId,
 } from "@/features/landing/constants/faqs";
-import { Button } from "./ui/button";
+import { Button } from "../faqs/ui/button";
 import UserAvatarCascade from "../testimonials/UserAvatarCascade";
 import Link from "next/link";
 import { cn } from "@/lib/utils";

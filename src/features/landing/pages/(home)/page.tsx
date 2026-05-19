@@ -1,4 +1,4 @@
-import FAQs from "@/features/landing/components/faqs/Faqs";
+import FAQs from "@/features/landing/components/header/Faqs";
 import Features from "@/features/landing/components/feature-section/features";
 import { Hero } from "@/features/landing/components/hero/Hero";
 import Testimonials from "@/features/landing/components/testimonials/Testimonials";
