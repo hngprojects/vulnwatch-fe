@@ -6,7 +6,7 @@ import InputField from "../../shared/ui/InputField";
 import { SCAN_TYPES } from "../lib/constants";
 import ScanTypeButton from "./ScanTypeButton";
 import { useForm } from "react-hook-form";
-import { configureScanSchema, ConfigureScanSchemaType } from "../lib/schema";
+import { configureScanSchema } from "../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
@@ -28,7 +28,7 @@ export default function ScanSetupForm() {
 
   const selectedScanType = watch("scanType");
 
-  const onSubmit = (data: ConfigureScanSchemaType) => {
+  const onSubmit = () => {
     router.push("/scan/progress");
   };
 
