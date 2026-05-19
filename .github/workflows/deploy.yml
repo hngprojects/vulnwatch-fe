@@ -1,16 +1,17 @@
 name: Build and Deploy
 on:
-  push:
+  pull_request:
     branches: [staging, main]
+    types: [closed]
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 jobs:
   build:
-    if: github.event.repository.fork == false
+    if: github.event.pull_request.merged == true && github.event.repository.fork == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
-      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      name: ${{ github.event.pull_request.base.ref == 'main' && 'production' || 'staging' }}
     env:
       HOST: ${{ secrets.HOST }}
       USERNAME: ${{ secrets.USERNAME }}
@@ -43,7 +44,7 @@ jobs:
         run: pnpm typecheck
       - name: Set environment variables for build
         run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
+          if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
             echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env.local
             echo "NEXT_PUBLIC_APP_URL=https://vuln-watch.hng14.com" >> .env.local
             echo "API_BASE_URL=https://api.vuln-watch.hng14.com" >> .env.local
@@ -107,23 +108,27 @@ jobs:
 
       - name: Build Next.js application
         run: pnpm build
+
       - name: Prepare standalone build
         run: |
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
+
       - name: Verify standalone output
         run: |
           test -f .next/standalone/server.js || (echo "Missing .next/standalone/server.js"; exit 1)
 
-      - name: Copy artifacts to server
+      - name: Package standalone build
+        run: tar -czf standalone.tar.gz -C .next/standalone .
+
+      - name: Copy tarball to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ".next/standalone/*"
-          target: ${{ github.ref_name == 'main' && '/var/www/frontend-production' || '/var/www/frontend-staging' }}
-          strip_components: 2
+          source: "standalone.tar.gz"
+          target: "/tmp"
 
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
@@ -132,7 +137,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            if [ "${{ github.ref_name }}" = "main" ]; then
+            if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
               DEPLOY_DIR="/var/www/frontend-production"
               APP_NAME="frontend-production"
               PORT=3001
@@ -141,16 +146,79 @@ jobs:
               APP_NAME="frontend-staging"
               PORT=3000
             fi
-            # Verify server.js exists
+
+            BACKUP_DIR="${DEPLOY_DIR}-backup"
+
+            # Backup current version if it exists
+            if [ -d "$DEPLOY_DIR" ] && [ "$(ls -A $DEPLOY_DIR)" ]; then
+              echo "Backing up current version..."
+              rm -rf "$BACKUP_DIR"
+              cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
+            else
+              echo "No existing deployment found. Fresh deploy, no backup created."
+            fi
+
+            # Stop and delete existing PM2 process
+            pm2 delete $APP_NAME || true
+
+            # Wipe and recreate deploy directory
+            rm -rf "$DEPLOY_DIR"
+            mkdir -p "$DEPLOY_DIR"
+
+            # Extract tarball
+            tar -xzf /tmp/standalone.tar.gz -C "$DEPLOY_DIR"
+            rm -f /tmp/standalone.tar.gz
+
+            # Verify server.js exists after extraction
             if [ ! -f "$DEPLOY_DIR/server.js" ]; then
-              echo "ERROR: server.js not found in $DEPLOY_DIR"
-              ls -la "$DEPLOY_DIR"
+              echo "ERROR: server.js not found in $DEPLOY_DIR after extraction"
               exit 1
             fi
+
+            # Start app with PM2
             cd "$DEPLOY_DIR"
-            # Always delete and restart fresh to avoid stale PM2 config
-            pm2 delete $APP_NAME || true
-            export PORT=$PORT
-            pm2 start server.js --name "$APP_NAME"
+            PORT=$PORT pm2 start server.js --name "$APP_NAME"
             pm2 save
+
+            # Health check — retry 5 times, 3 seconds apart
+            echo "Running health check..."
+            HEALTHY=false
+            for i in 1 2 3 4 5; do
+              sleep 3
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$PORT)
+              if [ "$STATUS" = "200" ]; then
+                HEALTHY=true
+                echo "Health check passed on attempt $i (HTTP $STATUS)"
+                break
+              else
+                echo "Attempt $i: HTTP $STATUS, retrying..."
+              fi
+            done
+
+            if [ "$HEALTHY" = "false" ]; then
+              echo "Health check failed after 5 attempts."
+
+              # Rollback if backup exists
+              if [ -d "$BACKUP_DIR" ] && [ "$(ls -A $BACKUP_DIR)" ]; then
+                echo "Rolling back to previous version..."
+                pm2 delete $APP_NAME || true
+                rm -rf "$DEPLOY_DIR"
+                cp -r "$BACKUP_DIR" "$DEPLOY_DIR"
+                cd "$DEPLOY_DIR"
+                PORT=$PORT pm2 start server.js --name "$APP_NAME"
+                pm2 save
+                echo "Rollback successful. Site is running on previous version."
+              else
+                echo "No backup available. This was a fresh deploy — site is down."
+              fi
+
+              exit 1
+            fi
+
+            # Cleanup backup after successful deploy
+            if [ -d "$BACKUP_DIR" ]; then
+              echo "Deploy successful. Cleaning up backup..."
+              rm -rf "$BACKUP_DIR"
+            fi
+
             pm2 list

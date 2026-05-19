@@ -1,6 +1,7 @@
 "use client";
 
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { RedirectIfAuthed } from "@/features/auth/components/RedirectIfAuthed";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -8,6 +9,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <GoogleOAuthProvider clientId={clientId || ""}>
+      <RedirectIfAuthed />
       {children}
     </GoogleOAuthProvider>
   );

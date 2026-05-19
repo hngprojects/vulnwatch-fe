@@ -11,15 +11,15 @@ interface SupportResult {
   data: unknown;
 }
 
-// NOTE: Using local proxy routes to bypass CORS during development.
-const PROXY_BASE = "/api/proxy";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export const supportService = {
   async submit(payload: SupportPayload): Promise<SupportResult> {
-    const res = await fetch(`${PROXY_BASE}/support`, {
+    const res = await fetch(`${API_BASE}/api/Support`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-API-Version": "1",
       },
       body: JSON.stringify(payload),
     });
