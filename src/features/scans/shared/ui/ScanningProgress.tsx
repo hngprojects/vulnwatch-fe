@@ -1,5 +1,6 @@
+
+
 const RADIUS = 90;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const rings = [
   { size: 220, opacity: 0.18 },
@@ -34,7 +35,6 @@ export default function ScanningProgress({
   trackColor?: string;
 }) {
   const pct = Math.min(100, Math.max(0, value));
-  const offset = CIRCUMFERENCE * (1 - pct / 100);
 
   const svgSize = size * (220 / 280);
   const cx = svgSize / 2;

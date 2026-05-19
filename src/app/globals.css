@@ -24,7 +24,15 @@
 
   --color-body: var(--body);
   --color-header: var(--header);
-  --color-cards: var(--cards);
+  --color-brand-dark: #2b2b2b;
+  --color-brand-gray: #666666;
+  --color-brand-light-green: #a0e870;
+  --color-brand-slate: #3c494e;
+  --color-brand-green: #1daf61;
+  --color-brand-bg: #f9f9f9;
+  --color-brand-light-gray: #ededed;
+  --color-brand-medium-gray: #f5f5f5;
+  --color-brand-sidebar-bg: #f0f0f0;
 }
 
 :root {

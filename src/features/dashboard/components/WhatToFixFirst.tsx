@@ -1,19 +1,13 @@
 import { AlertTriangle } from "lucide-react";
-import type { SecurityIssue, Priority } from "@/types/dashboard.types";
+import type { SecurityIssue } from "@/types/dashboard.types";
 
-const PRIORITY_STYLES: Record<Priority, { badge: string; border: string }> = {
-  Critical: { badge: "bg-red-100 text-red-700", border: "border-red-200" },
-  High: { badge: "bg-orange-100 text-orange-700", border: "border-orange-200" },
-  Medium: { badge: "bg-amber-100 text-amber-700", border: "border-amber-200" },
-  Low: { badge: "bg-green-100 text-green-700", border: "border-green-200" },
-};
+
 
 interface WhatToFixFirstProps {
   issue: SecurityIssue;
 }
 
 export function WhatToFixFirst({ issue }: WhatToFixFirstProps) {
-  const styles = PRIORITY_STYLES[issue.priority];
 
   return (
     <div className="bg-[#FEF2F2] rounded-2xl p-5 flex flex-col gap-4 h-full">
