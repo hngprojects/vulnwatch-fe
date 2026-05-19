@@ -10,16 +10,12 @@ import {
   type ExposureFinding,
 } from '../scan-findings-data';
 
-type ExposureTabProps = {
-  onViewDetails: () => void;
-};
-
-export function ExposureTab({ onViewDetails }: ExposureTabProps) {
+export function ExposureTab() {
   return (
     <div className='space-y-5 md:space-y-6'>
       <div className='grid gap-4 lg:grid-cols-[18rem_1fr]'>
         <SecurityScoreCard score={scanOverview.score} />
-        <SecuritySummaryCard onViewDetails={onViewDetails} />
+        <SecuritySummaryCard detailsHref='/scan/exposure/details' />
       </div>
 
       <section>

@@ -41,7 +41,7 @@ export function LoginForm() {
         toast.success("Successfully logged in!");
         useAuthStore
           .getState()
-          .login(response.value.token, response.value.email);
+          .login(response.value.accessToken, data.email);
         router.push("/dashboard");
       } else {
         toast.error(response.error?.message || "Login failed");

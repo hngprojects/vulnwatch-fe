@@ -1,10 +1,9 @@
-'use client';
-
+import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { SeverityBadge } from '../SeverityBadge';
 
 type SslDetailsProps = {
-  onBack: () => void;
+  backHref?: string;
 };
 
 const fixSteps = [
@@ -13,17 +12,16 @@ const fixSteps = [
   'Verify auto-renewal is working: certbot renew --dry-run',
 ];
 
-export function SslDetails({ onBack }: SslDetailsProps) {
+export function SslDetails({ backHref = '/scan/ssl' }: SslDetailsProps) {
   return (
     <section className='mx-auto w-full max-w-6xl px-4 py-6 md:px-6'>
-      <button
-        type='button'
-        onClick={onBack}
-        className='mb-6 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-[#6B7280] transition-colors hover:text-[#111827]'
+      <Link
+        href={backHref}
+        className='mb-6 inline-flex items-center gap-2 text-sm font-medium text-[#6B7280] transition-colors hover:text-[#111827]'
       >
         <ArrowLeft className='h-4 w-4' />
         Back to results
-      </button>
+      </Link>
 
       <h1 className='text-2xl font-bold text-[#111827]'>Finding Details</h1>
 

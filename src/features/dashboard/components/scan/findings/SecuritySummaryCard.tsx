@@ -1,13 +1,12 @@
-'use client';
-
+import Link from 'next/link';
 import { CheckCircle2, ChevronRight } from 'lucide-react';
 import { securitySummaryItems } from './scan-findings-data';
 
 type SecuritySummaryCardProps = {
-  onViewDetails: () => void;
+  detailsHref: string;
 };
 
-export function SecuritySummaryCard({ onViewDetails }: SecuritySummaryCardProps) {
+export function SecuritySummaryCard({ detailsHref }: SecuritySummaryCardProps) {
   return (
     <section className='rounded-xl border border-[#E5E7EB] bg-white p-5 md:p-6'>
       <h2 className='text-sm font-semibold text-[#111827]'>
@@ -35,14 +34,18 @@ export function SecuritySummaryCard({ onViewDetails }: SecuritySummaryCardProps)
         ))}
       </div>
 
-      <button
-        type='button'
-        onClick={onViewDetails}
-        className='mt-4 ml-auto flex cursor-pointer items-center gap-2 text-sm font-medium text-[#073B32] transition-colors hover:text-[#111827] md:mt-6'
-      >
-        View Details
-        <ChevronRight className='h-5 w-5' />
-      </button>
+      <div className='mt-4 flex justify-end md:mt-6'>
+        <Link
+          href={detailsHref}
+          className={[
+            'inline-flex items-center gap-2 text-sm font-medium',
+            'text-[#073B32] transition-colors hover:text-[#111827]',
+          ].join(' ')}
+        >
+          View Details
+          <ChevronRight className='h-5 w-5' />
+        </Link>
+      </div>
     </section>
   );
 }

@@ -10,16 +10,12 @@ import {
   scanOverview,
 } from '../scan-findings-data';
 
-type DnsTabProps = {
-  onViewDetails: () => void;
-};
-
-export function DnsTab({ onViewDetails }: DnsTabProps) {
+export function DnsTab() {
   return (
     <div className='space-y-6'>
       <div className='grid gap-4 lg:grid-cols-[18rem_1fr]'>
         <SecurityScoreCard score={scanOverview.score} />
-        <SecuritySummaryCard onViewDetails={onViewDetails} />
+        <SecuritySummaryCard detailsHref='/scan/dns/details' />
       </div>
 
       <div className='space-y-4'>

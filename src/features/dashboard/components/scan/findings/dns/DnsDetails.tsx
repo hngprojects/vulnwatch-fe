@@ -1,10 +1,9 @@
-'use client';
-
+import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { SeverityBadge } from '../SeverityBadge';
 
 type DnsDetailsProps = {
-  onBack: () => void;
+  backHref?: string;
 };
 
 const fixSteps = [
@@ -13,17 +12,16 @@ const fixSteps = [
   'Use a DMARC reporting tool (Postmark, Dmarcian) to analyse reports',
 ];
 
-export function DnsDetails({ onBack }: DnsDetailsProps) {
+export function DnsDetails({ backHref = '/scan/dns' }: DnsDetailsProps) {
   return (
     <section className='mx-auto w-full max-w-6xl px-4 py-6 md:px-6'>
-      <button
-        type='button'
-        onClick={onBack}
-        className='mb-6 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-[#6B7280] transition-colors hover:text-[#111827]'
+      <Link
+        href={backHref}
+        className='mb-6 inline-flex items-center gap-2 text-sm font-medium text-[#6B7280] transition-colors hover:text-[#111827]'
       >
         <ArrowLeft className='h-4 w-4' />
         Back to results
-      </button>
+      </Link>
 
       <h1 className='text-2xl font-bold text-[#111827]'>Finding Details</h1>
 

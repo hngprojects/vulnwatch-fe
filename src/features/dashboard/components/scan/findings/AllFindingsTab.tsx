@@ -3,15 +3,17 @@ import { FindingsSummaryRow } from './FindingsSummaryRow';
 import {
   allPassedFindings,
   failedFindings,
-  type FindingModule,
   findingStats,
+  type FindingModule,
 } from './scan-findings-data';
 
-type AllFindingsTabProps = {
-  onModuleSelect: (module: FindingModule) => void;
+const moduleHref: Record<FindingModule, string> = {
+  Exposure: '/scan/exposure',
+  SSL: '/scan/ssl',
+  DNS: '/scan/dns',
 };
 
-export function AllFindingsTab({ onModuleSelect }: AllFindingsTabProps) {
+export function AllFindingsTab() {
   return (
     <div className='space-y-5'>
       <section className='rounded-xl bg-white md:border md:border-[#E5E7EB] md:p-6'>
@@ -46,7 +48,7 @@ export function AllFindingsTab({ onModuleSelect }: AllFindingsTabProps) {
           <FindingsSummaryRow
             key={finding.id}
             {...finding}
-            onClick={() => onModuleSelect(finding.module)}
+            href={moduleHref[finding.module]}
           />
         ))}
       </div>
@@ -62,7 +64,7 @@ export function AllFindingsTab({ onModuleSelect }: AllFindingsTabProps) {
             <FindingsSummaryRow
               key={finding.id}
               {...finding}
-              onClick={() => onModuleSelect(finding.module)}
+              href={moduleHref[finding.module]}
             />
           ))}
         </div>

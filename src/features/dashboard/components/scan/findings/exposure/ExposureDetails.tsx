@@ -1,11 +1,10 @@
-'use client';
-
+import Link from 'next/link';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { SeverityBadge } from '../SeverityBadge';
 import { exposureFindings, scanOverview } from '../scan-findings-data';
 
 type ExposureDetailsProps = {
-  onBack: () => void;
+  backHref?: string;
 };
 
 const fixSteps = [
@@ -14,20 +13,21 @@ const fixSteps = [
   'Add an empty index.html to the directory',
 ];
 
-export function ExposureDetails({ onBack }: ExposureDetailsProps) {
+export function ExposureDetails({
+  backHref = '/scan/exposure',
+}: ExposureDetailsProps) {
   const finding = exposureFindings[0];
   const exposedPath = finding.checks?.[0]?.path ?? '/assets/';
 
   return (
     <section className='mx-auto w-full max-w-6xl px-4 py-6 md:px-6'>
-      <button
-        type='button'
-        onClick={onBack}
-        className='mb-6 inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-[#6B7280] transition-colors hover:text-[#111827]'
+      <Link
+        href={backHref}
+        className='mb-6 inline-flex items-center gap-2 text-sm font-medium text-[#6B7280] transition-colors hover:text-[#111827]'
       >
         <ArrowLeft className='h-4 w-4' />
         Back to results
-      </button>
+      </Link>
 
       <div>
         <h1 className='text-2xl font-bold text-[#111827]'>Finding Details</h1>

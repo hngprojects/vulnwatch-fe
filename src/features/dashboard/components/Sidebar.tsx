@@ -19,7 +19,7 @@ type NavItemType = {
 };
 
 const NAV_ITEMS: NavItemType[] = [
-  {
+      {
     label: 'Dashboard',
     href: '/dashboard',
     icon: <DashboardSidebarIcon />,
@@ -77,7 +77,19 @@ export function Sidebar() {
                   : 'text-[#4B5563] hover:bg-[#F3F4F6] hover:text-[#111827]',
               )}
             >
-              <div className='text-lg'>{icon}</div>
+              <div className='text-lg'>
+                {label === 'Dashboard' ? (
+                  <DashboardSidebarIcon isActive={isActive} />
+                ) : label === 'Domain' ? (
+                  <DomainSidebarIcon isActive={isActive} />
+                ) : label === 'Scan' ? (
+                  <ScanSidebarIcon isActive={isActive} />
+                ) : label === 'Report' ? (
+                  <ReportSidebarIcon isActive={isActive} />
+                ) : (
+                  icon
+                )}
+              </div>
               {label}
             </Link>
           );
