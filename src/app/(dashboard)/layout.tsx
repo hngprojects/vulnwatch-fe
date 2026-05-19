@@ -24,7 +24,6 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-[#F5F5F5] overflow-hidden">
-      {/* Fixed sidebar — desktop only */}
       <Sidebar />
 
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">

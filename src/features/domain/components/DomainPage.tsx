@@ -34,13 +34,14 @@ export default function DomainPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDomains();
   }, [fetchDomains]);
 
   const domains = data?.data ?? [];
   const total = data?.totalCount ?? 0;
-  const pending = domains.filter((d) => d.status === "PENDING").length;
-  const verified = domains.filter((d) => d.status === "VERIFIED").length;
+  const pending = domains.filter((d) => d.status === "Pending").length;
+  const verified = domains.filter((d) => d.status === "Verified").length;
 
   return (
     <div className="px-4 md:px-6 py-6 space-y-6">

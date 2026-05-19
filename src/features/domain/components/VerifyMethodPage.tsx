@@ -74,7 +74,7 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
           <p className="text-sm text-[#6B7280] mt-1 max-w-sm">
             To ensure security and prevent unauthorized scans, you need to verify
             that you own this domain
-            {domain ? ` (${domain.name})` : ""}
+            {domain ? ` (${domain.domain})` : ""}
           </p>
         </div>
         <Button

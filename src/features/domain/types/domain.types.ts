@@ -1,15 +1,16 @@
 export type VerificationMethod = "DNS_TXT" | "FILE_UPLOAD" | "EMAIL";
-export type DomainStatus = "VERIFIED" | "PENDING" | "FAILED";
+export type DomainStatus = "Verified" | "Pending" | "Failed";
 
 export interface Domain {
   id: string;
-  name: string;
-  verificationMethod: VerificationMethod;
+  domain: string;
   status: DomainStatus;
-  lastScan: string | null;
-  securityScore: number | null;
-  verificationToken: string;
   createdAt: string;
+  updatedAt: string | null;
+  lastScannedAt: string | null;
+  lastSecurityScore: number | null;
+  verificationToken?: string;
+  verificationMethod?: VerificationMethod;
 }
 
 export interface CreateDomainPayload {

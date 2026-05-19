@@ -97,7 +97,7 @@ export default function VerifyDnsPage({ domainId }: { domainId: string }) {
     );
   }
 
-  const token = domain?.verificationToken ?? "";
+  const token = domain?.verificationToken ?? domain?.domain ?? "";
 
   return (
     <div className="px-4 md:px-6 py-6 max-w-2xl">

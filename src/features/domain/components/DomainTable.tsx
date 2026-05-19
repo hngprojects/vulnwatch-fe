@@ -33,15 +33,15 @@ const METHOD_COLORS: Record<VerificationMethod, string> = {
 };
 
 const STATUS_COLORS: Record<DomainStatus, string> = {
-  VERIFIED: "bg-[#ECFDF5] text-[#10B981]",
-  PENDING: "bg-[#FFF7ED] text-[#F59E0B]",
-  FAILED: "bg-[#FEF2F2] text-[#EF4444]",
+  Verified: "bg-[#ECFDF5] text-[#10B981]",
+  Pending: "bg-[#FFF7ED] text-[#F59E0B]",
+  Failed: "bg-[#FEF2F2] text-[#EF4444]",
 };
 
 const STATUS_DOTS: Record<DomainStatus, string> = {
-  VERIFIED: "bg-[#10B981]",
-  PENDING: "bg-[#F59E0B]",
-  FAILED: "bg-[#EF4444]",
+  Verified: "bg-[#10B981]",
+  Pending: "bg-[#F59E0B]",
+  Failed: "bg-[#EF4444]",
 };
 
 function scoreLabel(score: number | null): string {
@@ -85,7 +85,7 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const filtered = domains.filter((d) => {
-    const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = d.domain.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -122,7 +122,7 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
             </button>
             {filterOpen && (
               <div className="absolute right-0 top-10 z-10 w-36 bg-white rounded-xl border border-[#E5E7EB] shadow-lg overflow-hidden">
-                {(["ALL", "VERIFIED", "PENDING", "FAILED"] as const).map((s) => (
+                {(["ALL", "Verified", "Pending", "Failed"] as const).map((s) => (
                   <button
                     key={s}
                     onClick={() => {
@@ -131,7 +131,7 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
                     }}
                     className="w-full text-left px-4 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB]"
                   >
-                    {s === "ALL" ? "All Status" : s.charAt(0) + s.slice(1).toLowerCase()}
+                    {s === "ALL" ? "All Status" : s}
                   </button>
                 ))}
               </div>
@@ -195,7 +195,7 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
                         <Globe size={14} className="text-[#6B7280]" />
                       </div>
                       <div>
-                        <p className="font-medium text-[#111827]">{domain.name}</p>
+                        <p className="font-medium text-[#111827]">{domain.domain}</p>
                         <p className="text-xs text-[#9CA3AF]">
                           Added on {formatDate(domain.createdAt)}
                         </p>
@@ -204,31 +204,35 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
                   </td>
 
                   <td className="px-4 py-4">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${METHOD_COLORS[domain.verificationMethod]}`}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      {METHOD_LABELS[domain.verificationMethod]}
-                    </span>
+                    {domain.verificationMethod ? (
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${METHOD_COLORS[domain.verificationMethod]}`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                        {METHOD_LABELS[domain.verificationMethod]}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[#9CA3AF]">—</span>
+                    )}
                   </td>
 
                   <td className="px-4 py-4">
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[domain.status]}`}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[domain.status] ?? "bg-[#F3F4F6] text-[#6B7280]"}`}
                     >
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[domain.status]}`}
+                        className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[domain.status] ?? "bg-[#9CA3AF]"}`}
                       />
-                      {domain.status.charAt(0) + domain.status.slice(1).toLowerCase()}
+                      {domain.status}
                     </span>
                   </td>
 
                   <td className="px-4 py-4 text-[#6B7280] whitespace-nowrap">
-                    {domain.lastScan ? (
+                    {domain.lastScannedAt ? (
                       <>
-                        <p>{formatDate(domain.lastScan)}</p>
+                        <p>{formatDate(domain.lastScannedAt)}</p>
                         <p className="text-xs text-[#9CA3AF]">
-                          {new Date(domain.lastScan).toLocaleTimeString("en-US", {
+                          {new Date(domain.lastScannedAt).toLocaleTimeString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
@@ -240,15 +244,15 @@ export default function DomainTable({ domains, onAddDomain }: Props) {
                   </td>
 
                   <td className="px-4 py-4">
-                    {domain.securityScore !== null ? (
+                    {domain.lastSecurityScore !== null ? (
                       <div className="flex items-center gap-2">
                         <div
-                          className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold ${scoreBorderColor(domain.securityScore)} ${scoreColor(domain.securityScore)}`}
+                          className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold ${scoreBorderColor(domain.lastSecurityScore)} ${scoreColor(domain.lastSecurityScore)}`}
                         >
-                          {domain.securityScore}
+                          {domain.lastSecurityScore}
                         </div>
-                        <span className={`text-sm font-medium ${scoreColor(domain.securityScore)}`}>
-                          {scoreLabel(domain.securityScore)}
+                        <span className={`text-sm font-medium ${scoreColor(domain.lastSecurityScore)}`}>
+                          {scoreLabel(domain.lastSecurityScore)}
                         </span>
                       </div>
                     ) : (
