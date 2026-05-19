@@ -250,6 +250,10 @@
 
     .faq-sidebar {
       @apply border-r border-[#E5E5E5] pr-8;
+      position: sticky;
+      top: 104px;
+      height: fit-content;
+      align-self: start;
     }
 
     .faq-category-link {
