@@ -15,7 +15,7 @@ const ViewFindingsIcon = ({ className }: { className?: string }) => (
 
 export default function ScanReportPageHeader() {
   const router = useRouter();
-  const status: ScanStatus = "verified";
+  const status = "verified" as ScanStatus;
 
   const handleRescan = () => {
     router.push("/scan");
