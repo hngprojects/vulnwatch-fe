@@ -52,7 +52,13 @@ function ExposureFindingCard({ finding }: { finding: ExposureFinding }) {
     <article>
       <button
         type='button'
-        className='grid w-full grid-cols-[auto_1fr_auto] items-start gap-x-3 gap-y-3 rounded-xl border border-[#E5E7EB] bg-white px-4 py-4 text-left transition-colors hover:border-[#D1D5DB] md:flex md
+        className={[
+          'grid w-full grid-cols-[auto_1fr_auto] items-start gap-x-3 gap-y-3',
+          'rounded-xl border border-[#E5E7EB] bg-white px-4 py-4 text-left',
+          'transition-colors hover:border-[#D1D5DB]',
+          'md:flex md:gap-4 md:border-0 md:px-3 md:py-3',
+          'md:hover:bg-[#F9FAFB]',
+        ].join(' ')}
       >
         <span className='grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[#FFF0E6] text-[#E46B16]'>
           <Icon className='h-5 w-5' />

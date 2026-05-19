@@ -18,7 +18,12 @@ export function FindingsSummaryRow({
     <button
       type='button'
       onClick={onClick}
-      className='grid w-full grid-cols-[auto_1fr] items-start gap-x-3 gap-y-3 rounded-xl border border-[#E5E7EB] bg-white px-4 py-4 text-left transition-colors hover:border-[#D1D5DB] sm:flex sm:items-
+      className={[
+        'grid w-full grid-cols-[auto_1fr] items-start gap-x-3 gap-y-3',
+        'rounded-xl border border-[#E5E7EB] bg-white px-4 py-4 text-left',
+        'transition-colors hover:border-[#D1D5DB]',
+        'sm:flex sm:items-center sm:gap-4',
+      ].join(' ')}
     >
       <SeverityBadge severity={severity} />
       <span className='min-w-0 text-sm font-medium leading-5 text-[#303030] sm:flex-1'>
