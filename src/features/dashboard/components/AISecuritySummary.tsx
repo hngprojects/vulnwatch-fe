@@ -4,6 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Copy, Check } from "lucide-react";
 
+interface AISecuritySummaryProps {
+  backHref?: string;
+}
+
 function ExecutiveBriefIcon() {
   return (
     <div className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[#A0E870] shrink-0">
@@ -29,21 +33,28 @@ function ExecutiveBriefIcon() {
   );
 }
 
-export function AISecuritySummary() {
+export function AISecuritySummary({
+  backHref = "/scan/report",
+}: AISecuritySummaryProps) {
   const [isTechnical, setIsTechnical] = useState(false);
   const [copied, setCopied] = useState(false);
+  const currentDateLabel = new Date().toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   const handleCopy = () => {
     let copyText = "";
     if (!isTechnical) {
-      copyText = `EXECUTIVE BRIEF - April 6th, 2026\n\nYour Security Summary:\n` +
+      copyText = `EXECUTIVE BRIEF - ${currentDateLabel}\n\nYour Security Summary:\n` +
         `- Your domain has 1 Critical Issue that need immediate attention: The missing HSTS header leaves every visitor exposed to potential traffic interception, especially on public networks.\n` +
         `- 2 high-severity findings compound the risk: Your admin panel is publicly reachable and being actively targeted by automated bots, and your robots.txt file is advertising internal paths.\n` +
         `- The good news: All three of these are configuration fixes don't require code changes and can typically be resolved in under an hour. Prioritise the HSTS header and admin panel restriction first.\n` +
         `- Your SSL infrastructure is mostly solid, certificate chain is valid and SPF is correctly configured. Focus on the 3 high-impact items above before addressing the medium and low findings.\n\n` +
         `Overall, your security posture is moderate, fixable in a focused afternoon, but attackers actively scan for these specific gaps.`;
     } else {
-      copyText = `EXECUTIVE BRIEF - April 6th, 2026\n\nWHAT WE FOUND:\n` +
+      copyText = `EXECUTIVE BRIEF - ${currentDateLabel}\n\nWHAT WE FOUND:\n` +
         `- DNS resolution is functioning nominally with valid A, MX, SPF, and DMARC records. TLS certificate, acme-corp.com is valid but expires 2026-05-13T00:00:00Z (18d remaining). Response headers lack CSP, X-Frame-Options, and Strict-Transport-Security directives.\n` +
         `- HTTP response from origin 203.0.113.42 does not include Administrative endpoint /admin returns HTTP 200 without authentication challenge from non-whitelisted IPs. CVSS base score: 7.4.`;
     }
@@ -58,7 +69,7 @@ export function AISecuritySummary() {
     <div className="px-4 md:px-8 py-6 max-w-6xl mx-auto">
       {/* Back Button */}
       <Link
-        href="/dashboard"
+        href={backHref}
         className="inline-flex items-center gap-2 text-sm font-bold text-[#6B7280] hover:text-[#111827] transition-colors mb-5"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -86,7 +97,7 @@ export function AISecuritySummary() {
                 EXECUTIVE BRIEF
               </h2>
               <span className="text-xs text-[#9CA3AF] block mt-1 font-medium">
-                April 6th, 2026.
+                {currentDateLabel}
               </span>
             </div>
           </div>
