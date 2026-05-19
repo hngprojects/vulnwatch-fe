@@ -20,7 +20,7 @@ export function TrustTransparency() {
 
         <Link
           href={ROUTES.REGISTER}
-          className="font-inter bg-primary inline-flex h-[56px] w-full max-w-[220px] items-center justify-center gap-2 rounded-[12px] text-[16px] font-semibold text-white shadow-lg transition-all hover:opacity-90"
+          className="font-inter bg-primary inline-flex h-[56px] w-full max-w-[220px] items-center justify-center gap-2 rounded-[12px] text-[16px] font-semibold text-white shadow-lg transition-all dura
         >
           Start Free Scan
           <ArrowRight className="h-5 w-5" />
