@@ -21,7 +21,7 @@ export default function ScanReportPageHeader() {
     router.push("/scan");
   };
   const handleViewAllFindings = () => {
-    router.push("/scan/report/all");
+    router.push("/scan/findings");
   };
 
   return (
