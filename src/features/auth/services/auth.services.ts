@@ -17,7 +17,7 @@ export interface ApiResponse<T> {
 export const authService = {
   async login(
     data: LoginFormData,
-  ): Promise<ApiResponse<{ token: string; email: string }>> {
+  ): Promise<ApiResponse<{ accessToken: string; refreshToken: string }>> {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
     const res = await fetch(`${API_BASE}/api/Auth/login`, {
       method: "POST",
