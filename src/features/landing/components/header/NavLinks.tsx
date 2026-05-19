@@ -18,7 +18,7 @@ export function NavLinks() {
               <Link
                 href={href}
                 className={cn(
-                  "font-geist text-primary text-base leading-6 font-normal transition-opacity duration-200 hover:opacity-70",
+                  "font-geist text-primary text-base leading-6 font-normal transition-opacity duration-200 focus:outline-none",
                   isActive && "font-medium",
                 )}
               >
