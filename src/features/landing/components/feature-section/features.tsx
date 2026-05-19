@@ -23,7 +23,7 @@ export default function Features() {
             intelligence
           </p>
         </div>
-        <div className='mx-auto grid w-[100%] gap-6 sm:w-[90%] sm:grid-cols-2 md:grid-cols-3'>
+        <div className='mx-auto md:mx-0 grid w-[100%] gap-6 sm:w-[100%] sm:grid-cols-2 md:grid-cols-3'>
           {FeaturesData.map(({ image, title, description }) => (
             <div
               key={title}

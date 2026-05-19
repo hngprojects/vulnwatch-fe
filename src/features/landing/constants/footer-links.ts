@@ -17,11 +17,16 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     ],
   },
   {
+    title: "Company",
+    links: [
+      { label: "Company", href: "#" },
+      { label: "Press", href: "#" },
+    ],
+  },
+  {
     title: "Legal",
     links: [
       { label: "Legal Docs", href: "/legal-docs" },
-      { label: "Company", href: "#" },
-      { label: "Press", href: "#" },
     ],
   },
 ];
