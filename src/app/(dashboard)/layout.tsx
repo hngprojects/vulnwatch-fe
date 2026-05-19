@@ -23,7 +23,7 @@ export default function DashboardLayout({
   if (!token) return null;
 
   return (
-    <div className="flex h-screen bg-[#F5F5F5] overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden md:bg-[#F5F5F5]">
       {/* Fixed sidebar — desktop only */}
       <Sidebar />
 

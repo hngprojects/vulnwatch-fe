@@ -32,7 +32,7 @@ export function EmptyDashboard() {
 
       {/* CTA */}
       <Link
-        href={ROUTES.HOME}
+        href="/domain"
         className='inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-xs md:w-auto'
       >
         <CirclePlus className='h-5 w-5' />
