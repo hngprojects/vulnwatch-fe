@@ -1,7 +1,6 @@
 import { WHAT_HAPPENS_NEXT } from "@/features/scans/configure-new-scan/lib/constants";
 import ScanSetupForm from "@/features/scans/configure-new-scan/ui/ScanSetupForm";
 import PageHeader from "@/features/scans/shared/ui/PageHeader";
-import { Shield } from "lucide-react";
 
 export default function ScanPage() {
   return (
