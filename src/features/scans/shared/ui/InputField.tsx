@@ -26,7 +26,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
     const id = props.id || label || generatedId;
 
     const labelClassName =
-      "text-sm font-medium text-neutral-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70";
+      "text-sm font-medium text-[#2B2B2B] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70";
 
     if (type === "checkbox")
       return (
@@ -37,7 +37,7 @@ const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
               id={id}
               ref={ref}
               className={cn(
-                "h-4 w-4 rounded border-gray-300 text-scan-primary-900 accent-scan-primary-900 focus:ring-scan-primary-900",
+                "h-4 w-4 rounded border-gray-300 text-[#072E28] accent-[#072E28] focus:ring-[#072E28]",
                 className,
               )}
               {...props}

@@ -6,8 +6,8 @@ const variants = cva("p-5 rounded-lg", {
   variants: {
     severity: {
       neutral: "bg-neutral-100 text-scan-dark-700",
-      excellent: "bg-scan-green-400/20 text-scan-green-400",
-      critical: "bg-scan-red-400/10 text-scan-red-400",
+      excellent: "bg-[#1FC16B1A] text-[#1FC16B]",
+      critical: "bg-[#FB37481A] text-[#D00416]",
     },
   },
 });

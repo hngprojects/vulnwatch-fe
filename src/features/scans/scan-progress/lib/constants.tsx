@@ -7,8 +7,8 @@ export const SCAN_PROGRESS: ProgressItem[] = [
     description: "Resolving domain records",
     status: "current",
     icon: (
-      <div className="bg-scan-blue-400/10 p-2.5 rounded-full">
-        <Globe className="text-scan-blue-400" strokeWidth={1.5} />
+      <div className="bg-[#4338CA1A] p-2.5 rounded-full">
+        <Globe className="text-[#0C0F8B]" strokeWidth={1.5} />
       </div>
     ),
   },
@@ -17,8 +17,8 @@ export const SCAN_PROGRESS: ProgressItem[] = [
     description: "Validating certificate and confgiguration",
     status: "pending",
     icon: (
-      <div className="bg-scan-green-400/10 p-2.5 rounded-full">
-        <Lock className="text-scan-green-400" strokeWidth={1.5} />
+      <div className="bg-[#1FC16B1A] p-2.5 rounded-full">
+        <Lock className="text-[#1FC16B]" strokeWidth={1.5} />
       </div>
     ),
   },
@@ -27,8 +27,8 @@ export const SCAN_PROGRESS: ProgressItem[] = [
     description: "Discovering subdomains and assets",
     status: "pending",
     icon: (
-      <div className="bg-scan-purple-400/10 p-2.5 rounded-full">
-        <LucideSearch className="text-scan-purple-400" strokeWidth={1.5} />
+      <div className="bg-[#A855F71A] p-2.5 rounded-full">
+        <LucideSearch className="text-[#8A1AF4]" strokeWidth={1.5} />
       </div>
     ),
   },
@@ -37,8 +37,8 @@ export const SCAN_PROGRESS: ProgressItem[] = [
     description: "Identifying active services",
     status: "pending",
     icon: (
-      <div className="bg-scan-yellow-400/10 p-2.5 rounded-full">
-        <Server className="text-scan-yellow-900" strokeWidth={1.5} />
+      <div className="bg-[#FFDB431A] p-2.5 rounded-full">
+        <Server className="text-[#072E28]" strokeWidth={1.5} />
       </div>
     ),
   },
@@ -47,8 +47,8 @@ export const SCAN_PROGRESS: ProgressItem[] = [
     description: "Detecting vulnerablities and misconfigurations",
     status: "pending",
     icon: (
-      <div className="bg-scan-red-400/10 p-2.5 rounded-full">
-        <ShieldCheck className="text-scan-red-400" strokeWidth={1.5} />
+      <div className="bg-[#FB37481A] p-2.5 rounded-full">
+        <ShieldCheck className="text-[#D00416]" strokeWidth={1.5} />
       </div>
     ),
   },

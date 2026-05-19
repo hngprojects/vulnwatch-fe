@@ -67,8 +67,63 @@ export default function ProgressItem({
             <Clock size={22} strokeWidth={1.5} className="text-neutral-400" />
           )}
           {status === "current" && (
-            <Loader2 size={24} className="animate-spin text-scan-primary-900" />
-            // <span className="loader"></span>
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 36 36"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="animate-spin"
+            >
+              <circle cx="18" cy="4" r="4" fill="#3051D4" />
+              <circle cx="18" cy="4" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="4" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="4" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="4" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="4" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="4" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="4" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="4" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="8" r="4" fill="#3051D4" />
+              <circle cx="8" cy="8" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="8" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="8" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="8" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="8" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="8" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="8" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="8" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="4" cy="18" r="4" fill="#3051D4" />
+              <circle cx="4" cy="18" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="4" cy="18" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="4" cy="18" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="4" cy="18" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="4" cy="18" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="4" cy="18" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="4" cy="18" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="4" cy="18" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="28" r="4" fill="#3051D4" />
+              <circle cx="8" cy="28" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="28" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="28" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="28" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="28" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="28" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="28" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="8" cy="28" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="32" r="4" fill="#3051D4" />
+              <circle cx="18" cy="32" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="32" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="32" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="32" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="32" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="32" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="32" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="18" cy="32" r="4" fill="black" fillOpacity="0.2" />
+              <circle cx="28" cy="28" r="4" fill="#4338CA" fillOpacity="0.1" />
+              <circle cx="32" cy="18" r="4" fill="#4338CA" fillOpacity="0.1" />
+              <circle cx="28" cy="8" r="4" fill="#4338CA" fillOpacity="0.1" />
+            </svg>
           )}
           {status === "completed" && (
             <CheckCircle

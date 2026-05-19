@@ -37,7 +37,10 @@ export function SignUpForm() {
       const response = await authService.register(data);
 
       if (response.isSuccess) {
-        toast.success('Successfully registered!');
+        const successMessage =
+          (response.value as { message?: string } | null)?.message ??
+          'Successfully registered!';
+        toast.success(successMessage);
         router.push('/login');
       } else {
         toast.error(response.error?.message || 'Registration failed');

@@ -22,7 +22,7 @@ export default function ScanProgress() {
 
   return (
     <>
-      <div>
+      <div className="px-4 md:px-6 py-6">
         <PageHeader
           title="Scan Progress"
           description={
@@ -33,13 +33,13 @@ export default function ScanProgress() {
           }
           className="mb-20"
         />
-        <div className="grid lg:grid-cols-2 gap-10">
+        <div className="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto items-start">
           <div className="flex justify-center mb-12">
             <ScanningProgress value={54} label="Scanning..." />
           </div>
-          <div className="">
+          <div className="flex justify-center">
             {/* scan sections */}
-            <div>
+            <div className="w-full max-w-xl">
               {SCAN_PROGRESS.map((item, index: number) => (
                 <ProgressItem
                   key={index}

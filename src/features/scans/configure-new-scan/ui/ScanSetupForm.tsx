@@ -58,8 +58,9 @@ export default function ScanSetupForm() {
           ))}
         </div>
         <div className="space-y-2">
-          <p className="font-medium text-neutral-900">
-            Email notification (optional)
+          <p className="text-[#2B2B2B]">
+            <span className="font-medium">Email Notification</span>
+            <span className="font-normal"> (Optional)</span>
           </p>
 
           <InputField
@@ -69,7 +70,7 @@ export default function ScanSetupForm() {
           />
         </div>
         <div className="space-y-1.5 mt-8!">
-          <Button className="bg-scan-primary-900 rounded-xl w-full h-11!">
+          <Button className="bg-[#072E28] rounded-lg w-full h-12 font-semibold text-white text-[20px]">
             Start Scan
           </Button>
           <p className="text-xs text-neutral-500 flex items-center gap-2">

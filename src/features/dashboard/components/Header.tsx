@@ -45,12 +45,12 @@ export function DashboardHeader() {
 
   return (
     <>
-      <header className='h-16 bg-[#F5F5F5] flex items-center justify-between px-4 md:px-6 shrink-0 z-30'>
+      <header className='h-16 bg-[#F0F0F0] md:bg-[#F4F4F4] flex items-center justify-between px-4 md:px-6 shrink-0 z-30'>
         {/* Mobile Header: Logo (left) + Hamburger (right) */}
         <div className='flex lg:hidden items-center justify-between w-full'>
           <Link href='/dashboard'>
             <Image
-              src='/images/logo-dashboard.png'
+              src='/images/logo-dashboard-mobile.png'
               alt='VulnWatch AI'
               width={140}
               height={32}
@@ -68,36 +68,23 @@ export function DashboardHeader() {
         </div>
 
         {/* Search bar */}
-        <div className='hidden md:flex items-center gap-2 bg-white border border-[#E5E7EB] rounded-lg px-3 py-2 w-70'>
-          <Search className='h-4 w-4 text-[#9CA3AF] shrink-0' />
+        <div className='hidden md:flex items-center gap-2 bg-[#FFFFFF] border border-[#E5E7EB] rounded-lg px-3 py-2 w-[493px]'>
+          <Search className='h-4 w-4 text-[#64748B] shrink-0' />
           <input
             type='text'
             placeholder='Search assets...'
-            className='bg-transparent text-sm text-[#374151] placeholder:text-[#9CA3AF] outline-none w-full'
+            className='bg-transparent font-inter text-sm text-[#374151] placeholder:text-[#6B7280] outline-none w-full'
           />
         </div>
 
         {/* Right side */}
         <div className='flex items-center gap-4 ml-auto'>
-          <Link
-            href='#'
-            className='hidden md:block text-sm font-medium text-[#4B5563] hover:text-primary transition-colors'
-          >
-            Security Docs
-          </Link>
-          <Link
-            href='#'
-            className='hidden md:block text-sm font-medium text-[#4B5563] hover:text-primary transition-colors'
-          >
-            API Access
-          </Link>
-
           {/* User avatar */}
           <div className='relative hidden md:block'>
             <button
               type='button'
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className='flex items-center gap-2 hover:bg-[#F3F4F6] rounded-lg px-2 py-1.5 transition-colors'
+              className='flex items-center gap-2 bg-[#F9F9F9] hover:bg-[#F3F4F6] rounded-[12px] pt-[4.8px] pr-[9.59px] pb-[4.8px] pl-[4.8px] transition-colors'
             >
               {picture ? (
                 <Image
@@ -105,10 +92,10 @@ export function DashboardHeader() {
                   alt={displayName}
                   width={32}
                   height={32}
-                  className='h-8 w-8 rounded-full object-cover shrink-0'
+                  className='h-8 w-8 rounded-[14.39px] object-cover shrink-0'
                 />
               ) : (
-                <div className='h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-semibold shrink-0'>
+                <div className='h-8 w-8 rounded-[14.39px] bg-primary flex items-center justify-center text-white text-xs font-semibold shrink-0'>
                   {initials}
                 </div>
               )}
@@ -179,7 +166,7 @@ export function DashboardHeader() {
         <div className='flex items-center justify-between h-16 px-4 border-b border-[#E5E7EB]'>
           <Link href='/dashboard'>
             <Image
-              src='/images/logo-dashboard.png'
+              src='/images/logo-dashboard-mobile.png'
               alt='VulnWatch AI'
               width={140}
               height={32}

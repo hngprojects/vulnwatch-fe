@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function SecurityScoreCard({ score }: Props) {
-  let variant = getScoreVariant(score);
+  const variant = getScoreVariant(score);
 
   function getStatus() {
     switch (variant) {
