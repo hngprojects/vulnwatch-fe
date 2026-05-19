@@ -38,13 +38,10 @@ export function LoginForm() {
       const response = await authService.login(data);
 
       if (response.isSuccess && response.value) {
-        const successMessage =
-          (response.value as { message?: string } | null)?.message ??
-          "Successfully logged in!";
-        toast.success(successMessage);
+        toast.success("Successfully logged in!");
         useAuthStore
           .getState()
-          .login(response.value.token, response.value.email);
+          .login(response.value.accessToken, data.email);
         router.push("/dashboard");
       } else {
         toast.error(response.error?.message || "Login failed");
