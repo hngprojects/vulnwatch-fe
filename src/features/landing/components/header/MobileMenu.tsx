@@ -126,14 +126,14 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
           <Link
             href={ROUTES.LOGIN}
             onClick={onClose}
-            className="border-primary text-body flex h-12 w-full items-center justify-center rounded-xl border bg-white text-base font-medium transition-opacity hover:opacity-80"
+            className="border-primary text-primary flex h-12 w-full items-center justify-center rounded-xl border-2 bg-white text-base font-medium transition-all duration-400 hover:bg-primary hover:te
           >
             Log in
           </Link>
           <Link
             href={ROUTES.REGISTER}
             onClick={onClose}
-            className="bg-primary flex h-12 w-full items-center justify-center gap-1.5 rounded-xl text-base font-medium text-white transition-opacity hover:opacity-90"
+            className="bg-primary flex h-12 w-full items-center justify-center gap-1.5 rounded-xl text-base font-medium text-white transition-opacity-300 hover:opacity-90"
           >
             Start Free Trial
             <ArrowRight
