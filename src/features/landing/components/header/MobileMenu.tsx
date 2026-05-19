@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { NAV_LINKS } from "../../constants/nav-links";
 import { ROUTES } from "@/constants/routes";
+import { cn } from "@/lib/utils";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -13,6 +15,7 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps) {
+  const pathname = usePathname();
   const menuRef = useRef<HTMLElement>(null);
   const firstFocusableRef = useRef<HTMLAnchorElement>(null);
 
@@ -22,7 +25,6 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
     const previousBodyOverflow = document.body.style.overflow;
     const previousActiveElement = document.activeElement as HTMLElement;
 
-    // Set initial focus to the menu
     if (menuRef.current) {
       menuRef.current.focus();
     }
@@ -33,7 +35,6 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
         return;
       }
 
-      // Focus trap: Tab key handling
       if (event.key === "Tab") {
         if (!menuRef.current) return;
 
@@ -44,13 +45,11 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
         const lastElement = focusableElements[focusableElements.length - 1];
 
         if (event.shiftKey) {
-          // Shift + Tab
           if (document.activeElement === firstElement || document.activeElement === menuRef.current) {
             event.preventDefault();
             lastElement?.focus();
           }
         } else {
-          // Tab
           if (document.activeElement === lastElement) {
             event.preventDefault();
             firstElement?.focus();
@@ -66,7 +65,6 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
       document.body.style.overflow = previousBodyOverflow;
       window.removeEventListener("keydown", handleKeyDown);
 
-      // Restore focus when menu closes
       if (toggleButtonId) {
         const toggleButton = document.getElementById(toggleButtonId);
         if (toggleButton) {
@@ -77,7 +75,6 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
         previousActiveElement.focus();
       }
 
-      // Fall back to previously focused element
       if (previousActiveElement && document.contains(previousActiveElement)) {
         previousActiveElement.focus();
       }
@@ -106,18 +103,25 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
         className="fixed inset-x-0 top-[72px] z-[60] max-h-[calc(100dvh-72px)] overflow-y-auto border-t border-gray-100 bg-white px-5 py-6 shadow-xl lg:hidden"
       >
         <ul className="flex flex-col gap-5">
-          {NAV_LINKS.map(({ label, href }, index) => (
-            <li key={href}>
-              <Link
-                ref={index === 0 ? firstFocusableRef : undefined}
-                href={href}
-                onClick={onClose}
-                className="font-geist text-primary block rounded-lg px-2 py-2 text-lg font-medium transition-colors hover:bg-gray-50"
-              >
-                {label}
-              </Link>
-            </li>
-          ))}
+          {NAV_LINKS.map(({ label, href }, index) => {
+            const isActive = pathname === href;
+
+            return (
+              <li key={href}>
+                <Link
+                  ref={index === 0 ? firstFocusableRef : undefined}
+                  href={href}
+                  onClick={onClose}
+                  className={cn(
+                    "font-geist block rounded-lg px-2 py-2 text-lg font-medium cursor-pointer transition-all duration-200 hover:bg-primary/10 hover:pl-4",
+                    isActive ? "text-[#021a16]" : "text-primary"
+                  )}
+                >
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="mt-6 border-t border-gray-100" />
@@ -126,14 +130,18 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
           <Link
             href={ROUTES.LOGIN}
             onClick={onClose}
-            className="border-primary text-body flex h-12 w-full items-center justify-center rounded-xl border bg-white text-base font-medium transition-opacity hover:opacity-80"
+            className="border-primary text-primary flex h-12 w-full items-center 
+            justify-center rounded-xl border-2 bg-white text-base font-medium 
+            transition-all duration-200 hover:bg-primary hover:text-white"
           >
             Log in
           </Link>
           <Link
             href={ROUTES.REGISTER}
             onClick={onClose}
-            className="bg-primary flex h-12 w-full items-center justify-center gap-1.5 rounded-xl text-base font-medium text-white transition-opacity hover:opacity-90"
+            className="bg-primary flex h-12 w-full items-center justify-center 
+            gap-1.5 rounded-xl text-base font-medium text-white transition-opacity-300 
+            hover:opacity-90"
           >
             Start Free Trial
             <ArrowRight
