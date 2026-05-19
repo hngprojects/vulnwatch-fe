@@ -28,23 +28,27 @@ export function StepIndicator() {
   return (
     <>
       {/* Desktop: horizontal */}
-      <div className="hidden md:flex items-start justify-center gap-0 w-full max-w-2xl mx-auto">
+      <div className="hidden md:inline-flex items-center justify-center gap-12 max-w-4xl mx-auto">
         {STEPS.map((step, index) => (
-          <div key={step.number} className="flex items-start flex-1">
-            <div className="flex flex-col items-center flex-1">
+          <div key={step.number} className="flex items-center">
+            <div className="flex flex-col items-center">
               {/* Circle */}
               <div className="h-10 w-10 rounded-full flex items-center justify-center text-[#111827] text-sm font-bold shrink-0 border-2 border-[#111827] bg-white">
                 {step.number}
               </div>
               <div className="mt-3 text-center px-2">
-                <p className="text-sm font-semibold text-[#111827]">{step.title}</p>
-                <p className="text-xs text-[#6B7280] mt-1 leading-relaxed">{step.description}</p>
+                <p className="text-sm font-semibold text-[#111827] md:whitespace-nowrap">
+                  {step.title}
+                </p>
+                <p className="text-xs text-[#6B7280] mt-1 leading-relaxed md:whitespace-nowrap">
+                  {step.description}
+                </p>
               </div>
             </div>
             {/* Connector */}
             {index < STEPS.length - 1 && (
-              <div className="flex items-start pt-5 mx-1 shrink-0">
-                <div className="w-16 border-t-2 border-dashed border-[#D1D5DB]" />
+              <div className="flex items-start pt-5 shrink-0 ml-10">
+                <div className="w-20 border-t-2 border-dashed border-[#D1D5DB]" />
               </div>
             )}
           </div>

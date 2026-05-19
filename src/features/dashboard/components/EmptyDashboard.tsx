@@ -1,42 +1,43 @@
-import Link from "next/link";
-import { StepIndicator } from "./StepIndicator";
-import { ROUTES } from "@/constants/routes";
-import Image from "next/image";
-import { CirclePlus, ArrowRight } from "lucide-react";
+import Link from 'next/link';
+import { StepIndicator } from './StepIndicator';
+import { ROUTES } from '@/constants/routes';
+import Image from 'next/image';
+import { CirclePlus, ArrowRight } from 'lucide-react';
 
 export function EmptyDashboard() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-128px)] px-4 py-12 text-center">
+    <div className='flex flex-col items-center justify-center min-h-[calc(100vh-128px)] px-4 py-12 text-center'>
       {/* Illustration */}
-      <div className="mb-8">
+      <div className='mb-8'>
         <Image
-          src="/images/empty-state-illustration.png"
-          alt="No scans yet"
+          src='/images/dashboard-empty.png'
+          alt='No scans yet'
           width={240}
           height={240}
-          className="h-auto w-[240px]"
+          className='h-auto w-60'
         />
       </div>
 
       {/* Heading */}
-      <h2 className="text-xl font-bold text-[#111827] mb-2">No scans yet</h2>
-      <p className="text-sm text-[#6B7280] max-w-sm mb-10 leading-relaxed">
-        Get started by verifying your domain and running your first security scan 
+      <h2 className='text-xl font-bold text-[#111827] mb-2'>No scans yet</h2>
+      <p className='text-sm text-[#6B7280] max-w-sm mb-10 leading-relaxed'>
+        Get started by verifying your domain and running your first security
+        scan
       </p>
 
       {/* Steps */}
-      <div className="w-full mb-10">
+      <div className='w-full mb-10 flex justify-center'>
         <StepIndicator />
       </div>
 
       {/* CTA */}
       <Link
         href={ROUTES.HOME}
-        className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-xs md:w-auto"
+        className='inline-flex items-center justify-center gap-2 px-8 py-[15px] bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-[320px] md:w-aut
       >
-        <CirclePlus className="h-5 w-5" />
+        <CirclePlus className='h-5 w-5' />
         Add your first domain
-        <ArrowRight className="h-5 w-5 md:hidden ml-auto" />
+        <ArrowRight className='h-5 w-5 md:hidden ml-auto' />
       </Link>
     </div>
   );
