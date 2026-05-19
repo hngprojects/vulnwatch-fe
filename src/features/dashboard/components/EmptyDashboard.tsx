@@ -33,7 +33,7 @@ export function EmptyDashboard() {
       {/* CTA */}
       <Link
         href={ROUTES.HOME}
-        className='inline-flex items-center justify-center gap-2 px-8 py-[15px] bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-[320px] md:w-aut
+        className='inline-flex items-center justify-center gap-2 px-8 py-[15px] bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-[320px] md:w-auto md:h-12 md:py-0 whitespace-nowrap'
       >
         <CirclePlus className='h-5 w-5' />
         Add your first domain
