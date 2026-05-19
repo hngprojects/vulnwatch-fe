@@ -36,8 +36,8 @@ export default function ScanResultCardItem({
       )}
     >
       {icon}
-      <p className="font-semibold text-lg">{statCount}</p>
-      <p className="text-sm text-neutral-500">{description}</p>
+      <p className="text-[12px] font-semibold">{statCount}</p>
+      <p className="text-[10px] font-medium text-neutral-500">{description}</p>
     </div>
   );
 }

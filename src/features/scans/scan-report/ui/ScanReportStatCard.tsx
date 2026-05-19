@@ -3,12 +3,12 @@ import { cva } from "class-variance-authority";
 import { ArrowRight } from "lucide-react";
 import Card from "../../shared/ui/Card";
 
-const badgeVariants = cva("rounded-lg px-5 py-1 space-y-3 font-medium", {
+const badgeVariants = cva("rounded-md px-3 py-1 text-sm font-geist", {
   variants: {
     badgeSeverity: {
-      critical: "bg-scan-red-400/10 text-scan-red-400",
-      pass: "bg-scan-green-400/10 text-scan-green-400",
-      warning: "bg-scan-yellow-400/10 text-scan-yellow-400",
+      critical: "bg-[#FDEBEC] text-[#D00416]",
+      pass: "bg-[#E8F7EF] text-[#1DAF61]",
+      warning: "bg-[#FFFBF0] text-[#B27F06]",
     },
   },
 });
@@ -55,9 +55,9 @@ export default function ScanReportScoreStatCard({
         <div className="flex justify-end">
           <Button
             variant="link"
-            className="p-0 flex items-center gap-2 h-auto!"
+            className="p-0 flex items-center gap-2 h-auto! text-[#3C574F] font-medium"
           >
-            View detailed report <ArrowRight size={16} />
+            View details <ArrowRight size={16} />
           </Button>
         </div>
       </div>

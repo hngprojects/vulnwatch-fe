@@ -45,30 +45,33 @@ export function DashboardHeader() {
 
   return (
     <>
-      <header className='h-16 bg-[#F0F0F0] md:bg-[#F4F4F4] flex items-center justify-between px-4 md:px-6 shrink-0 z-30'>
-        {/* Mobile Header: Logo (left) + Hamburger (right) */}
-        <div className='flex lg:hidden items-center justify-between w-full'>
-          <Link href='/dashboard'>
-            <Image
-              src='/images/logo-dashboard-mobile.png'
-              alt='VulnWatch AI'
-              width={140}
-              height={32}
-              className='h-6 w-auto'
-            />
-          </Link>
-          <button
-            type='button'
-            onClick={() => setMobileMenuOpen(true)}
-            className='text-[#111827] p-1'
-            aria-label='Open menu'
-          >
-            <Menu className='h-6 w-6' />
-          </button>
-        </div>
+      <header className={cn(
+        'h-16 bg-[#F0F0F0] md:bg-[#F4F4F4] items-center px-4 md:px-6 shrink-0 z-30 justify-between md:justify-start',
+        pathname.startsWith('/scan/report') ? 'hidden lg:flex' : 'flex'
+      )}>
+        {/* Hamburger (Mobile: Right, Tablet: Left) */}
+        <button
+          type='button'
+          onClick={() => setMobileMenuOpen(true)}
+          className='lg:hidden text-[#111827] p-1 order-2 md:order-1 md:mr-4'
+          aria-label='Open menu'
+        >
+          <Menu className='h-6 w-6' />
+        </button>
+
+        {/* Logo (Mobile: Left, Tablet: Left next to menu) */}
+        <Link href='/dashboard' className='lg:hidden order-1 md:order-2 shrink-0'>
+          <Image
+            src='/images/logo-dashboard-mobile.png'
+            alt='VulnWatch AI'
+            width={140}
+            height={32}
+            className='h-6 w-auto'
+          />
+        </Link>
 
         {/* Search bar */}
-        <div className='hidden md:flex items-center gap-2 bg-[#FFFFFF] border border-[#E5E7EB] rounded-lg px-3 py-2 w-[493px]'>
+        <div className='hidden md:flex items-center gap-2 bg-[#FFFFFF] border border-[#E5E7EB] rounded-lg px-3 py-2 flex-1 max-w-[493px] md:ml-4 lg:ml-8 md:mr-4 order-3'>
           <Search className='h-4 w-4 text-[#64748B] shrink-0' />
           <input
             type='text'
@@ -77,8 +80,8 @@ export function DashboardHeader() {
           />
         </div>
 
-        {/* Right side */}
-        <div className='flex items-center gap-4 ml-auto'>
+        {/* Right side (User Avatar) */}
+        <div className='items-center gap-4 ml-auto order-4 hidden md:flex'>
           {/* User avatar */}
           <div className='relative hidden md:block'>
             <button

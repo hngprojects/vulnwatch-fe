@@ -13,7 +13,7 @@ export function CircularProgress({
 }: CircularProgressProps) {
   const r = (size - strokeWidth) / 2;
   const circ = Number((2 * Math.PI * r).toFixed(2));
-  const offset = Number((circ * (1 - value / 100)).toFixed(2));
+  const filledLength = Number(((circ * value) / 100).toFixed(2));
   const center = size / 2;
 
   return (
@@ -36,9 +36,9 @@ export function CircularProgress({
         stroke={color}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
-        strokeDasharray={circ}
-        strokeDashoffset={offset}
-        transform={`rotate(-90 ${center} ${center})`}
+        strokeDasharray={`${filledLength} ${circ}`}
+        strokeDashoffset={0}
+        transform={`translate(${size}, 0) scale(-1, 1) rotate(-90 ${center} ${center})`}
       />
       {/* Label */}
       <text

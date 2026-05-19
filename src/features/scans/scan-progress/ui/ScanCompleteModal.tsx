@@ -7,14 +7,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   AlertTriangleIcon,
   CheckCircleIcon,
   Clock,
   ShieldCheck,
-  X,
 } from "lucide-react";
 import ScanResultCardItem from "./ScanResultCardItem";
 import { Button } from "@/components/ui/button";
@@ -42,12 +40,6 @@ export default function ScanCompleteModal({
         <div className="pt-16 pb-8 overflow-y-auto max-h-[98vh] scrollbar-hide">
           {/* The actual card */}
           <div className="bg-white rounded-4xl p-6 relative overflow-visible shadow-2xl mx-4 sm:mx-0">
-            <DialogClose asChild className="absolute top-4 right-4 z-20">
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <X size={18} />
-                <span className="sr-only">Close</span>
-              </Button>
-            </DialogClose>
             <DialogHeader className="sr-only">
               <DialogTitle>Scan Complete</DialogTitle>
               <DialogDescription>
@@ -183,12 +175,12 @@ export default function ScanCompleteModal({
                 <h1 className="font-semibold text-2xl text-scan-primary-900">
                   Scan Complete
                 </h1>
-                <p className="text-neutral-600">
+                <p className="font-geist font-normal text-[#2B2B2B]">
                   Your security scan finished successfully. Review the findings
                   below.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 justify-center">
+                <div className="grid grid-cols-3 gap-4 justify-center">
                   <ScanResultCardItem
                     statCount="2m 14s"
                     icon={<Clock size={18} />}

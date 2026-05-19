@@ -3,29 +3,53 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { cva } from "class-variance-authority";
 
-const countBadgeVariants = cva(
-  "p-1 rounded-full text-xs text-white size-5 flex items-center justify-center aspect-square",
+const containerVariants = cva("rounded-lg px-4 py-3 space-y-2 sm:space-y-0 sm:flex sm:items-center gap-3", {
+  variants: {
+    variant: {
+      critical: "bg-[#FDEBEC]",
+      high_priority: "bg-[#FCF0E8]",
+      warning: "bg-[#FFFBF0]",
+      low: "bg-[#EBEEFD]",
+      pass: "bg-[#E8F7EF]",
+    },
+  },
+});
+
+const badgeVariants = cva(
+  "p-1 rounded-full text-[10px] sm:text-xs text-white size-5 flex items-center justify-center aspect-square shrink-0",
   {
     variants: {
       variant: {
-        critical: "bg-scan-red-400",
-        pass: "bg-scan-green-400",
-        warning: "bg-scan-yellow-400",
-        high_priority: "bg-scan-orange-400",
-        low: "bg-scan-blue-400",
+        critical: "bg-[#D00416]",
+        high_priority: "bg-[#DD6414]",
+        warning: "bg-[#B27F06]",
+        low: "bg-[#263FA5]",
+        pass: "bg-[#1DAF61]",
       },
     },
   },
 );
 
-const scanResultsVariants = cva("rounded-lg px-4 py-3 space-y-2", {
+const linkVariants = cva("font-semibold underline", {
   variants: {
     variant: {
-      critical: "bg-scan-red-400/10 text-scan-red-400/80",
-      pass: "bg-scan-green-400/10 text-scan-green-400/80",
-      warning: "bg-scan-yellow-400/10 text-scan-yellow-400/80",
-      high_priority: "bg-scan-orange-400/10 text-scan-orange-400/80",
-      low: "bg-scan-blue-400/10 text-scan-blue-400/80",
+      critical: "text-[#D00416]",
+      high_priority: "text-[#DD6414]",
+      warning: "text-[#B27F06]",
+      low: "text-[#263FA5]",
+      pass: "text-[#1DAF61]",
+    },
+  },
+});
+
+const descVariants = cva("", {
+  variants: {
+    variant: {
+      critical: "text-[#FD4151]",
+      high_priority: "text-[#666666]",
+      warning: "text-[#CC9513]",
+      low: "text-[#666666]",
+      pass: "text-[#1DAF61]",
     },
   },
 });
@@ -40,23 +64,22 @@ export default function FindingsItemCard({
   description: string;
 }) {
   const variant = getScoreResultVariant(score);
-  const countBadgeVariant = countBadgeVariants({ variant });
+  
+  const getLabel = (v: string) => {
+    if (v === "warning") return "Medium fixes";
+    if (v === "pass") return "Pass";
+    return v[0].toUpperCase() + v.slice(1).replaceAll("_", " ") + " fixes";
+  };
 
   return (
-    <div
-      className={cn(
-        "sm:flex items-center gap-3 space-y-5 sm:space-y-0! p-3 rounded",
-        scanResultsVariants({ variant }),
-      )}
-    >
+    <div className={cn(containerVariants({ variant }))}>
       <div className="flex items-center gap-2">
-        <Link href="#" className="font-semibold underline">
-          {variant[0].toUpperCase() + variant.slice(1).replaceAll("_", " ")}
-          {variant !== "pass" && " fixes"}
+        <Link href="#" className={cn(linkVariants({ variant }))}>
+          {getLabel(variant)}
         </Link>
-        <p className={cn(countBadgeVariant)}>{severityCount}</p>
+        <div className={cn(badgeVariants({ variant }))}>{severityCount}</div>
       </div>
-      <p>{description}</p>
+      <p className={cn(descVariants({ variant }))}>{description}</p>
     </div>
   );
 }
