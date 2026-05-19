@@ -38,7 +38,10 @@ export function LoginForm() {
       const response = await authService.login(data);
 
       if (response.isSuccess && response.value) {
-        toast.success("Successfully logged in!");
+        const successMessage =
+          (response.value as { message?: string } | null)?.message ??
+          "Successfully logged in!";
+        toast.success(successMessage);
         useAuthStore
           .getState()
           .login(response.value.token, response.value.email);
