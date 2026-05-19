@@ -36,12 +36,14 @@ function DesktopScanForm() {
   const router = useRouter();
 
   const handleScan = () => {
-    if (!url.trim()) {
+    const raw = url.trim();
+    if (!raw) {
       setError("Please enter a website URL");
       return;
     }
     try {
-      new URL(url.startsWith("http") ? url : `https://${url}`);
+      const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+      new URL(normalized);
       setError("");
       router.push(ROUTES.REGISTER);
     } catch {
