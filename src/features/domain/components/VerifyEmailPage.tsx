@@ -109,9 +109,9 @@ export default function VerifyEmailPage({ domainId }: { domainId: string }) {
       return;
     }
 
-    toast.success("Verification code submitted.", {
-      description: "Hook this screen to the verification API when it's ready.",
-    });
+    router.push(
+      `/domain/${domainId}/verify/email/waiting?token=${encodeURIComponent(token)}&email=${encodeURIComponent(verificationEmail)}`,
+    );
   };
 
   const handleResend = () => {
