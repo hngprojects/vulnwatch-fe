@@ -28,7 +28,7 @@ export default function Features() {
             <div
               key={title}
               className='flex flex-col gap-4 rounded-lg border-2 border-[#EFEFEF] bg-white p-6
-                transition-all duration-200 hover:border-primary hover:shadow-md cursor-pointer'
+                transition-all duration-200 hover:border-primary hover:shadow-md'
             >
               <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-md bg-[#F4F8F5]'>
                 <Image

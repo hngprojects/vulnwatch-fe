@@ -19,7 +19,7 @@ export function NavLinks() {
                 href={href}
                 className={cn(
                   "font-geist text-base leading-6 font-normal transition-all duration-200",
-                  "cursor-pointer focus:outline-none hover:scale-105",
+                  "cursor-pointer hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                   isActive ? "text-primary" : "text-primary/60"
                 )}
               >

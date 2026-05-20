@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Check, Info, ShieldCheck, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { domainService } from "../services/domain.service";
 import type { Domain } from "../types/domain.types";
@@ -67,6 +68,8 @@ const PRE_CHECKS = [
 
 export default function VerifyMethodPage({ domainId }: { domainId: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ?? "";
   const [domain, setDomain] = useState<Domain | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -138,7 +141,10 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
         <div className="w-full flex flex-col items-center gap-4">
           <div className="w-full max-w-[280px]">
             <Button
-              onClick={() => router.push(`/domain/${domainId}/verify/dns`)}
+              onClick={() => {
+                toast.info("Proceeding to DNS verification...");
+                router.push(`/domain/${domainId}/verify/dns?token=${encodeURIComponent(token)}`);
+              }}
               className="w-full bg-[#072E28] hover:bg-[#072E28]/90 text-white font-medium h-11 rounded-[8px] cursor-pointer"
             >
               Continue
