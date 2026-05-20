@@ -48,7 +48,7 @@ const ScanTypeButton = React.forwardRef<HTMLInputElement, ScanTypeButtonProps>(
           </span>
         )}
         <span className="space-y-2 flex gap-4 items-start sm:flex-col sm:items-center h-full sm:text-center">
-          <span className="size-9! aspect-square bg-[#072E28] text-white rounded-full flex items-center justify-center mb-0! transition-colors duration-200">
+          <span className="!size-9 aspect-square bg-[#072E28] text-white rounded-full flex items-center justify-center !mb-0 transition-colors duration-200">
             <span className="flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5">
               {icon}
             </span>

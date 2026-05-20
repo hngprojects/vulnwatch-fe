@@ -183,7 +183,7 @@ export default function ScanSetupForm() {
               setIsOpen(!isOpen);
             }
           }}
-          disabled={isLoadingDomains || isSubmitting}
+          disabled={isLoadingDomains || !!domainFetchError || isSubmitting}
           className={`flex h-12 w-full items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-neutral-900/10 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer ${
             errors.domain ? "border-red-500" : "border-neutral-300 hover:border-neutral-400"
           }`}

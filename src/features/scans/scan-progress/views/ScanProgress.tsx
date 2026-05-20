@@ -21,9 +21,10 @@ export default function ScanProgress({ scanId }: ScanProgressProps) {
 
   useEffect(() => {
     // Open modal after some seconds
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setIsScanCompleteModalOpen(true);
     }, 3000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
