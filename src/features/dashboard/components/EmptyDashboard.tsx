@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { StepIndicator } from './StepIndicator';
-import { ROUTES } from '@/constants/routes';
 import Image from 'next/image';
 import { CirclePlus, ArrowRight } from 'lucide-react';
 

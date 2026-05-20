@@ -19,6 +19,7 @@ export default function DomainPage() {
 
   useEffect(() => {
     if (searchParams && searchParams.get("add") === "true") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setModalOpen(true);
     }
   }, [searchParams]);
