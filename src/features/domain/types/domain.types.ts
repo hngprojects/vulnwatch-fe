@@ -11,6 +11,8 @@ export interface Domain {
   lastSecurityScore: number | null;
   verificationToken?: string;
   verificationMethod?: VerificationMethod;
+  txtRecord?: string;
+  instructions?: CreateDomainInstructions;
 }
 
 export interface CreateDomainPayload {

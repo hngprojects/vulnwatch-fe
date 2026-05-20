@@ -100,6 +100,7 @@ export default function VerifyDnsPage({ domainId }: { domainId: string }) {
   }
 
   const token = tokenFromUrl || domain?.verificationToken || domain?.domain || "";
+  const host = domain?.txtRecord || domain?.instructions?.txtRecord || "_vulnwatch-verify.@";
 
   return (
     <div className="px-4 md:px-6 py-6 w-full bg-white min-h-screen space-y-6">
@@ -177,7 +178,7 @@ export default function VerifyDnsPage({ domainId }: { domainId: string }) {
               </span>
               <button
                 onClick={() =>
-                  copy(`Type: TXT\nHost/Name: _vulnwatch-verify.@\nValue: ${token}\nTTL: Auto`, "all")
+                  copy(`Type: TXT\nHost/Name: ${host}\nValue: ${token}\nTTL: Auto`, "all")
                 }
                 className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-[#EDEDED] rounded-[8px] hover:bg-gray-50 transition-colors cursor-pointer"
               >
@@ -220,10 +221,10 @@ export default function VerifyDnsPage({ domainId }: { domainId: string }) {
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-[16px] font-normal text-brand-dark font-geist">
-                    _vulnwatch-verify.@
+                    {host}
                   </span>
                   <button
-                    onClick={() => copy("_vulnwatch-verify.@", "Host/Name")}
+                    onClick={() => copy(host, "Host/Name")}
                     className="hover:opacity-85 transition-opacity cursor-pointer"
                   >
                     {copiedField === "Host/Name" ? (
