@@ -2,7 +2,7 @@ import { pressReleases } from "../../constants/press";
 
 export default function PressRelease() {
     return (
-        <section className="mx-auto max-w-6xl px-6 py-16 md:py-24">
+        <section className="mx-auto max-w-6xl px-6 py-16">
             <h2 className="mb-8 text-[20px] font-bold text-[#000000] md:text-[24px]">
                 Press release
             </h2>
