@@ -419,7 +419,9 @@ export default function DomainTable({ domains, loading = false, error = null, on
                                   }
                                   if (onRetry) onRetry();
                                 } catch (err: unknown) {
-                                  const errMsg = err instanceof Error ? err.message : "Verification failed. DNS records might still be propagating.";
+                                  const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
+                                  const backendMessage = axiosError.response?.data?.error?.message;
+                                  const errMsg = backendMessage || (err instanceof Error ? err.message : "Verification failed. DNS records might still be propagating.");
                                   toast.error(errMsg, {
                                     id: toastId,
                                   });
