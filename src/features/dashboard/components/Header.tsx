@@ -42,7 +42,6 @@ export function DashboardHeader() {
     useAuthStore.getState().logout();
     router.push('/login');
   };
-
   return (
     <>
       <header className={cn(

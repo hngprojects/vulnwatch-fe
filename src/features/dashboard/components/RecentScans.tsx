@@ -144,9 +144,14 @@ export function RecentScans({ scans }: RecentScansProps) {
                   {scan.status === "Complete" ? "Good" : "Action Needed"}
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <button className="text-[10px] font-bold text-[#374151]">View Details</button>
-                <ChevronRight className="h-3.5 w-3.5 text-[#9CA3AF]" />
+              <div>
+                <button
+                  type="button"
+                  className="flex items-center gap-1 text-[10px] font-bold text-[#374151]"
+                >
+                  <span>View Details</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-[#9CA3AF]" />
+                </button>
               </div>
             </div>
           ))}

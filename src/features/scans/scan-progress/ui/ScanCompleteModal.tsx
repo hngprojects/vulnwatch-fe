@@ -22,11 +22,13 @@ import Link from "next/link";
 interface ScanCompleteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  scanId?: string;
 }
 
 export default function ScanCompleteModal({
   open,
   onOpenChange,
+  scanId,
 }: ScanCompleteModalProps) {
   const router = useRouter();
 
@@ -203,7 +205,13 @@ export default function ScanCompleteModal({
 
                 <div className="space-y-2 pt-2">
                   <Button
-                    onClick={() => router.push("/scan/report")}
+                    onClick={() =>
+                      router.push(
+                        scanId
+                          ? `/scan/report?scanId=${encodeURIComponent(scanId)}`
+                          : "/scan/report",
+                      )
+                    }
                     className="w-full"
                   >
                     Show Result
