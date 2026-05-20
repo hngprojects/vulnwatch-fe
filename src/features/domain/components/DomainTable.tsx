@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import DomainEmptyState from "./DomainEmptyState";
 import DomainDetailsModal from "./DomainDetailsModal";
 import type { Domain, DomainStatus, VerificationMethod } from "../types/domain.types";
+import { toast } from "sonner";
+import { domainService } from "../services/domain.service";
 
 interface Props {
   domains: Domain[];
@@ -396,7 +398,36 @@ export default function DomainTable({ domains, loading = false, error = null, on
                         </button>
                         {openMenuId === domain.id && (
                           <div className="absolute right-0 top-9 z-10 w-32 bg-white rounded-xl border border-[#E5E7EB] shadow-lg overflow-hidden">
-                            <button className="w-full text-left px-4 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB]">
+                            <button
+                              onClick={async () => {
+                                setOpenMenuId(null);
+                                const toastId = toast.loading("Checking DNS verification...", {
+                                  description: `Verifying ${domain.domain}`,
+                                });
+                                try {
+                                  const updatedDomain = await domainService.verifyDomain(domain.id);
+                                  if (updatedDomain.status === "Verified") {
+                                    toast.success("Domain verified successfully!", {
+                                      id: toastId,
+                                      description: `${domain.domain} is now verified.`,
+                                    });
+                                  } else {
+                                    toast.error("Verification failed. DNS records might still be propagating.", {
+                                      id: toastId,
+                                      description: `${domain.domain} remains pending.`,
+                                    });
+                                  }
+                                  if (onRetry) onRetry();
+                                } catch (err: unknown) {
+                                  const errMsg = err instanceof Error ? err.message : "Verification failed. DNS records might still be propagating.";
+                                  toast.error(errMsg, {
+                                    id: toastId,
+                                  });
+                                  if (onRetry) onRetry();
+                                }
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB]"
+                            >
                               Re-verify
                             </button>
                             <button className="w-full text-left px-4 py-2 text-sm text-[#EF4444] hover:bg-[#FEF2F2]">
