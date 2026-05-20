@@ -114,7 +114,7 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
                   onClick={onClose}
                   className={cn(
                     "font-geist block rounded-lg px-2 py-2 text-lg font-medium cursor-pointer transition-all duration-200 hover:bg-primary/10 hover:pl-4",
-                    isActive ? "text-[#021a16]" : "text-primary"
+                    isActive ? "text-primary" : "text-primary/60"
                   )}
                 >
                   {label}
@@ -140,7 +140,7 @@ export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps)
             href={ROUTES.REGISTER}
             onClick={onClose}
             className="bg-primary flex h-12 w-full items-center justify-center 
-            gap-1.5 rounded-xl text-base font-medium text-white transition-opacity-300 
+            gap-1.5 rounded-xl text-base font-medium text-white transition-opacity duration-300 
             hover:opacity-90"
           >
             Start Free Trial
