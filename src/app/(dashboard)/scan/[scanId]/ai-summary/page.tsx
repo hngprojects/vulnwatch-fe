@@ -7,5 +7,9 @@ export default async function ScanAISummaryPage({
 }) {
   const { scanId } = await params;
 
-  return <AISecuritySummary backHref={`/scan/report?scanId=${scanId}`} />;
+  return (
+    <AISecuritySummary
+      backHref={`/scan/report?scanId=${encodeURIComponent(scanId)}`}
+    />
+  );
 }

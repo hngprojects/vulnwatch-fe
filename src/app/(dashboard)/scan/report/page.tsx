@@ -18,9 +18,17 @@ const CustomCheckIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const CURRENT_SCAN_ID = "latest-scan";
+export default async function ScanReportPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ scanId?: string | string[] }>;
+}) {
+  const { scanId } = await searchParams;
+  const activeScanId = Array.isArray(scanId) ? scanId[0] : scanId;
+  const detailsHref = activeScanId
+    ? `/scan/${encodeURIComponent(activeScanId)}/ai-summary`
+    : null;
 
-export default function ScanReportPage() {
   return (
     <div className="space-y-5 p-5">
       <ScanReportPageHeader />
@@ -79,15 +87,25 @@ export default function ScanReportPage() {
               </div>
             </div>
             <div className="flex justify-end mt-6">
-              <Button
-                asChild
-                variant={"ghost"}
-                className="p-0! h-auto! flex gap-1.5 text-[#0C2B21] hover:bg-transparent text-[16px] font-medium"
-              >
-                <Link href={`/scan/${CURRENT_SCAN_ID}/ai-summary`}>
+              {detailsHref ? (
+                <Button
+                  asChild
+                  variant={"ghost"}
+                  className="p-0! h-auto! flex gap-1.5 text-[#0C2B21] hover:bg-transparent text-[16px] font-medium"
+                >
+                  <Link href={detailsHref}>
+                    View Details <ChevronRight size={18} />
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  variant={"ghost"}
+                  disabled
+                  className="p-0! h-auto! flex gap-1.5 text-[#9CA3AF] hover:bg-transparent text-[16px] font-medium"
+                >
                   View Details <ChevronRight size={18} />
-                </Link>
-              </Button>
+                </Button>
+              )}
             </div>
           </div>
         </Card>
