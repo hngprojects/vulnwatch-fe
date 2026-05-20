@@ -208,7 +208,7 @@ export default function ScanCompleteModal({
                     onClick={() =>
                       router.push(
                         scanId
-                          ? `/scan/${encodeURIComponent(scanId)}/report`
+                          ? `/scan/report?scanId=${encodeURIComponent(scanId)}`
                           : "/scan/report",
                       )
                     }

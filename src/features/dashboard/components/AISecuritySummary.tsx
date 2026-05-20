@@ -62,6 +62,9 @@ export function AISecuritySummary({
     navigator.clipboard.writeText(copyText).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }).catch((error) => {
+      setCopied(false);
+      console.error("Failed to copy AI security summary", error);
     });
   };
 

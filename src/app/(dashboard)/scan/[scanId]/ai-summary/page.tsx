@@ -9,7 +9,7 @@ export default async function ScanAISummaryPage({
 
   return (
     <AISecuritySummary
-      backHref={`/scan/${encodeURIComponent(scanId)}/report`}
+      backHref={`/scan/report?scanId=${encodeURIComponent(scanId)}`}
     />
   );
 }
