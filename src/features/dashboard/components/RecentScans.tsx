@@ -146,7 +146,7 @@ export function RecentScans({ scans }: RecentScansProps) {
               </div>
               <div className="flex items-center gap-1">
                 <button className="text-[10px] font-bold text-[#374151]">View Details</button>
-                <ChevronRight className="h-3.5 w-3.5 text-[#9CA3AF]" />
+                  <ChevronRight className="h-3.5 w-3.5 text-[#9CA3AF]" />
               </div>
             </div>
           ))}

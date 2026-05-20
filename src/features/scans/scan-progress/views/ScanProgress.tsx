@@ -8,8 +8,11 @@ import { useEffect, useState } from "react";
 import ScanningProgress from "../../shared/ui/ScanningProgress";
 import ScanCompleteModal from "../ui/ScanCompleteModal";
 
+interface ScanProgressProps {
+  scanId?: string;
+}
 
-export default function ScanProgress() {
+export default function ScanProgress({ scanId }: ScanProgressProps) {
   const [isScanCompleteModalOpen, setIsScanCompleteModalOpen] = useState(false);
 
 
@@ -59,6 +62,7 @@ export default function ScanProgress() {
       <ScanCompleteModal
         open={isScanCompleteModalOpen}
         onOpenChange={setIsScanCompleteModalOpen}
+        scanId={scanId}
       />
     </>
   );

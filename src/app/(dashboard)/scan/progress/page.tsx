@@ -5,6 +5,13 @@ export const metadata = {
   description: "Scan Progress",
 };
 
-export default function ScanProgressPage() {
-  return <ScanProgress />;
+export default async function ScanProgressPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ scanId?: string | string[] }>;
+}) {
+  const { scanId } = await searchParams;
+  const activeScanId = Array.isArray(scanId) ? scanId[0] : scanId;
+
+  return <ScanProgress scanId={activeScanId} />;
 }

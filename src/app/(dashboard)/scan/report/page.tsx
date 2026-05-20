@@ -78,7 +78,7 @@ export default async function ScanReportPage({
                 <p>
                   <span className="text-[#0BA352]">The good news:</span>
                   <span className="text-[#919191]">
-                    {" "}All three of these are configuration fixes don’t require code changes and can typically be resolved in under an hour.{" "}
+                    {" "}All three of these are configuration fixes donâ€™t require code changes and can typically be resolved in under an hour.{" "}
                   </span>
                   <span className="text-[#2B2B2B]">
                     Prioritise the HSTS header and admin panel restriction first.
