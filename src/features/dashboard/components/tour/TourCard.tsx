@@ -13,15 +13,7 @@ interface TourCardProps {
 
 export function TourCard({ step, currentIndex, totalSteps, onNext, onSkip }: TourCardProps) {
     return (
-        <div className="relative bg-cards rounded-[12px] p-4 md:p-6 w-[285px] md:w-[480px] shadow-lg border-2 border-primary">
-
-            {/* Arrow — left (mobile only) */}
-            {step.mobileArrow === 'left' && (
-                <div className="md:hidden absolute -left-5 top-1/2 -translate-y-1/2 w-0 h-0
-                    border-t-[14px] border-t-transparent
-                    border-b-[14px] border-b-transparent
-                    border-r-[16px] border-r-primary" />
-            )}
+        <div className="relative bg-white z-9999 rounded-[12px] p-4 md:p-6 w-[285px] md:w-[480px] shadow-lg border-2 border-primary">
 
             {/* Arrow — top (desktop only - step 4) */}
             {step.arrow === 'top' && (
