@@ -1,18 +1,14 @@
 "use client";
 
-import {
-  Globe,
-  Calendar,
-  Clock,
-  ShieldCheck,
-  X,
-} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Clock, X, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import { domainService } from "../services/domain.service";
 import type { Domain, DomainStatus, VerificationMethod } from "../types/domain.types";
 
 interface Props {
@@ -21,180 +17,209 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-const STATUS_COLORS: Record<DomainStatus, string> = {
-  Verified: "bg-[#ECFDF5] text-[#10B981]",
-  Pending: "bg-[#FFF7ED] text-[#F59E0B]",
-  Failed: "bg-[#FEF2F2] text-[#EF4444]",
-};
-
-const STATUS_DOTS: Record<DomainStatus, string> = {
-  Verified: "bg-[#10B981]",
-  Pending: "bg-[#F59E0B]",
-  Failed: "bg-[#EF4444]",
-};
-
 const METHOD_LABELS: Record<VerificationMethod, string> = {
   DNS_TXT: "DNS TXT Record",
   FILE_UPLOAD: "File Upload",
   EMAIL: "Email Verification",
 };
 
-const METHOD_COLORS: Record<VerificationMethod, string> = {
-  DNS_TXT: "bg-[#EFF6FF] text-[#3B82F6]",
-  FILE_UPLOAD: "bg-[#F5F3FF] text-[#7C3AED]",
-  EMAIL: "bg-[#FFF7ED] text-[#F59E0B]",
+const STATUS_CONFIG: Record<DomainStatus, {
+  badge: string;
+  dot: string;
+  badgeLabel: string;
+  title: string;
+  iconBg: string;
+  iconColor: string;
+  statusRowValue: string;
+}> = {
+  Pending: {
+    badge: "bg-[#FCF0E8] text-[#F57C00]",
+    dot: "bg-[#F57C00]",
+    badgeLabel: "Pending Verification",
+    title: "Verification in progress",
+    iconBg: "bg-[#FCF0E8]",
+    iconColor: "text-[#F57C00]",
+    statusRowValue: "Awaiting confirmation",
+  },
+  Verified: {
+    badge: "bg-[#ECFDF5] text-[#10B981]",
+    dot: "bg-[#10B981]",
+    badgeLabel: "Verified",
+    title: "Domain ownership confirmed",
+    iconBg: "bg-[#ECFDF5]",
+    iconColor: "text-[#10B981]",
+    statusRowValue: "Verified",
+  },
+  Failed: {
+    badge: "bg-[#FEF2F2] text-[#EF4444]",
+    dot: "bg-[#EF4444]",
+    badgeLabel: "Verification Failed",
+    title: "We couldn't verify this domain",
+    iconBg: "bg-[#FEF2F2]",
+    iconColor: "text-[#EF4444]",
+    statusRowValue: "Failed",
+  },
 };
 
-function scoreLabel(score: number | null): string {
-  if (score === null) return "Not available";
-  if (score >= 90) return "Excellent";
-  if (score >= 70) return "Good";
-  if (score >= 50) return "Fair";
-  return "Poor";
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(mins / 60);
+  const days = Math.floor(hours / 24);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} minute${mins !== 1 ? "s" : ""} ago`;
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  return `${days} day${days !== 1 ? "s" : ""} ago`;
 }
 
-function scoreColor(score: number | null): string {
-  if (score === null) return "text-[#9CA3AF]";
-  if (score >= 90) return "text-[#10B981]";
-  if (score >= 70) return "text-[#3B82F6]";
-  if (score >= 50) return "text-[#F59E0B]";
-  return "text-[#EF4444]";
-}
-
-function scoreBg(score: number | null): string {
-  if (score === null) return "bg-[#F3F4F6]";
-  if (score >= 90) return "bg-[#ECFDF5]";
-  if (score >= 70) return "bg-[#EFF6FF]";
-  if (score >= 50) return "bg-[#FFF7ED]";
-  return "bg-[#FEF2F2]";
-}
-
-function scoreBorder(score: number | null): string {
-  if (score === null) return "border-[#E5E7EB]";
-  if (score >= 90) return "border-[#10B981]";
-  if (score >= 70) return "border-[#3B82F6]";
-  if (score >= 50) return "border-[#F59E0B]";
-  return "border-[#EF4444]";
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatDateTime(dateStr: string | null): string {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr);
+function StatusIcon({ status }: { status: DomainStatus }) {
+  const cfg = STATUS_CONFIG[status];
   return (
-    d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
-    " at " +
-    d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
-  );
-}
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-start justify-between py-3 border-b border-[#F3F4F6] last:border-b-0">
-      <span className="text-sm text-[#6B7280] shrink-0 w-36">{label}</span>
-      <span className="text-sm font-medium text-[#111827] text-right">{children}</span>
+    <div className={`w-16 h-16 rounded-full ${cfg.iconBg} flex items-center justify-center mx-auto`}>
+      {status === "Verified" ? (
+        <CheckCircle2 size={32} className={cfg.iconColor} />
+      ) : status === "Failed" ? (
+        <AlertCircle size={32} className={cfg.iconColor} />
+      ) : (
+        <Clock size={32} className={cfg.iconColor} />
+      )}
     </div>
   );
 }
 
 export default function DomainDetailsModal({ domain, open, onOpenChange }: Props) {
-  if (!domain) return null;
+  const [liveDomain, setLiveDomain] = useState<Domain | null>(domain);
+  const [checking, setChecking] = useState(false);
+  const [autoRefresh] = useState(true);
+
+  useEffect(() => {
+    setLiveDomain(domain);
+  }, [domain]);
+
+  const handleCheck = useCallback(async () => {
+    if (!liveDomain) return;
+    setChecking(true);
+    try {
+      const updated = await domainService.getDomain(liveDomain.id);
+      setLiveDomain(updated);
+    } catch {
+      // silently fail — domain data stays as-is
+    } finally {
+      setChecking(false);
+    }
+  }, [liveDomain]);
+
+  // auto-refresh every 5 minutes for pending domains
+  useEffect(() => {
+    if (!open || !autoRefresh || liveDomain?.status !== "Pending") return;
+    const id = setInterval(handleCheck, 5 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [open, autoRefresh, liveDomain?.status, handleCheck]);
+
+  if (!liveDomain) return null;
+
+  const cfg = STATUS_CONFIG[liveDomain.status];
+  const method = liveDomain.verificationMethod
+    ? METHOD_LABELS[liveDomain.verificationMethod]
+    : "DNS TXT Record";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="max-w-[480px] rounded-2xl p-0 overflow-hidden">
-        <div className="bg-[#072E28] px-6 py-5">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                <Globe size={18} className="text-white" />
-              </div>
-              <div>
-                <DialogTitle className="text-base font-semibold text-white leading-tight">
-                  {domain.domain}
-                </DialogTitle>
-                <p className="text-xs text-white/60 mt-0.5">Domain Details</p>
-              </div>
-            </div>
-            <DialogClose className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center shrink-0 transition-colors">
-              <X size={14} className="text-white" />
-              <span className="sr-only">Close</span>
-            </DialogClose>
-          </div>
-          <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[domain.status]}`}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[domain.status]}`} />
-            {domain.status}
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-[522px] rounded-[12px] p-0 overflow-hidden"
+      >
+        {/* Close button */}
+        <DialogClose className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#F3F4F6] hover:bg-[#E5E7EB] flex items-center justify-center transition-colors z-10">
+          <X size={15} className="text-[#374151]" />
+          <span className="sr-only">Close</span>
+        </DialogClose>
+
+        <div className="px-6 pt-8 pb-6 flex flex-col items-center text-center gap-3">
+          {/* Icon */}
+          <StatusIcon status={liveDomain.status} />
+
+          {/* Status badge */}
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${cfg.badge}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+            {cfg.badgeLabel}
           </span>
+
+          {/* Title */}
+          <DialogTitle className="text-[22px] font-bold text-[#111827] leading-tight">
+            {cfg.title}
+          </DialogTitle>
+
+          {/* Subtitle */}
+          <p className="text-sm text-[#6B7280] max-w-xs leading-relaxed">
+            {liveDomain.status === "Pending" ? (
+              <>
+                We&apos;re confirming ownerships of{" "}
+                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>.
+                {" "}This usually takes{" "}
+                <span className="font-semibold text-[#111827]">5-30 minutes</span>
+              </>
+            ) : liveDomain.status === "Verified" ? (
+              <>
+                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>{" "}
+                has been successfully verified and is ready to scan.
+              </>
+            ) : (
+              <>
+                We couldn&apos;t verify{" "}
+                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>.
+                {" "}Please check your DNS settings and try again.
+              </>
+            )}
+          </p>
         </div>
 
-        <div className="px-6 py-2">
-          <Row label="Domain">{domain.domain}</Row>
-
-          <Row label="Verification Method">
-            {domain.verificationMethod ? (
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${METHOD_COLORS[domain.verificationMethod]}`}
-              >
-                {METHOD_LABELS[domain.verificationMethod]}
-              </span>
-            ) : (
-              <span className="text-[#9CA3AF] font-normal">Not set</span>
-            )}
-          </Row>
-
-          <Row label="Security Score">
-            {domain.lastSecurityScore !== null ? (
-              <div className="flex items-center gap-2 justify-end">
-                <div
-                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold ${scoreBorder(domain.lastSecurityScore)} ${scoreBg(domain.lastSecurityScore)} ${scoreColor(domain.lastSecurityScore)}`}
-                >
-                  {domain.lastSecurityScore}
-                </div>
-                <span className={`text-sm font-medium ${scoreColor(domain.lastSecurityScore)}`}>
-                  {scoreLabel(domain.lastSecurityScore)}
-                </span>
-              </div>
-            ) : (
-              <span className="text-[#9CA3AF] font-normal">Not available</span>
-            )}
-          </Row>
-
-          <Row label="Date Added">
-            <span className="flex items-center gap-1.5 justify-end">
-              <Calendar size={13} className="text-[#9CA3AF]" />
-              {formatDate(domain.createdAt)}
-            </span>
-          </Row>
-
-          <Row label="Last Scanned">
-            <span className="flex items-center gap-1.5 justify-end">
-              <Clock size={13} className="text-[#9CA3AF]" />
-              {domain.lastScannedAt ? formatDateTime(domain.lastScannedAt) : (
-                <span className="text-[#9CA3AF] font-normal">Not scanned yet</span>
-              )}
-            </span>
-          </Row>
-
-          <Row label="Last Updated">
-            {domain.updatedAt ? formatDateTime(domain.updatedAt) : (
-              <span className="text-[#9CA3AF] font-normal">—</span>
-            )}
-          </Row>
+        {/* Details card */}
+        <div className="mx-6 mb-4 rounded-xl border border-[#E5E7EB] overflow-hidden">
+          {[
+            { label: "Domain", value: liveDomain.domain },
+            { label: "Method", value: method },
+            { label: "Submitted", value: timeAgo(liveDomain.createdAt) },
+            { label: "Status", value: cfg.statusRowValue },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              className="flex items-center justify-between px-4 py-3 border-b border-[#F3F4F6] last:border-b-0"
+            >
+              <span className="text-sm text-[#6B7280]">{label}</span>
+              <span className="text-sm font-semibold text-[#111827]">{value}</span>
+            </div>
+          ))}
         </div>
 
-        <div className="px-6 py-3 bg-[#F9FAFB] border-t border-[#E5E7EB] flex items-center gap-1.5">
-          <ShieldCheck size={13} className="text-[#10B981]" />
-          <p className="text-xs text-[#6B7280]">Domain information is secure and encrypted</p>
+        {/* Auto-refresh bar — only for pending */}
+        {liveDomain.status === "Pending" && (
+          <div className="mx-6 mb-5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs text-[#6B7280]">We&apos;re checking every 5 minutes</span>
+              <span className="text-xs font-medium text-[#A0E870]">Auto-refresh on</span>
+            </div>
+            <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
+              <div className="h-full w-2/5 bg-[#A0E870] rounded-full" />
+            </div>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="px-6 pb-6 flex items-center gap-3">
+          <DialogClose className="flex-1 h-11 rounded-xl border border-[#E5E7EB] bg-white text-sm font-medium text-[#374151] hover:bg-[#F9FAFB] transition-colors">
+            Close
+          </DialogClose>
+          {liveDomain.status === "Pending" && (
+            <button
+              onClick={handleCheck}
+              disabled={checking}
+              className="flex-1 h-11 rounded-xl bg-[#072E28] text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#072E28]/90 transition-colors disabled:opacity-60"
+            >
+              <RefreshCw size={15} className={checking ? "animate-spin" : ""} />
+              {checking ? "Checking..." : "Check now"}
+            </button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
