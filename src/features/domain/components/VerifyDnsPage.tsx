@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Check,
@@ -56,6 +56,8 @@ const steps = [
 
 export default function VerifyDnsPage({ domainId }: { domainId: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tokenFromUrl = searchParams.get("token") ?? "";
   const [domain, setDomain] = useState<Domain | null>(null);
   const [loadingDomain, setLoadingDomain] = useState(true);
   const [verifying, setVerifying] = useState(false);
@@ -97,14 +99,14 @@ export default function VerifyDnsPage({ domainId }: { domainId: string }) {
     );
   }
 
-  const token = domain?.verificationToken ?? domain?.domain ?? "";
+  const token = tokenFromUrl || domain?.verificationToken || domain?.domain || "";
 
   return (
     <div className="px-4 md:px-6 py-6 w-full bg-white min-h-screen space-y-6">
       {/* Back button */}
       <div>
         <button
-          onClick={() => router.push(`/domain/${domainId}/verify`)}
+          onClick={() => router.push(`/domain/${domainId}/verify?token=${encodeURIComponent(tokenFromUrl)}`)}
           className="flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#111827] transition-colors cursor-pointer"
         >
           <ArrowLeft size={16} />
