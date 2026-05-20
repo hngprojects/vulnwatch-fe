@@ -88,20 +88,18 @@ function StatusIcon({ status }: { status: DomainStatus }) {
 }
 
 export default function DomainDetailsModal({ domain, open, onOpenChange }: Props) {
-  const [liveDomain, setLiveDomain] = useState<Domain | null>(domain);
+  const [checkedDomain, setCheckedDomain] = useState<Domain | null>(null);
   const [checking, setChecking] = useState(false);
-  const [autoRefresh] = useState(true);
 
-  useEffect(() => {
-    setLiveDomain(domain);
-  }, [domain]);
+  // Use the freshly-fetched domain when it belongs to the same ID, otherwise fall back to the prop
+  const liveDomain = (checkedDomain?.id === domain?.id ? checkedDomain : null) ?? domain;
 
   const handleCheck = useCallback(async () => {
     if (!liveDomain) return;
     setChecking(true);
     try {
       const updated = await domainService.getDomain(liveDomain.id);
-      setLiveDomain(updated);
+      setCheckedDomain(updated);
     } catch {
       // silently fail — domain data stays as-is
     } finally {
@@ -111,10 +109,10 @@ export default function DomainDetailsModal({ domain, open, onOpenChange }: Props
 
   // auto-refresh every 5 minutes for pending domains
   useEffect(() => {
-    if (!open || !autoRefresh || liveDomain?.status !== "Pending") return;
+    if (!open || liveDomain?.status !== "Pending") return;
     const id = setInterval(handleCheck, 5 * 60 * 1000);
     return () => clearInterval(id);
-  }, [open, autoRefresh, liveDomain?.status, handleCheck]);
+  }, [open, liveDomain?.status, handleCheck]);
 
   if (!liveDomain) return null;
 
