@@ -177,7 +177,7 @@ export default function VerifyDnsPage({ domainId }: { domainId: string }) {
               </span>
               <button
                 onClick={() =>
-                  copy(`Type: TXT\nHost/Name: @\nValue: ${token}\nTTL: Auto`, "all")
+                  copy(`Type: TXT\nHost/Name: _vulnwatch-verify.@\nValue: ${token}\nTTL: Auto`, "all")
                 }
                 className="flex items-center gap-1.5 px-3 py-1.5 border-2 border-[#EDEDED] rounded-[8px] hover:bg-gray-50 transition-colors cursor-pointer"
               >
@@ -220,10 +220,10 @@ export default function VerifyDnsPage({ domainId }: { domainId: string }) {
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-[16px] font-normal text-brand-dark font-geist">
-                    @
+                    _vulnwatch-verify.@
                   </span>
                   <button
-                    onClick={() => copy("@", "Host/Name")}
+                    onClick={() => copy("_vulnwatch-verify.@", "Host/Name")}
                     className="hover:opacity-85 transition-opacity cursor-pointer"
                   >
                     {copiedField === "Host/Name" ? (
