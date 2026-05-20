@@ -1,22 +1,24 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import InputField from "../../shared/ui/InputField";
 import { SCAN_TYPES } from "../lib/constants";
 import ScanTypeButton from "./ScanTypeButton";
 import { useForm } from "react-hook-form";
-import { configureScanSchema } from "../lib/schema";
+import { configureScanSchema, ConfigureScanSchemaType } from "../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { scanService } from "@/features/scans/services/scan.service";
 
 export default function ScanSetupForm() {
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
-  } = useForm({
+    formState: { errors, isSubmitting },
+  } = useForm<ConfigureScanSchemaType>({
     defaultValues: {
       domain: "",
       scanType: "QUICK_SCAN",
@@ -28,8 +30,29 @@ export default function ScanSetupForm() {
 
   const selectedScanType = watch("scanType");
 
-  const onSubmit = () => {
-    router.push("/scan/progress");
+  const onSubmit = async (data: ConfigureScanSchemaType) => {
+    try {
+      const response = await scanService.createScan({
+        domain: data.domain,
+        scanType: data.scanType,
+      });
+
+      if (response.isSuccess && response.value) {
+        // Both "new scan" and "scan already in progress" return isSuccess: true with a scanId
+        // Show a toast only if a scan was already running
+        if (
+          response.value.message === "A scan is already in progress for this domain." ||
+          response.value.message === "Scan already initiated."
+        ) {
+          toast.info(response.value.message);
+        }
+        router.push(`/scan/progress?scanId=${response.value.scanId}`);
+      } else {
+        toast.error(response.error?.message || "Failed to start scan. Please try again.");
+      }
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
   };
 
   return (
@@ -39,7 +62,7 @@ export default function ScanSetupForm() {
         <InputField
           placeholder="www.mycompany.com"
           {...register("domain")}
-          type="url"
+          type="text"
           description="We will scan through mycompany.com and all associated assets"
           error={errors.domain?.message}
         />
@@ -70,8 +93,18 @@ export default function ScanSetupForm() {
           />
         </div>
         <div className="space-y-1.5 mt-8!">
-          <Button className="bg-[#072E28] rounded-lg w-full h-12 font-semibold text-white text-[20px]">
-            Start Scan
+          <Button
+            className="bg-[#072E28] rounded-lg w-full h-12 font-semibold text-white text-[20px] disabled:opacity-60"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Starting scan...
+              </span>
+            ) : (
+              "Start Scan"
+            )}
           </Button>
           <p className="text-xs text-neutral-500 flex items-center gap-2">
             <Lock size={14} className="text-gray-500" />
