@@ -10,6 +10,7 @@ import {
   Loader2,
   Mail,
   ShieldCheck,
+  Upload,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,13 @@ import { domainService } from "../services/domain.service";
 import type { Domain, VerificationMethod } from "../types/domain.types";
 import DomainVerificationStepper from "./DomainVerificationStepper";
 
+type MethodOption = {
+  value: VerificationMethod;
+  title: string;
+  description: string;
+  icon: "dns" | "email" | "file";
+};
+
 const PRE_CHECKS = [
   {
     title: "Your domain is registered",
@@ -25,7 +33,7 @@ const PRE_CHECKS = [
   },
   {
     title: "Choose a verified method",
-    desc: "Use DNS TXT or email verification based on what is fastest for you.",
+    desc: "Use DNS TXT, file upload, or email verification based on what is fastest for you.",
   },
   {
     title: "Verification may take a few minutes",
@@ -33,17 +41,18 @@ const PRE_CHECKS = [
   },
 ];
 
-const METHOD_OPTIONS: {
-  value: VerificationMethod;
-  title: string;
-  description: string;
-  icon: "dns" | "email";
-}[] = [
+const METHOD_OPTIONS: MethodOption[] = [
   {
     value: "DNS_TXT",
     title: "DNS TXT Record",
     description: "Add a TXT record to your domain DNS settings.",
     icon: "dns",
+  },
+  {
+    value: "FILE_UPLOAD",
+    title: "File Upload",
+    description: "Upload a verification file to your website root directory.",
+    icon: "file",
   },
   {
     value: "EMAIL",
@@ -53,11 +62,19 @@ const METHOD_OPTIONS: {
   },
 ];
 
-function MethodIcon({ icon }: { icon: "dns" | "email" }) {
+function MethodIcon({ icon }: { icon: MethodOption["icon"] }) {
   if (icon === "email") {
     return (
       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#DDF7CE] text-[#072E28]">
         <Mail size={20} />
+      </div>
+    );
+  }
+
+  if (icon === "file") {
+    return (
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EEF2F4] text-[#072E28]">
+        <Upload size={20} />
       </div>
     );
   }
@@ -78,6 +95,18 @@ function getVerificationEmail(domainName: string) {
   return `admin@${domainName}`;
 }
 
+function getMethodHint(method: VerificationMethod) {
+  if (method === "EMAIL") {
+    return "We'll prepare an email verification step with an OTP fallback.";
+  }
+
+  if (method === "FILE_UPLOAD") {
+    return "You'll download a verification file and upload it to your website root.";
+  }
+
+  return "You'll add a DNS TXT record to verify ownership.";
+}
+
 export default function VerifyMethodPage({ domainId }: { domainId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -92,8 +121,8 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
       .getDomain(domainId)
       .then((result) => {
         setDomain(result);
-        if (result.verificationMethod === "EMAIL") {
-          setSelectedMethod("EMAIL");
+        if (result.verificationMethod) {
+          setSelectedMethod(result.verificationMethod);
         }
       })
       .finally(() => setLoading(false));
@@ -102,9 +131,16 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
   const handleContinue = () => {
     if (selectedMethod === "EMAIL") {
       const email = getVerificationEmail(domain?.domain ?? "");
+      toast.info("Proceeding to email verification...");
       router.push(
         `/domain/${domainId}/verify/email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`,
       );
+      return;
+    }
+
+    if (selectedMethod === "FILE_UPLOAD") {
+      toast.info("Proceeding to file upload verification...");
+      router.push(`/domain/${domainId}/verify/file?token=${encodeURIComponent(token)}`);
       return;
     }
 
@@ -157,7 +193,7 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
             Back
           </button>
 
-          <div className="w-14 hidden sm:block" />
+          <div className="hidden w-14 sm:block" />
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -172,12 +208,12 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
                   {" "}
                   {domain ? domain.domain : "this domain"}
                 </span>
-                . You can continue with DNS verification or request a code by
-                email.
+                . You can continue with DNS verification, file upload, or
+                request a code by email.
               </p>
             </div>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
               {METHOD_OPTIONS.map((option) => {
                 const isSelected = selectedMethod === option.value;
 
@@ -227,9 +263,7 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
               </Button>
               <p className="flex items-center gap-1.5 text-sm text-brand-slate">
                 <Info size={12} />
-                {selectedMethod === "EMAIL"
-                  ? "We'll prepare an email verification step with an OTP fallback."
-                  : "You'll add a DNS TXT record to verify ownership."}
+                {getMethodHint(selectedMethod)}
               </p>
             </div>
           </div>
