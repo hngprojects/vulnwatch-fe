@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { pressHero } from "../../constants/press";
 
 export default function PressHero() {
@@ -19,9 +20,11 @@ export default function PressHero() {
                         href={`mailto:${pressHero.email}`}
                         className="inline-flex items-center gap-1.5 md:gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm text-gray-900 shadow-sm transition hover:shadow-md"
                     >
-                        <img
+                        <Image
                             src="/icons/icon-message.svg"
-                            alt=""
+                            alt="message icon"
+                            width={16}
+                            height={16}
                             aria-hidden="true"
                             className="h-4 w-4 shrink-0"
                         />
@@ -32,9 +35,11 @@ export default function PressHero() {
                         href={pressHero.brandKitUrl}
                         className="inline-flex items-center gap-1.5 md:gap-2 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm text-gray-900 shadow-sm transition hover:shadow-md"
                     >
-                        <img
+                        <Image
                             src="/icons/icon-download.svg"
-                            alt=""
+                            alt="download icon"
+                            width={16}
+                            height={16}
                             aria-hidden="true"
                             className="h-4 w-4 shrink-0"
                         />

@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import Image from "next/image";
 import { newsItems } from "../../constants/press";
 
 export default function InTheNews() {
@@ -31,9 +31,13 @@ export default function InTheNews() {
                                 </p>
                             </div>
 
-                            <ExternalLink
-                                className="mt-1 h-5 w-5 shrink-0 text-gray-400 transition group-hover:text-header"
-                                strokeWidth={1.75}
+                            <Image
+                                src="/icons/icon-link.svg"
+                                alt="external link icon"
+                                width={16}
+                                height={16}
+                                aria-hidden="true"
+                                className="h-4 w-4 shrink-0"
                             />
                         </a>
                     </li>
