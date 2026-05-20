@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   ShieldEllipsis,
 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type RiskLevel = "Low" | "High" | "Critical";
@@ -112,6 +113,11 @@ const riskDotClassName: Record<RiskLevel, string> = {
   Critical: "bg-[#FF3366]",
 };
 
+const currentPage = 1;
+const pageSize = 5;
+const totalReports = 24;
+const totalPages = Math.ceil(totalReports / pageSize);
+
 function ScanTypeIcon({ scanType }: { scanType: ReportRow["scanType"] }) {
   const Icon = scanType === "Quick Scan" ? RotateCw : Shield;
 
@@ -206,14 +212,14 @@ function ReportsTable() {
                 <RiskIndicator level={report.riskLevel} status={report.status} />
               </td>
               <td className="px-8 py-3.5">
-                <button
-                  type="button"
+                <Link
+                  href="/scan/report"
                   className="inline-flex items-center gap-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   aria-label={`View details for ${report.date} ${report.scanType}`}
                 >
                   View Details
                   <ChevronRight className="h-5 w-5" strokeWidth={1.8} />
-                </button>
+                </Link>
               </td>
             </tr>
           ))}
@@ -239,13 +245,13 @@ function MobileReportCards() {
               </p>
               <p className="mt-1 text-sm text-[#666666]">{report.time}</p>
             </div>
-            <button
-              type="button"
+            <Link
+              href="/scan/report"
               className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#EEEEEE] text-[#2B2B2B] transition-colors hover:bg-[#F9FAFB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label={`View details for ${report.date} ${report.scanType}`}
             >
               <ChevronRight className="h-5 w-5" strokeWidth={1.8} />
-            </button>
+            </Link>
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -275,18 +281,22 @@ function MobileReportCards() {
 }
 
 function Pagination() {
-  const pageNumbers = ["1", "2", "3", "...", "4"];
+  const firstItem = (currentPage - 1) * pageSize + 1;
+  const lastItem = Math.min(currentPage * pageSize, totalReports);
+  const pageNumbers = ["1", "2", "3", "...", String(totalPages)];
 
   return (
     <nav
       aria-label="Report pagination"
       className="flex flex-col gap-4 border-t border-[#EEEEEE] px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8"
     >
-      <p className="text-sm text-[#666666]">Showing 1 to 5 of 24 reports</p>
+      <p className="text-sm text-[#666666]">
+        Showing {firstItem} to {lastItem} of {totalReports} reports
+      </p>
       <div className="flex items-center gap-3">
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#F0F0F0] text-[#D5D5D5]"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#F0F0F0] text-[#D5D5D5] disabled:cursor-not-allowed"
           aria-label="Previous page"
           disabled
         >
@@ -302,12 +312,13 @@ function Pagination() {
               key={page}
               type="button"
               className={cn(
-                "inline-flex h-10 w-10 items-center justify-center rounded-md border text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                "inline-flex h-10 w-10 items-center justify-center rounded-md border text-sm transition-colors disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 page === "1"
                   ? "border-primary text-[#2B2B2B]"
-                  : "border-[#F0F0F0] text-[#666666] hover:bg-[#F9FAFB]",
+                  : "border-[#F0F0F0] text-[#666666]",
               )}
               aria-current={page === "1" ? "page" : undefined}
+              disabled
             >
               {page}
             </button>
@@ -315,8 +326,9 @@ function Pagination() {
         )}
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#F0F0F0] text-[#666666] transition-colors hover:bg-[#F9FAFB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#F0F0F0] text-[#D5D5D5] disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label="Next page"
+          disabled
         >
           <ChevronRight className="h-4 w-4" strokeWidth={1.8} />
         </button>
@@ -352,7 +364,8 @@ export default function Report() {
 
           <button
             type="button"
-            className="flex h-12 w-full items-center justify-between rounded-md border border-[#EEEEEE] bg-white px-5 text-sm font-medium text-[#2B2B2B] shadow-[0_1px_4px_rgba(17,24,39,0.03)] transition-colors hover:bg-[#F9FAFB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary md:w-72"
+            className="flex h-12 w-full items-center justify-between rounded-md border border-[#EEEEEE] bg-white px-5 text-sm font-medium text-[#2B2B2B] shadow-[0_1px_4px_rgba(17,24,39,0.03)] disabled:cursor-not-allowed disabled:opacity-75 md:w-72"
+            disabled
           >
             <span className="flex items-center gap-3">
               <CalendarDays className="h-5 w-5" strokeWidth={1.8} />
