@@ -26,14 +26,14 @@ export function EmptyDashboard() {
       </p>
 
       {/* Steps */}
-      <div className='w-full mb-10'>
+      <div className='w-full mb-10 flex justify-center'>
         <StepIndicator />
       </div>
 
       {/* CTA */}
       <Link
         href={ROUTES.HOME}
-        className='inline-flex items-center justify-center gap-2 h-12 px-8 bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-xs md:w-auto'
+        className='inline-flex items-center justify-center gap-2 px-8 py-[15px] bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-[320px] md:w-auto md:h-12 md:py-0 whitespace-nowrap'
       >
         <CirclePlus className='h-5 w-5' />
         Add your first domain

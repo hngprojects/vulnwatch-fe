@@ -23,11 +23,12 @@ export default function Features() {
             intelligence
           </p>
         </div>
-        <div className='mx-auto grid w-[80%] gap-6 sm:w-[90%] sm:grid-cols-2 md:grid-cols-3'>
+        <div className='mx-auto md:mx-0 grid w-[100%] gap-6 sm:w-[100%] sm:grid-cols-2 md:grid-cols-3'>
           {FeaturesData.map(({ image, title, description }) => (
             <div
               key={title}
-              className='flex flex-col gap-4 rounded-lg border-2 border-[#EFEFEF] bg-white p-6'
+              className='flex flex-col gap-4 rounded-lg border-2 border-[#EFEFEF] bg-white p-6
+                transition-all duration-200 hover:border-primary hover:shadow-md'
             >
               <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-md bg-[#F4F8F5]'>
                 <Image
