@@ -1,3 +1,5 @@
+import { ScanFindings } from '@/features/dashboard/components/scan/ScanFindings';
+
 export default function DnsPage() {
-  return <div>DNS Scan Page</div>;
+  return <ScanFindings activeTab='dns' />;
 }

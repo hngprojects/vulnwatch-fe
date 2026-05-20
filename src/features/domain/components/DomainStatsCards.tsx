@@ -9,48 +9,50 @@ interface Props {
 }
 
 export default function DomainStatsCards({ total, pending, verified }: Props) {
-  const verifiedPercent = total > 0 ? Math.round((verified / total) * 100) : 0;
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-full bg-[#F3F4F6] flex items-center justify-center shrink-0">
-          <Globe size={20} className="text-[#6B7280]" />
+      {/* Total Domain Card */}
+      <div className="bg-white rounded-2xl border border-[#EDEDED] p-5 flex flex-col items-start gap-4">
+        <div className="w-10 h-10 rounded-[10px] bg-[#EAF5F3] flex items-center justify-center shrink-0">
+          <Globe size={20} className="text-[#072E28]" />
         </div>
-        <div>
-          <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">
-            Total Domain
+        <div className="space-y-1">
+          <p className="text-[28px] font-bold text-brand-dark font-geist leading-none">
+            {total}
           </p>
-          <p className="text-3xl font-bold text-[#111827] mt-1">{total}</p>
-          <p className="text-xs text-[#6B7280] mt-1">+0 from last month</p>
+          <p className="text-[14px] font-normal text-[#666666] font-geist">
+            Domain
+          </p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-full bg-[#FFF7ED] flex items-center justify-center shrink-0">
-          <RefreshCw size={20} className="text-[#F59E0B]" />
+      {/* Pending Verification Card */}
+      <div className="bg-white rounded-2xl border border-[#EDEDED] p-5 flex flex-col items-start gap-4">
+        <div className="w-10 h-10 rounded-[10px] bg-[#FFF7ED] flex items-center justify-center shrink-0">
+          <RefreshCw size={20} className="text-[#FFA468]" />
         </div>
-        <div>
-          <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">
+        <div className="space-y-1">
+          <p className="text-[28px] font-bold text-[#FFA468] font-geist leading-none">
+            {pending}
+          </p>
+          <p className="text-[14px] font-normal text-[#666666] font-geist">
             Pending Verification
           </p>
-          <p className="text-3xl font-bold text-[#F59E0B] mt-1">{pending}</p>
-          <p className="text-xs text-[#6B7280] mt-1">
-            {pending === 0 ? "All domains added" : `${pending} awaiting`}
-          </p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-full bg-[#ECFDF5] flex items-center justify-center shrink-0">
+      {/* Verified Domain Card */}
+      <div className="bg-white rounded-2xl border border-[#EDEDED] p-5 flex flex-col items-start gap-4">
+        <div className="w-10 h-10 rounded-[10px] bg-[#ECFDF5] flex items-center justify-center shrink-0">
           <ShieldCheck size={20} className="text-[#10B981]" />
         </div>
-        <div>
-          <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">
+        <div className="space-y-1">
+          <p className="text-[28px] font-bold text-[#10B981] font-geist leading-none">
+            {verified}
+          </p>
+          <p className="text-[14px] font-normal text-[#666666] font-geist">
             Verified Domain
           </p>
-          <p className="text-3xl font-bold text-[#10B981] mt-1">{verified}</p>
-          <p className="text-xs text-[#6B7280] mt-1">{verifiedPercent}% total</p>
         </div>
       </div>
     </div>

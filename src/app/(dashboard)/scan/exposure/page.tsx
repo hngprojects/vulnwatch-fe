@@ -1,3 +1,5 @@
+import { ScanFindings } from '@/features/dashboard/components/scan/ScanFindings';
+
 export default function ExposurePage() {
-  return <div>Exposure Scan Page</div>;
+  return <ScanFindings activeTab='exposure' />;
 }

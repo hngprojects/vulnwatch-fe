@@ -1,4 +1,4 @@
-import { CheckCircle, Clock, Loader2 } from "lucide-react";
+import { CheckCircle, Clock } from "lucide-react";
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 

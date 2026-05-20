@@ -9,18 +9,6 @@ export function SecurityPosture({ score }: SecurityPostureProps) {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
 
-  const getStatusLabel = (s: number) => {
-    if (s >= 85) return { label: "Strong", color: "#22C55E" };
-    if (s >= 65) return { label: "Moderate", color: "#F59E0B" };
-    return { label: "At Risk", color: "#EF4444" };
-  };
-
-  const { label: statusLabel, color: statusColor } = getStatusLabel(score);
-
-  // Ring color based on score
-  const ringColor =
-    score >= 85 ? "#22C55E" : score >= 65 ? "#A0E870" : "#EF4444";
-
   return (
     <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6 flex flex-col gap-6 h-full">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 flex-1">

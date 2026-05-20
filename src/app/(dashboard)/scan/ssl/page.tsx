@@ -1,3 +1,5 @@
+import { ScanFindings } from '@/features/dashboard/components/scan/ScanFindings';
+
 export default function SslPage() {
-  return <div>SSL Scan Page</div>;
+  return <ScanFindings activeTab='ssl' />;
 }
