@@ -18,7 +18,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 md:py-24">
+      <section className="mx-auto max-w-7xl px-4 py-15 sm:px-6 sm:py-14 md:py-24">
         <div className="mb-10 text-center md:mb-24">
           <h2 className="mx-auto max-w-[309px] text-[24px] font-semibold leading-[48px] tracking-[-1.5px] md:max-w-none md:text-[40px]">
             Three (3) steps from{" "}
