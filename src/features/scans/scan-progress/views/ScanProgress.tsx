@@ -9,8 +9,11 @@ import ScanningProgress from "../../shared/ui/ScanningProgress";
 import ScanCompleteModal from "../ui/ScanCompleteModal";
 import { useSearchParams } from "next/navigation";
 
+interface ScanProgressProps {
+  scanId?: string;
+}
 
-export default function ScanProgress() {
+export default function ScanProgress({ scanId }: ScanProgressProps) {
   const [isScanCompleteModalOpen, setIsScanCompleteModalOpen] = useState(false);
   const searchParams = useSearchParams();
   const domain = searchParams.get("domain") || "";
@@ -63,6 +66,7 @@ export default function ScanProgress() {
         open={isScanCompleteModalOpen}
         onOpenChange={setIsScanCompleteModalOpen}
         domain={domain}
+        scanId={scanId || searchParams.get("scanId") || undefined}
       />
     </>
   );
