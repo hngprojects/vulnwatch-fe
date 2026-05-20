@@ -16,7 +16,7 @@ export const privateApi = axios.create({
 
 privateApi.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("auth_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

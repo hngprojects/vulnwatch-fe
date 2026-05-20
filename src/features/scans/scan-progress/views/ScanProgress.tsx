@@ -7,12 +7,12 @@ import { SCAN_PROGRESS } from "../lib/constants";
 import { useEffect, useState } from "react";
 import ScanningProgress from "../../shared/ui/ScanningProgress";
 import ScanCompleteModal from "../ui/ScanCompleteModal";
-import { useRouter } from "next/navigation";
+
 
 export default function ScanProgress() {
   const [isScanCompleteModalOpen, setIsScanCompleteModalOpen] = useState(false);
 
-  const router = useRouter();
+
   useEffect(() => {
     // Open modal after some seconds
     setTimeout(() => {

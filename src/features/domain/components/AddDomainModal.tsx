@@ -81,20 +81,48 @@ export default function AddDomainModal({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent showCloseButton className="max-w-[440px] rounded-xl">
-        <DialogTitle className="text-lg font-semibold text-[#111827]">
+      <DialogContent showCloseButton className="sm:max-w-[520px] rounded-2xl p-6 bg-white border-0 shadow-lg">
+        <DialogTitle className="text-[20px] font-medium text-[#072E28] font-geist">
           Add Domain
         </DialogTitle>
 
-        <div className="space-y-4 mt-1">
+        {/* Stepper */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-6 my-4">
+          {/* Step 1 */}
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="w-8 h-8 rounded-full bg-brand-green flex items-center justify-center text-sm font-semibold text-white">
+              1
+            </span>
+            <span className="text-[16px] font-normal text-brand-slate font-geist">
+              Enter Domain
+            </span>
+          </div>
+
+          {/* 3 Dashes Divider */}
+          <div className="hidden sm:block text-gray-300 font-medium select-none tracking-widest whitespace-nowrap">
+            ---
+          </div>
+
+          {/* Step 2 */}
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium text-[#858D90]">
+              2
+            </span>
+            <span className="text-[16px] font-normal text-[#858D90] font-geist">
+              Verify Domain Ownership
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-4 mt-2">
           <div>
-            <label className="block text-sm font-medium text-[#111827] mb-1.5">
+            <label className="block text-[16px] font-semibold text-brand-slate font-geist mb-2">
               Domain Name
             </label>
             <div className="relative">
               <Globe
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-dark opacity-80"
               />
               <input
                 type="text"
@@ -105,26 +133,28 @@ export default function AddDomainModal({ open, onOpenChange }: Props) {
                   setError("");
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                className="w-full pl-9 pr-3 h-10 text-sm rounded-lg border border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#072E28]/20 focus:border-[#072E28]"
+                className="w-full pl-11 pr-4 h-12 text-sm rounded-[12px] border border-[#E5E7EB] text-brand-dark placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#072E28]/10 focus:border-[#072E28] font-geist transition-shadow"
               />
             </div>
             {error ? (
-              <p className="text-xs text-[#EF4444] mt-1">{error}</p>
+              <p className="text-xs text-[#EF4444] font-geist mt-1.5">{error}</p>
             ) : (
-              <p className="text-xs text-[#9CA3AF] mt-1">
+              <p className="text-xs text-brand-gray font-geist mt-1.5">
                 Enter a valid domain (e.g. example.com)
               </p>
             )}
           </div>
 
-          <Button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-[#072E28] text-white hover:bg-[#072E28]/90 rounded-lg h-11 text-base font-semibold [letter-spacing:-0.5px]"
-          >
-            {loading ? "Saving..." : "Continue to verification"}
-            {!loading && <ArrowRight size={16} className="ml-1" />}
-          </Button>
+          <div className="flex justify-center pt-2">
+            <Button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="px-8 bg-[#072E28] text-white hover:bg-[#072E28]/90 rounded-[12px] h-12 text-[16px] font-semibold flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+            >
+              {loading ? "Saving..." : "Continue to verification"}
+              {!loading && <ArrowRight size={16} />}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

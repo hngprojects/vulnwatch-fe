@@ -1,14 +1,14 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import FaqAccordion from "./FaqAccordion";
+import FaqAccordion from "../faqs/FaqAccordion";
 import {
   FAQ_PAGE_CATEGORIES,
   FAQ_PAGE_GROUPS,
   FAQS_DATA,
   type FaqCategoryId,
 } from "@/features/landing/constants/faqs";
-import { Button } from "./ui/button";
+import { Button } from "../faqs/ui/button";
 import UserAvatarCascade from "../testimonials/UserAvatarCascade";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -88,6 +88,7 @@ const FaqQuestion = ({
 
 const FaqPage = () => {
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<FaqCategoryId>("getting-started");
 
   const handleToggleCategories = () => {
     setShowAllCategories((prev) => !prev);
@@ -97,6 +98,36 @@ const FaqPage = () => {
   const displayedGroups = showAllCategories
     ? FAQ_PAGE_GROUPS
     : FAQ_PAGE_GROUPS.slice(0, 3);
+
+  const handleCategoryClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    id: FaqCategoryId,
+    index: number
+  ) => {
+    e.preventDefault();
+    setActiveCategory(id);
+
+    const performScroll = () => {
+      const el = document.getElementById(id);
+      if (el) {
+        const headerOffset = 96; // 72px header + 24px padding
+        const elementPosition = el.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    };
+
+    if (index >= 3 && !showAllCategories) {
+      setShowAllCategories(true);
+      setTimeout(performScroll, 100);
+    } else {
+      performScroll();
+    }
+  };
 
   return (
     <main className="faq-page">
@@ -120,14 +151,15 @@ const FaqPage = () => {
 
             <nav aria-label="FAQ categories" className="mt-5 lg:mt-6">
               <ul className="space-y-2 lg:space-y-3">
-                {FAQ_PAGE_CATEGORIES.map(({ id, label }) => {
+                {FAQ_PAGE_CATEGORIES.map(({ id, label }, index) => {
                   const Icon = categoryIcons[id];
-                  const isActive = id === "getting-started";
+                  const isActive = id === activeCategory;
 
                   return (
                     <li key={id}>
                       <a
                         href={`#${id}`}
+                        onClick={(e) => handleCategoryClick(e, id, index)}
                         className={cn(
                           "faq-category-link",
                           isActive

@@ -1,4 +1,4 @@
-import { publicApi } from "@/lib/axios";
+import { privateApi } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth.store";
 import type {
   ApiResponse,
@@ -7,11 +7,6 @@ import type {
   Domain,
   DomainsListValue,
 } from "../types/domain.types";
-
-function authHeaders() {
-  const token = useAuthStore.getState().token;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
 function unwrap<T>(res: { data: ApiResponse<T>; status: number }): T {
   if (!res.data.isSuccess || !res.data.value) {
@@ -32,32 +27,25 @@ function unwrap<T>(res: { data: ApiResponse<T>; status: number }): T {
 
 export const domainService = {
   async getDomains(): Promise<DomainsListValue> {
-    const res = await publicApi.get<ApiResponse<DomainsListValue>>("/api/Domains", {
-      headers: authHeaders(),
-    });
+    const res = await privateApi.get<ApiResponse<DomainsListValue>>("/api/Domains");
     return unwrap(res);
   },
 
   async createDomain(payload: CreateDomainPayload): Promise<CreateDomainResponse> {
-    const res = await publicApi.post<ApiResponse<CreateDomainResponse>>("/api/Domains", payload, {
-      headers: authHeaders(),
-    });
+    const res = await privateApi.post<ApiResponse<CreateDomainResponse>>("/api/Domains", payload);
     return unwrap(res);
   },
 
   async verifyDomain(id: string): Promise<Domain> {
-    const res = await publicApi.put<ApiResponse<Domain>>(
+    const res = await privateApi.put<ApiResponse<Domain>>(
       `/api/Domains/${id}/verify`,
       null,
-      { headers: authHeaders() },
     );
     return unwrap(res);
   },
 
   async getDomain(domainId: string): Promise<Domain> {
-    const res = await publicApi.get<ApiResponse<Domain>>(`/api/Domains/${domainId}`, {
-      headers: authHeaders(),
-    });
+    const res = await privateApi.get<ApiResponse<Domain>>(`/api/Domains/${domainId}`);
     return unwrap(res);
   },
 };

@@ -15,6 +15,7 @@ const PricingCard = ({ plan, index }: PricingCardProps) => {
       key={`${plan.name}-${index}`}
       className={cn(
         "bg-cards relative flex flex-col overflow-hidden rounded-xl border md:min-h-[416px]",
+        "transition-all duration-200 hover:-translate-y-1 hover:shadow-md cursor-pointer",
         plan.featured ? "border-primary border-2" : "border-border border",
       )}
     >
