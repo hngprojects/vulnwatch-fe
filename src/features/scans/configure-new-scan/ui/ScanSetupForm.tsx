@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { scanService } from "@/features/scans/services/scan.service";
 
 export default function ScanSetupForm() {
+  "use no memo";
   const {
     register,
     handleSubmit,
@@ -28,6 +29,7 @@ export default function ScanSetupForm() {
   });
   const router = useRouter();
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const selectedScanType = watch("scanType");
 
   const onSubmit = async (data: ConfigureScanSchemaType) => {
