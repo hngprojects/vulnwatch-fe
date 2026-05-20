@@ -100,7 +100,11 @@ export default function VerifyDnsPage({ domainId }: { domainId: string }) {
   }
 
   const token = tokenFromUrl || domain?.verificationToken || domain?.domain || "";
-  const host = domain?.txtRecord || domain?.instructions?.txtRecord || "_vulnwatch-verify.@";
+  const rawHost = domain?.txtRecord || domain?.instructions?.txtRecord || "_vulnwatch-verify";
+  const domainName = domain?.domain || "";
+  const host = (domainName && rawHost.endsWith(`.${domainName}`))
+    ? rawHost.slice(0, -(domainName.length + 1))
+    : rawHost;
 
   return (
     <div className="px-4 md:px-6 py-6 w-full bg-white min-h-screen space-y-6">
