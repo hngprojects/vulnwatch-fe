@@ -29,26 +29,46 @@ export interface ApiResponse<T> {
 }
 
 // Helper function to extract only the pure domain name from any input URL/string
-function cleanDomain(input: string): string {
-  if (!input) return "";
-  // 1. Remove protocol (http://, https://) and optional 'www.'
+export function cleanDomain(input: string): string | null {
+  if (!input) return null;
   let cleaned = input.trim().toLowerCase();
-  cleaned = cleaned.replace(/^(https?:\/\/)?(www\.)?/, "");
-  // 2. Remove trailing paths or query parameters
-  cleaned = cleaned.split("/")[0];
-  // 3. Remove ports if present
-  cleaned = cleaned.split(":")[0];
-  return cleaned;
+
+  try {
+    let urlToParse = cleaned;
+    if (!/^(https?:)?\/\//i.test(cleaned)) {
+      urlToParse = `http://${cleaned}`;
+    }
+    const parsed = new URL(urlToParse);
+    let hostname = parsed.hostname;
+
+    if (hostname.startsWith("www.")) {
+      hostname = hostname.substring(4);
+    }
+    return hostname || null;
+  } catch {
+    // Fall back to manual normalization if parsing fails
+    cleaned = cleaned.replace(/^(https?:\/\/)?(www\.)?/, "");
+    // Explicitly remove query strings and hashes
+    cleaned = cleaned.split("#")[0].split("?")[0];
+    cleaned = cleaned.split("/")[0];
+    cleaned = cleaned.split(":")[0];
+    return cleaned || null;
+  }
 }
 
 export const scanService = {
   async createScan(
     payload: CreateScanPayload,
   ): Promise<ApiResponse<ScanResponse>> {
+    const cleanedDomain = cleanDomain(payload.domain);
+    if (!cleanedDomain) {
+      throw new Error("Invalid domain name");
+    }
+
     const response = await privateApi.post<ApiResponse<ScanResponse>>(
       "/api/Scans",
       {
-        domain: cleanDomain(payload.domain),
+        domain: cleanedDomain,
         coverage: COVERAGE_MAP[payload.scanType],
         // notifyOnComplete: payload.emailNotification, // ← uncomment when backend adds this field
       },

@@ -46,12 +46,16 @@ export default function ScanSetupForm() {
         ) {
           toast.info(response.value.message);
         }
-        router.push(`/scan/progress?scanId=${response.value.scanId}`);
+        router.push(`/scan/progress?scanId=${encodeURIComponent(response.value.scanId)}`);
       } else {
         toast.error(response.error?.message || "Failed to start scan. Please try again.");
       }
-    } catch {
-      toast.error("An unexpected error occurred. Please try again.");
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message === "Invalid domain name") {
+        toast.error("Please enter a valid domain name.");
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
