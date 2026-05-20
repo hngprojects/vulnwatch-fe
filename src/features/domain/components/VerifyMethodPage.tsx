@@ -3,68 +3,80 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Check, Info, ShieldCheck, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Info,
+  Loader2,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { domainService } from "../services/domain.service";
-import type { Domain } from "../types/domain.types";
-
-
-
-function Stepper() {
-  return (
-    <div className="flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-3">
-      {/* Step 1 - complete */}
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-brand-green text-white shrink-0">
-          <Check size={13} />
-        </div>
-        <span className="text-sm font-medium text-brand-gray font-geist">
-          Enter Domain
-        </span>
-      </div>
-
-      {/* Mobile vertical dotted/dashed connector */}
-      <div className="flex flex-col gap-0.5 items-center my-1 sm:hidden">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="w-0.5 h-1.5 bg-[#D1D5DB] rounded-full" />
-        ))}
-      </div>
-
-      {/* Desktop horizontal dotted/dashed connector */}
-      <div className="hidden sm:flex gap-0.5 items-center mx-1">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="w-2 h-0.5 bg-[#D1D5DB] rounded-full" />
-        ))}
-      </div>
-
-      {/* Step 2 - active */}
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-brand-green text-white shrink-0">
-          2
-        </div>
-        <span className="text-sm font-medium text-brand-dark font-geist">
-          Verify Domain Ownership
-        </span>
-      </div>
-    </div>
-  );
-}
+import type { Domain, VerificationMethod } from "../types/domain.types";
+import DomainVerificationStepper from "./DomainVerificationStepper";
 
 const PRE_CHECKS = [
   {
     title: "Your domain is registered",
-    desc: "Make sure you have access to your domain register account",
+    desc: "Make sure you have access to your domain registrar account.",
   },
   {
     title: "Choose a verified method",
-    desc: "You can verify using DNS, file upload, or email",
+    desc: "Use DNS TXT or email verification based on what is fastest for you.",
   },
   {
-    title: "Verification may take few minutes",
-    desc: "After verification, you can start scanning your domain",
+    title: "Verification may take a few minutes",
+    desc: "After verification, you can start scanning your domain right away.",
   },
 ];
+
+const METHOD_OPTIONS: {
+  value: VerificationMethod;
+  title: string;
+  description: string;
+  icon: "dns" | "email";
+}[] = [
+  {
+    value: "DNS_TXT",
+    title: "DNS TXT Record",
+    description: "Add a TXT record to your domain DNS settings.",
+    icon: "dns",
+  },
+  {
+    value: "EMAIL",
+    title: "Email Verification",
+    description: "Receive a verification link and 6-digit OTP by email.",
+    icon: "email",
+  },
+];
+
+function MethodIcon({ icon }: { icon: "dns" | "email" }) {
+  if (icon === "email") {
+    return (
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#DDF7CE] text-[#072E28]">
+        <Mail size={20} />
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src="/images/domain-page/txt-icon.jpg"
+      alt="TXT Icon"
+      width={44}
+      height={44}
+      className="h-11 w-11 rounded-2xl object-cover"
+    />
+  );
+}
+
+function getVerificationEmail(domainName: string) {
+  if (!domainName) return "admin@company.io";
+  return `admin@${domainName}`;
+}
 
 export default function VerifyMethodPage({ domainId }: { domainId: string }) {
   const router = useRouter();
@@ -72,119 +84,189 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
   const token = searchParams.get("token") ?? "";
   const [domain, setDomain] = useState<Domain | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedMethod, setSelectedMethod] =
+    useState<VerificationMethod>("DNS_TXT");
 
   useEffect(() => {
     domainService
       .getDomain(domainId)
-      .then(setDomain)
+      .then((result) => {
+        setDomain(result);
+        if (result.verificationMethod === "EMAIL") {
+          setSelectedMethod("EMAIL");
+        }
+      })
       .finally(() => setLoading(false));
   }, [domainId]);
 
+  const handleContinue = () => {
+    if (selectedMethod === "EMAIL") {
+      const email = getVerificationEmail(domain?.domain ?? "");
+      router.push(
+        `/domain/${domainId}/verify/email?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`,
+      );
+      return;
+    }
+
+    toast.info("Proceeding to DNS verification...");
+    router.push(`/domain/${domainId}/verify/dns?token=${encodeURIComponent(token)}`);
+  };
+
   if (loading) {
     return (
-      <div className="px-4 md:px-6 py-6 flex items-center justify-center min-h-[60vh]">
+      <div className="flex min-h-[60vh] items-center justify-center px-4 py-6 md:px-6">
         <Loader2 size={24} className="animate-spin text-[#072E28]" />
       </div>
     );
   }
 
   return (
-    <div className="px-4 md:px-6 py-6 bg-brand-bg min-h-screen">
-      {/* Top bar: Back + Stepper */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 mb-8 w-full">
-        <button
-          onClick={() => router.push("/domain")}
-          className="self-start flex items-center gap-1.5 text-sm text-[#6B7280] hover:text-[#111827] transition-colors"
-        >
-          <ArrowLeft size={16} />
-          Back
-        </button>
-        <div className="flex justify-center w-full sm:w-auto">
-          <Stepper />
-        </div>
-        {/* spacer to keep stepper centered on desktop */}
-        <div className="w-14 hidden sm:block" />
-      </div>
-
-      {/* Main card */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-8 flex flex-col items-center text-center gap-6">
-        {/* Title */}
-        <div className="space-y-2">
-          <h1 className="text-[24px] md:text-[32px] font-semibold text-brand-dark font-geist">
-            Verify Domain Ownership
-          </h1>
-          <p className="text-base font-normal text-brand-gray font-geist max-w-xl mx-auto">
-            To ensure security and prevent unauthorized scans, you need to verify
-            that you own this domain
-            {domain ? ` (${domain.domain})` : ""}
-          </p>
-        </div>
-
-        {/* DNS TXT Record option card */}
-        <div className="w-full max-w-sm bg-brand-light-green rounded-[8px] p-6 flex flex-col items-center gap-2 cursor-pointer">
-          <Image
-            src="/images/domain-page/txt-icon.jpg"
-            alt="TXT Icon"
-            width={40}
-            height={40}
-            className="w-10 h-10 object-contain rounded-[8px]"
+    <div className="min-h-screen bg-white px-4 py-6 md:px-6">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-6">
+          <DomainVerificationStepper
+            steps={[
+              {
+                number: 1,
+                label: "Domain Info",
+                mobileLabel: "Domain info",
+                state: "complete",
+              },
+              {
+                number: 2,
+                label: "Verification Method",
+                mobileLabel: "Verification Method",
+                state: "current",
+              },
+              {
+                number: 3,
+                label: "Select Email",
+                mobileLabel: "Select Email",
+                state: "upcoming",
+              },
+            ]}
           />
-          <p className="text-base font-semibold text-brand-dark mt-1 font-geist">
-            DNS TXT Record
-          </p>
-          <p className="text-xs font-normal text-brand-gray font-geist">
-            Add a TXT record to your document
-          </p>
         </div>
 
-        {/* Continue button */}
-        <div className="w-full flex flex-col items-center gap-4">
-          <div className="w-full max-w-[280px]">
-            <Button
-              onClick={() => {
-                toast.info("Proceeding to DNS verification...");
-                router.push(`/domain/${domainId}/verify/dns?token=${encodeURIComponent(token)}`);
-              }}
-              className="w-full bg-[#072E28] hover:bg-[#072E28]/90 text-white font-medium h-11 rounded-[8px] cursor-pointer"
-            >
-              Continue
-            </Button>
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            onClick={() => router.push("/domain")}
+            className="flex items-center gap-1.5 self-start text-sm text-[#6B7280] transition-colors hover:text-[#111827]"
+          >
+            <ArrowLeft size={16} />
+            Back
+          </button>
+
+          <div className="w-14 hidden sm:block" />
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="rounded-[28px] border border-[#E5E7EB] bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)] md:p-8">
+            <div className="max-w-2xl">
+              <h1 className="text-[28px] font-semibold leading-tight text-brand-dark md:text-[36px]">
+                Verify Domain Ownership
+              </h1>
+              <p className="mt-3 text-sm leading-6 text-brand-gray md:text-base">
+                Choose how you want to confirm ownership for
+                <span className="font-semibold text-brand-dark">
+                  {" "}
+                  {domain ? domain.domain : "this domain"}
+                </span>
+                . You can continue with DNS verification or request a code by
+                email.
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {METHOD_OPTIONS.map((option) => {
+                const isSelected = selectedMethod === option.value;
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setSelectedMethod(option.value)}
+                    className={cn(
+                      "rounded-[24px] border p-5 text-left transition-all",
+                      isSelected
+                        ? "border-[#072E28] bg-[#F5FBF8] shadow-[0_12px_24px_rgba(7,46,40,0.08)]"
+                        : "border-[#E5E7EB] bg-white hover:border-[#B8C7C1]",
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <MethodIcon icon={option.icon} />
+                      <div
+                        className={cn(
+                          "mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border",
+                          isSelected
+                            ? "border-[#072E28] bg-[#072E28]"
+                            : "border-[#C9D3CF] bg-white",
+                        )}
+                      >
+                        {isSelected && <Check size={12} className="text-white" />}
+                      </div>
+                    </div>
+
+                    <p className="mt-5 text-lg font-semibold text-brand-dark">
+                      {option.title}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-brand-gray">
+                      {option.description}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <Button
+                onClick={handleContinue}
+                className="h-11 rounded-xl bg-[#072E28] px-6 text-white hover:bg-[#072E28]/90"
+              >
+                Continue
+              </Button>
+              <p className="flex items-center gap-1.5 text-sm text-brand-slate">
+                <Info size={12} />
+                {selectedMethod === "EMAIL"
+                  ? "We'll prepare an email verification step with an OTP fallback."
+                  : "You'll add a DNS TXT record to verify ownership."}
+              </p>
+            </div>
           </div>
-          <p className="flex items-center justify-center gap-1.5 text-sm font-normal text-brand-slate font-geist w-full">
-            <Info size={12} />
-            You&apos;ll add a DNS record to verify ownership.
-          </p>
-        </div>
-      </div>
 
-      {/* Before you continue — outside the card */}
-      <div className="mt-8 space-y-5">
-        <h3 className="text-[24px] font-semibold text-brand-dark font-geist">
-          Before you continue
-        </h3>
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6 w-full">
-          {PRE_CHECKS.map((item) => (
-            <div key={item.title} className="flex items-start gap-3 flex-1">
-              <div className="w-6 h-6 rounded-full border-2 border-brand-green flex items-center justify-center shrink-0 mt-0.5">
-                <Check size={11} className="text-brand-green" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-[18px] font-semibold text-brand-slate font-geist">
-                  {item.title}
-                </p>
-                <p className="text-[16px] font-normal text-brand-gray font-geist leading-relaxed">
-                  {item.desc}
-                </p>
+          <aside className="space-y-5">
+            <div className="rounded-[24px] border border-[#E5E7EB] bg-[#FAFAFA] p-6">
+              <h3 className="text-xl font-semibold text-brand-dark">
+                Before you continue
+              </h3>
+              <div className="mt-5 space-y-5">
+                {PRE_CHECKS.map((item) => (
+                  <div key={item.title} className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-brand-green">
+                      <Check size={12} className="text-brand-green" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-brand-slate">
+                        {item.title}
+                      </p>
+                      <p className="mt-1 text-sm leading-5 text-brand-gray">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Security note */}
-        <p className="flex items-center gap-2 text-[16px] font-normal text-brand-gray font-geist pt-2 border-t border-[#E5E7EB]/50">
-          <ShieldCheck size={16} className="text-brand-green" />
-          Your domain information is secure and encrypted
-        </p>
+            <div className="rounded-[20px] border border-[#E5E7EB] bg-white p-5">
+              <p className="flex items-center gap-2 text-sm text-brand-gray">
+                <ShieldCheck size={16} className="text-brand-green" />
+                Your domain information is secure and encrypted during
+                verification.
+              </p>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
