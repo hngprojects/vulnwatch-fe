@@ -7,12 +7,7 @@ export const configureScanSchema = z.object({
     (val) => domainOrUrlRegex.test(val),
     { message: "Please enter a valid domain or URL" }
   ),
-  scanType: z.enum(["QUICK_SCAN", "FULL_SCAN"], {
-    error: (el) => {
-      console.log(el);
-      return { message: "Please select a scan type" };
-    },
-  }),
+  scanType: z.enum(["QUICK_SCAN", "FULL_SCAN"]),
   emailNotification: z.boolean(),
 });
 

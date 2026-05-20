@@ -45,138 +45,31 @@ export const SCAN_TYPES = [
   },
 ];
 
+import { Search, Settings2, FileText, ShieldAlert } from "lucide-react";
+
 export const WHAT_HAPPENS_NEXT = [
   {
     title: "Discover & Analyze",
     description:
       "We discover your domain, subdomains, and public-facing assets.",
-    icon: (
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 23 23"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M20.9999 21.0006L14.7142 14.7148"
-          stroke="#072E28"
-          strokeWidth="2"
-          strokeMiterlimit="10"
-          strokeLinecap="square"
-        />
-        <path
-          d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z"
-          stroke="#072E28"
-          strokeWidth="2"
-          strokeMiterlimit="10"
-          strokeLinecap="square"
-        />
-      </svg>
-    ),
+    icon: <Search size={18} className="text-[#2B2B2B]" />,
   },
   {
     title: "Check Security Configuration",
     description:
       "We will analyze your SSL/TLS, headers, DNS, and other security configurations",
-    icon: (
-      <svg
-        width="20"
-        height="17"
-        viewBox="0 0 23 20"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M16.7314 13.5771L17.5771 12.1486H21.6114L22.8571 10L20.3657 5.71429H16.8571L15.6457 3.58857H14.2857V2.14857H16.5028L17.7143 4.28571H19.5314L17.0286 0H12.1486V5.71429H14.1257L14.96 7.14286H12.1486V10H14.7314L15.9314 7.86286H19.1428L19.9657 9.29143H16.7657L15.5657 11.4286H12.1486V16.4343H16.0343L15.2114 17.8629H12.1486V20H17.0286L20.7771 13.5771H18.3886L17.5543 15.0057H14.2857V13.5771H16.7314Z"
-          fill="#072E28"
-        />
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M6.12572 13.5771L5.28 12.1486H1.24571L0 10L2.49143 5.71429H6L7.21143 3.58857H8.57143V2.14857H6.35429L5.14286 4.28571H3.32571L5.82857 0H10.72V5.71429H8.73143L7.89714 7.14286H10.72V10H8.12572L6.92572 7.86286H3.71429L2.89143 9.29143H6.09143L7.29143 11.4286H10.72V16.4343H6.82286L7.64571 17.8629H10.72V20H5.82857L2.08 13.5771H4.46857L5.30286 15.0057H8.57143V13.5771H6.12572Z"
-          fill="#072E28"
-        />
-      </svg>
-    ),
+    icon: <Settings2 size={18} className="text-[#2B2B2B]" />,
   },
   {
     title: "Deliver Clear Report",
     description:
       "You’ll get clear report with explanations and actionable recommendations",
-    icon: (
-      <svg
-        width="18"
-        height="19"
-        viewBox="0 0 19 22"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M14.81 21C16.125 21 17.1905 19.9346 17.1905 18.6196C17.1905 13.8642 17.1905 8.13576 17.1905 3.3804C17.1905 2.06543 16.1245 1 14.8095 1H7.306C6.92714 1 6.56376 1.15051 6.29586 1.41842L1.41842 6.29586C1.15051 6.56376 1 6.92714 1 7.306C1 11.077 1 14.848 1 18.619C1 19.934 2.06545 21 3.38043 21C6.94181 21 11.2487 21 14.81 21Z"
-          stroke="#072E28"
-          strokeWidth="2"
-          strokeMiterlimit="10"
-          strokeLinecap="square"
-        />
-        <path
-          d="M7.19048 1V7.19048H1"
-          stroke="#072E28"
-          strokeWidth="2"
-          strokeMiterlimit="10"
-        />
-        <path
-          d="M4.33337 11H13.8572"
-          stroke="#072E28"
-          strokeWidth="2"
-          strokeMiterlimit="10"
-          strokeLinecap="square"
-        />
-        <path
-          d="M13.8571 7.19141H10.5238"
-          stroke="#072E28"
-          strokeWidth="2"
-          strokeMiterlimit="10"
-          strokeLinecap="square"
-        />
-        <path
-          d="M4.33337 14.8086H13.8572"
-          stroke="#072E28"
-          strokeWidth="2"
-          strokeMiterlimit="10"
-          strokeLinecap="square"
-        />
-      </svg>
-    ),
+    icon: <FileText size={18} className="text-[#2B2B2B]" />,
   },
   {
     title: "Identify Risks",
     description:
       "Our AI engine identifies misconfigurations and ranks them by severity",
-    icon: (
-      <svg
-        width="34"
-        height="34"
-        viewBox="0 0 34 34"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <rect width="34" height="34" rx="17" fill="#A0E870" />
-        <path
-          d="M16.9356 18.6464C16.5485 18.6464 16.2904 18.3884 16.2904 18.0013V13.3561C16.2904 12.969 16.5485 12.7109 16.9356 12.7109C17.3227 12.7109 17.5807 12.969 17.5807 13.3561V18.0013C17.5807 18.3884 17.3227 18.6464 16.9356 18.6464Z"
-          fill="#072E28"
-        />
-        <path
-          d="M16.9356 21.9994C16.8065 21.9994 16.5485 21.9994 16.4194 21.8703C16.2904 21.7413 16.2904 21.6123 16.2904 21.3542C16.2904 21.2252 16.2904 20.9671 16.4194 20.8381C16.6775 20.58 17.0646 20.58 17.3227 20.8381C17.4517 20.9671 17.4517 21.0961 17.4517 21.3542C17.4517 21.4832 17.3227 21.7413 17.1936 21.8703C17.3227 21.9994 17.0646 21.9994 16.9356 21.9994Z"
-          fill="#072E28"
-        />
-        <path
-          d="M24.5484 26H9.32258C8.16129 26 7 25.3548 6.48387 24.3226C5.83871 23.2903 5.83871 22 6.48387 20.9677L14.0968 7.67742C14.7419 6.64516 15.7742 6 16.9355 6C18.0968 6 19.2581 6.64516 19.7742 7.67742L27.3871 20.9677C28.0323 22 28.0323 23.2903 27.3871 24.3226C26.871 25.3548 25.8387 26 24.5484 26ZM16.9355 7.41936C16.1613 7.41936 15.5161 7.80645 15.2581 8.45161L7.64516 21.7419C7.25807 22.3871 7.25807 23.1613 7.64516 23.8065C8.03226 24.4516 8.67742 24.8387 9.32258 24.8387H24.6774C25.4516 24.8387 26.0968 24.4516 26.3548 23.8065C26.7419 23.1613 26.7419 22.3871 26.3548 21.7419L18.7419 8.45161C18.3548 7.80645 17.7097 7.41936 16.9355 7.41936Z"
-          fill="#072E28"
-        />
-      </svg>
-    ),
+    icon: <ShieldAlert size={18} className="text-[#2B2B2B]" />,
   },
 ];
