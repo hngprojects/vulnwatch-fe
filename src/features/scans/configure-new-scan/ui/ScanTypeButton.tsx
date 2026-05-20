@@ -14,17 +14,20 @@ const ScanTypeButton = React.forwardRef<HTMLInputElement, ScanTypeButtonProps>(
     { icon, title, isSelected, description, timeDuration, className, ...props },
     ref,
   ) => {
+    const disabled = props.disabled;
+
     return (
       <label
         className={cn(
           "relative p-4 rounded-lg w-full items-center cursor-pointer gap-3 transition-all duration-200 bg-white border-[#E5E7EB] hover:text-foreground border-[1.2px]",
           isSelected && "border-[#072E28]",
           !isSelected && "hover:border-[#072E28]",
+          disabled && "opacity-60 cursor-not-allowed pointer-events-none select-none border-neutral-200 hover:border-neutral-200",
           className,
         )}
       >
         <input type="radio" className="sr-only" ref={ref} {...props} />
-        {isSelected && (
+        {isSelected && !disabled && (
           <span className="sm:hidden absolute right-4 top-4">
             <svg
               width="18"
@@ -45,13 +48,20 @@ const ScanTypeButton = React.forwardRef<HTMLInputElement, ScanTypeButtonProps>(
           </span>
         )}
         <span className="space-y-2 flex gap-4 items-start sm:flex-col sm:items-center h-full sm:text-center">
-            <span className="size-9! aspect-square bg-[#072E28] text-white rounded-full flex items-center justify-center mb-0! transition-colors duration-200">
-              <span className="flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5">
-                {icon}
-              </span>
+          <span className="size-9! aspect-square bg-[#072E28] text-white rounded-full flex items-center justify-center mb-0! transition-colors duration-200">
+            <span className="flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5">
+              {icon}
             </span>
-          <span className="space-y-2 h-full flex flex-col">
-            <span className="block text-lg font-semibold">{title}</span>
+          </span>
+          <span className="space-y-2 h-full flex flex-col items-center">
+            <span className="block text-lg font-semibold flex items-center gap-1.5 justify-center">
+              {title}
+              {disabled && (
+                <span className="text-[10px] bg-neutral-100 text-neutral-500 font-medium px-1.5 py-0.5 rounded border border-neutral-200 shrink-0">
+                  Coming soon
+                </span>
+              )}
+            </span>
             <span className="block text-sm text-center text-[#6B7280]">
               {description}
             </span>

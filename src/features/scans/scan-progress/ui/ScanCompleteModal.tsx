@@ -22,11 +22,13 @@ import Link from "next/link";
 interface ScanCompleteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  domain?: string;
 }
 
 export default function ScanCompleteModal({
   open,
   onOpenChange,
+  domain,
 }: ScanCompleteModalProps) {
   const router = useRouter();
 
@@ -176,8 +178,7 @@ export default function ScanCompleteModal({
                   Scan Complete
                 </h1>
                 <p className="font-geist font-normal text-[#2B2B2B]">
-                  Your security scan finished successfully. Review the findings
-                  below.
+                  Your security scan {domain ? <>for <span className="font-semibold text-neutral-800">{domain}</span></> : ""} finished successfully. Review the findings below.
                 </p>
 
                 <div className="grid grid-cols-3 gap-4 justify-center">
