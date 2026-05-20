@@ -8,7 +8,6 @@ export interface TourStep {
     description: string
     position: TourPosition
     arrow: ArrowDirection
-    mobileArrow: ArrowDirection
     buttonLabel: 'continue' | 'done'
 }
 
@@ -21,7 +20,6 @@ export const tourSteps: TourStep[] = [
         description: 'These four cards are your live health snapshot score, active domains, open issues, and critical alerts update every time a scan runs.',
         position: 'step-1',
         arrow: 'left',
-        mobileArrow: 'left',
         buttonLabel: 'continue',
     },
     // step 2
@@ -32,7 +30,6 @@ export const tourSteps: TourStep[] = [
         description: 'First verify you own the domain, then we run a passive non-intrusive scan, and finally the AI turns the results into plain-English actions you can act on immediately.',
         position: 'step-2',
         arrow: 'left',
-        mobileArrow: 'left',
         buttonLabel: 'continue',
     },
     // step 3
@@ -43,7 +40,6 @@ export const tourSteps: TourStep[] = [
         description: 'Dashboard gives you the overview. Domains manages your verified sites. Scans shows run history. Reports holds AI summaries. Settings controls your account and alerts.',
         position: 'step-3',
         arrow: 'left',
-        mobileArrow: 'left',
         buttonLabel: 'continue',
     },
     // step 4
@@ -54,7 +50,6 @@ export const tourSteps: TourStep[] = [
         description: 'Security Docs walks you through every finding type and remediation guide. API Access gives you your key to integrate VulnWatch scan results into your own pipelines and tools.',
         position: 'step-4',
         arrow: 'top',
-        mobileArrow: 'left',
         buttonLabel: 'done',
     },
 ]
