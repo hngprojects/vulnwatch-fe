@@ -13,6 +13,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DomainEmptyState from "./DomainEmptyState";
+import DomainDetailsModal from "./DomainDetailsModal";
 import type { Domain, DomainStatus, VerificationMethod } from "../types/domain.types";
 
 interface Props {
@@ -80,6 +81,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
   const [statusFilter, setStatusFilter] = useState<DomainStatus | "ALL">("ALL");
   const [filterOpen, setFilterOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [detailsDomain, setDetailsDomain] = useState<Domain | null>(null);
 
   // Only consider domains loaded once loading is done
   const hasDomains = !loading && domains.length > 0;
@@ -373,45 +375,50 @@ export default function DomainTable({ domains, loading = false, error = null, on
                       )}
                     </td>
 
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-xs h-8 px-3 rounded-lg border-[#E5E7EB] text-[#374151] hover:bg-[#F9FAFB]"
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setDetailsDomain(domain)}
+                        className="text-xs h-8 px-3 rounded-lg border-[#E5E7EB] text-[#374151] hover:bg-[#F9FAFB]"
+                      >
+                        View Details
+                      </Button>
+                      <div className="relative">
+                        <button
+                          onClick={() =>
+                            setOpenMenuId(openMenuId === domain.id ? null : domain.id)
+                          }
+                          className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:bg-[#F9FAFB]"
                         >
-                          View Details
-                        </Button>
-                        <div className="relative">
-                          <button
-                            onClick={() =>
-                              setOpenMenuId(openMenuId === domain.id ? null : domain.id)
-                            }
-                            className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:bg-[#F9FAFB]"
-                          >
-                            <MoreVertical size={14} />
-                          </button>
-                          {openMenuId === domain.id && (
-                            <div className="absolute right-0 top-9 z-10 w-32 bg-white rounded-xl border border-[#E5E7EB] shadow-lg overflow-hidden">
-                              <button className="w-full text-left px-4 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB]">
-                                Re-verify
-                              </button>
-                              <button className="w-full text-left px-4 py-2 text-sm text-[#EF4444] hover:bg-[#FEF2F2]">
-                                Remove
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                          <MoreVertical size={14} />
+                        </button>
+                        {openMenuId === domain.id && (
+                          <div className="absolute right-0 top-9 z-10 w-32 bg-white rounded-xl border border-[#E5E7EB] shadow-lg overflow-hidden">
+                            <button className="w-full text-left px-4 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB]">
+                              Re-verify
+                            </button>
+                            <button className="w-full text-left px-4 py-2 text-sm text-[#EF4444] hover:bg-[#FEF2F2]">
+                              Remove
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    </td>
-                  </tr>
-                ))
-              )}
+                    </div>
+                  </td>
+                </tr>
+              )))}
             </tbody>
           </table>
         </div>
       </div>
 
+      <DomainDetailsModal
+        domain={detailsDomain}
+        open={detailsDomain !== null}
+        onOpenChange={(open) => { if (!open) setDetailsDomain(null); }}
+      />
     </div>
   );
 }
