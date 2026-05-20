@@ -8,12 +8,20 @@ import DomainTable from "./DomainTable";
 import AddDomainModal from "./AddDomainModal";
 import { domainService } from "../services/domain.service";
 import type { DomainsListValue } from "../types/domain.types";
+import { useSearchParams } from "next/navigation";
 
 export default function DomainPage() {
   const [data, setData] = useState<DomainsListValue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams && searchParams.get("add") === "true") {
+      setModalOpen(true);
+    }
+  }, [searchParams]);
 
   const fetchDomains = useCallback(async () => {
     setLoading(true);
