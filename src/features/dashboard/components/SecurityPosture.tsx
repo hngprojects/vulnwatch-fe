@@ -23,7 +23,7 @@ export function SecurityPosture({ score }: SecurityPostureProps) {
           </p>
           <Link
             href="/report"
-            className="mt-4 text-sm font-bold text-primary hover:opacity-70 transition-opacity flex items-center gap-1"
+            className="mt-4 font-geist font-normal text-[16px] leading-[16px] tracking-[2%] text-[#072E28] hover:opacity-70 transition-opacity flex items-center gap-1"
           >
             View all issues <span className="text-lg">→</span>
           </Link>
