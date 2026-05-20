@@ -131,7 +131,7 @@ export function ResetPasswordForm() {
             <PasswordInput
               label="New Password"
               placeholder="........"
-              helperText="Use at least 12 characters, with numbers & symbols."
+              helperText="Use at least 8 characters, with numbers & symbols."
               error={errors.newPassword?.message}
               {...register("newPassword")}
             />
