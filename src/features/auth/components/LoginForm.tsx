@@ -71,7 +71,7 @@ export function LoginForm() {
             </Link>
           </div>
           <p className="font-geist text-center text-[15px] font-normal text-[#666666] sm:text-[16px]">
-            Enter your credentials to access the secure enterprise dashboard.
+            Eter yor credentials to access the secure enterprise dashboard.
           </p>
         </div>
 
