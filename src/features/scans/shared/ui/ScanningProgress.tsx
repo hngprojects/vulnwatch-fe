@@ -2,15 +2,6 @@
 
 const RADIUS = 90;
 
-const rings = [
-  { size: 220, opacity: 0.18 },
-  { size: 248, opacity: 0.13 },
-  { size: 278, opacity: 0.09 },
-  { size: 308, opacity: 0.06 },
-  { size: 338, opacity: 0.04 },
-  { size: 368, opacity: 0.025 },
-];
-
 /**
  * ScanningProgress
  *
