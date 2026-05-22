@@ -32,15 +32,21 @@ function MobileScanButton() {
     <button
       type="button"
       onClick={() => router.push(ROUTES.REGISTER)}
-      className="flex items-center justify-center gap-2 w-[211px] h-12
-        rounded-xl bg-primary transition-opacity hover:opacity-90
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+      className="flex items-center justify-center gap-3 w-[260px] h-[62px]
+        rounded-2xl bg-secondary transition-opacity hover:opacity-90
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary px-6"
       aria-label={HERO_ARIA.scanButton}
     >
-      <span className="font-inter text-base leading-5 font-semibold text-white">
-        Scan my website
+      <Image
+        src="/icons/icon-scan.svg"
+        alt="Scan icon"
+        width={24}
+        height={24}
+        aria-hidden="true"
+      />
+      <span className="font-inter text-base leading-5 font-semibold text-primary">
+        Scan my Website
       </span>
-      <span className="text-white text-lg">→</span>
     </button>
   );
 }
@@ -106,10 +112,10 @@ function DesktopScanForm() {
         <button
           type="button"
           onClick={handleScan}
-          className={`flex items-center justify-center rounded bg-primary transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+          className={`flex items-center justify-center rounded bg-primary w-[83px] h-[46px] px-[10px] py-[13px] transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
             isValid
-              ? "w-[83px] h-[46px] opacity-100 scale-100 blur-0 cursor-pointer px-[10px] py-[13px]"
-              : "w-0 h-[46px] opacity-0 scale-90 blur-sm pointer-events-none overflow-hidden p-0"
+              ? "opacity-100 scale-100 blur-0 cursor-pointer pointer-events-auto"
+              : "opacity-50 scale-100 blur-[1px] pointer-events-none cursor-not-allowed"
           }`}
           aria-label={HERO_ARIA.scanButton}
         >
