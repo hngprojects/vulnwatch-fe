@@ -45,14 +45,14 @@ export function DashboardHeader() {
   return (
     <>
       <header className={cn(
-        'py-4 bg-[#F0F0F0] items-center px-4 md:px-6 shrink-0 z-30 justify-between md:justify-start',
+        'py-6 bg-brand-sidebar-bg items-center px-4 md:px-6 shrink-0 z-30 justify-between md:justify-start',
         pathname.startsWith('/scan/report') ? 'hidden lg:flex' : 'flex'
       )}>
         {/* Hamburger (Mobile: Right, Tablet: Left) */}
         <button
           type='button'
           onClick={() => setMobileMenuOpen(true)}
-          className='lg:hidden text-[#111827] p-1 order-2 md:order-1 md:mr-4'
+          className='lg:hidden text-brand-dark p-1 order-2 md:order-1 md:mr-4'
           aria-label='Open menu'
         >
           <Menu className='h-6 w-6' />
@@ -70,12 +70,12 @@ export function DashboardHeader() {
         </Link>
 
         {/* Search bar */}
-        <div className='hidden md:flex items-center gap-2 bg-[#FFFFFF] border border-[#E5E7EB] rounded-lg px-3 py-2 flex-1 max-w-[493px] md:ml-4 lg:ml-8 md:mr-4 order-3'>
-          <Search className='h-4 w-4 text-[#64748B] shrink-0' />
+        <div className='hidden md:flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 flex-1 max-w-[493px] md:ml-4 lg:ml-8 md:mr-4 order-3'>
+          <Search className='h-4 w-4 text-slate-500 shrink-0' />
           <input
             type='text'
             placeholder='Search assets...'
-            className='bg-transparent font-inter text-sm text-[#374151] placeholder:text-[#6B7280] outline-none w-full'
+            className='bg-transparent font-inter text-sm text-gray-700 placeholder:text-gray-500 outline-none w-full'
           />
         </div>
 
@@ -86,7 +86,7 @@ export function DashboardHeader() {
             <button
               type='button'
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className='flex items-center gap-2 bg-[#F9F9F9] hover:bg-[#F3F4F6] rounded-[12px] pt-[4.8px] pr-[9.59px] pb-[4.8px] pl-[4.8px] transition-colors'
+              className='flex items-center gap-2 bg-brand-bg hover:bg-gray-100 rounded-[12px] pt-[4.8px] pr-[9.59px] pb-[4.8px] pl-[4.8px] transition-colors'
             >
               {picture ? (
                 <Image
@@ -102,14 +102,14 @@ export function DashboardHeader() {
                 </div>
               )}
               <div className='flex flex-col items-start leading-none'>
-                <span className='text-sm font-medium text-[#111827] capitalize'>
+                <span className='text-sm font-medium text-brand-dark capitalize'>
                   {displayName}
                 </span>
-                <span className='text-xs text-[#6B7280] mt-0.5'>
+                <span className='text-xs text-brand-muted mt-0.5'>
                   {displayEmail}
                 </span>
               </div>
-              <ChevronDown className='h-4 w-4 text-[#9CA3AF]' />
+              <ChevronDown className='h-4 w-4 text-gray-400' />
             </button>
 
             {userMenuOpen && (
@@ -118,26 +118,26 @@ export function DashboardHeader() {
                   className='fixed inset-0 z-10'
                   onClick={() => setUserMenuOpen(false)}
                 />
-                <div className='absolute right-0 top-full mt-1 w-48 bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-20 py-1'>
-                  <div className='px-3 py-2 border-b border-[#F3F4F6]'>
-                    <p className='text-sm font-medium text-[#111827] capitalize'>
+                <div className='absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-20 py-1'>
+                  <div className='px-3 py-2 border-b border-gray-100'>
+                    <p className='text-sm font-medium text-brand-dark capitalize'>
                       {displayName}
                     </p>
-                    <p className='text-xs text-[#6B7280] truncate'>
+                    <p className='text-xs text-brand-muted truncate'>
                       {displayEmail}
                     </p>
                   </div>
                   <Link
                     href='/settings'
                     onClick={() => setUserMenuOpen(false)}
-                    className='flex items-center gap-2 px-3 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB]'
+                    className='flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50'
                   >
                     <Settings className='h-4 w-4' />
                     Settings
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className='w-full flex items-center gap-2 px-3 py-2 text-sm text-[#EF4444] hover:bg-red-50'
+                    className='w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50'
                   >
                     <LogOut className='h-4 w-4' />
                     Sign out
@@ -165,7 +165,7 @@ export function DashboardHeader() {
           transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(-100%)',
         }}
       >
-        <div className='flex items-center justify-between h-16 px-4 border-b border-[#E5E7EB]'>
+        <div className='flex items-center justify-between h-16 px-4 border-b border-gray-200'>
           <Link href='/dashboard'>
             <Image
               src='/images/logo-dashboard-mobile.png'
@@ -178,7 +178,7 @@ export function DashboardHeader() {
           <button
             type='button'
             onClick={() => setMobileMenuOpen(false)}
-            className='text-[#6B7280]'
+            className='text-brand-gray'
           >
             <X className='h-5 w-5' />
           </button>
@@ -195,7 +195,7 @@ export function DashboardHeader() {
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                   isActive
                     ? 'bg-primary text-white'
-                    : 'text-[#4B5563] hover:bg-[#F3F4F6]',
+                    : 'text-gray-600 hover:bg-gray-100',
                 )}
               >
                 <Icon className='h-4.5 w-4.5 shrink-0' strokeWidth={1.8} />
@@ -204,10 +204,10 @@ export function DashboardHeader() {
             );
           })}
         </nav>
-        <div className='px-3 pb-6 border-t border-[#E5E7EB] pt-4'>
+        <div className='px-3 pb-6 border-t border-gray-200 pt-4'>
           <button
             onClick={handleLogout}
-            className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#EF4444] hover:bg-red-50'
+            className='w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 hover:bg-red-50'
           >
             <LogOut className='h-4.5 w-4.5' strokeWidth={1.8} />
             Logout

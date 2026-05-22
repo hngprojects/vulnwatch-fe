@@ -37,16 +37,16 @@ export default function NewsVulnwatchFundingPage() {
                         The argument, it turns out, is convincing. VulnWatch has closed a pre-seed funding round, giving the team the runway to accelerate growth, expand its monitoring infrastructure, and begin building integrations with popular web platforms across Africa and Europe.
                     </p>
                     <p>
-                        "Boring security means nothing breaks," said the team. "It means your SSL certificate doesn't expire on a Friday night. It means a hacker doesn't redirect your traffic because you forgot to check your DNS records. Boring is the goal."
+                        &ldquo;Boring security means nothing breaks,&rdquo; said the team. &ldquo;It means your SSL certificate doesn&apos;t expire on a Friday night. It means a hacker doesn&apos;t redirect your traffic because you forgot to check your DNS records. Boring is the goal.&rdquo;
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">The problem they are solving</h2>
                     <p>
-                        For most small business owners, website security is a black box. They know it matters, but they don't know what to look for, and they can't afford to hire someone who does. The result is millions of websites running with expired SSL certificates, misconfigured DNS, and outdated software — sitting ducks for opportunistic attackers.
+                        For most small business owners, website security is a black box. They know it matters, but they don&apos;t know what to look for, and they can&apos;t afford to hire someone who does. The result is millions of websites running with expired SSL certificates, misconfigured DNS, and outdated software — sitting ducks for opportunistic attackers.
                     </p>
                     <p>
-                        VulnWatch's platform scans a domain in under 60 seconds and surfaces actionable findings in plain language. No jargon. No cryptic terminal output. Just: "Your SSL certificate expires in 11 days. Here's how to renew it."
+                        VulnWatch&apos;s platform scans a domain in under 60 seconds and surfaces actionable findings in plain language. No jargon. No cryptic terminal output. Just: &ldquo;Your SSL certificate expires in 11 days. Here&apos;s how to renew it.&rdquo;
                     </p>
-                    <h2 className="text-xl font-semibold text-header mt-10">What's next</h2>
+                    <h2 className="text-xl font-semibold text-header mt-10">What&apos;s next</h2>
                     <p>
                         The team plans to use the funding to expand its monitoring coverage, grow its team, and launch a public API for developers and agencies managing multiple client domains. A mobile app is also in the works for later this year.
                     </p>

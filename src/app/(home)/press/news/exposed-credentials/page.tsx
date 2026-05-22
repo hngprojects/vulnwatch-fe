@@ -31,7 +31,7 @@ export default function NewsExposedCredentialsPage() {
 
                 <div className="space-y-6 text-base leading-relaxed text-gray-700">
                     <p>
-                        Somewhere on the dark web right now, there is a database containing the email addresses and passwords of your customers. You almost certainly don't know it exists. You probably haven't checked. VulnWatch AI has built a system to check for you — and alert you before the damage is done.
+                        Somewhere on the dark web right now, there is a database containing the email addresses and passwords of your customers. You almost certainly don&apos;t know it exists. You probably haven&apos;t checked. VulnWatch AI has built a system to check for you — and alert you before the damage is done.
                     </p>
                     <p>
                         The Lagos-based security startup has developed a credential exposure detection engine that cross-references domains against a continuously updated index of known data breaches. When a match is found — an email associated with your domain appearing in a leaked database — the domain owner receives an alert detailing the breach source, the date, and the recommended actions.
@@ -41,21 +41,21 @@ export default function NewsExposedCredentialsPage() {
                         The numbers are staggering. Billions of credentials have been exposed in data breaches over the past decade. Many of those credentials are still active — passwords reused across multiple services, dormant accounts left open on old platforms, email addresses tied to business domains that nobody thought to monitor.
                     </p>
                     <p>
-                        For businesses, the risk is not just to their own systems. When a customer's email and password from your platform appear in a breach, attackers use them to access the customer's other accounts — banking, social media, email. The business that suffered the original breach becomes the starting point for a cascade of harm.
+                        For businesses, the risk is not just to their own systems. When a customer&apos;s email and password from your platform appear in a breach, attackers use them to access the customer&apos;s other accounts — banking, social media, email. The business that suffered the original breach becomes the starting point for a cascade of harm.
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">How VulnWatch maps exposure</h2>
                     <p>
-                        VulnWatch's credential detection works by monitoring domains, not individual users. When you verify a domain on the platform, VulnWatch begins checking whether email addresses associated with that domain appear in indexed breach databases. The system is updated continuously as new breaches are indexed.
+                        VulnWatch&apos;s credential detection works by monitoring domains, not individual users. When you verify a domain on the platform, VulnWatch begins checking whether email addresses associated with that domain appear in indexed breach databases. The system is updated continuously as new breaches are indexed.
                     </p>
                     <p>
                         Critically, VulnWatch does not store or display the actual passwords from breaches — only the metadata needed to alert you to the fact that exposure has occurred. The goal is awareness and action, not surveillance.
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">The bigger picture</h2>
                     <p>
-                        VulnWatch's credential detection is one piece of a broader security monitoring suite that includes SSL certificate monitoring, DNS integrity checks, security header analysis, and open port detection. Together, these capabilities give any business owner — regardless of technical background — a comprehensive view of their security posture.
+                        VulnWatch&apos;s credential detection is one piece of a broader security monitoring suite that includes SSL certificate monitoring, DNS integrity checks, security header analysis, and open port detection. Together, these capabilities give any business owner — regardless of technical background — a comprehensive view of their security posture.
                     </p>
                     <p>
-                        "We want businesses to know what attackers know about them," said the VulnWatch team. "Right now, most of them don't. That information asymmetry is exactly what we are closing."
+                        &ldquo;We want businesses to know what attackers know about them,&rdquo; said the VulnWatch team. &ldquo;Right now, most of them don&apos;t. That information asymmetry is exactly what we are closing.&rdquo;
                     </p>
                     <p>
                         Get started free at{" "}

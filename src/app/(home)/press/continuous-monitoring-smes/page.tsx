@@ -32,7 +32,7 @@ export default function PressReleaseContinuousMonitoringPage() {
                         <strong>Lagos, Nigeria — March 12, 2026</strong> — VulnWatch AI today launched Continuous Monitoring, a new tier of always-on security surveillance designed specifically for small and medium-sized enterprises (SMEs). Unlike periodic or manual scans, Continuous Monitoring watches for new vulnerabilities, certificate changes, and DNS anomalies around the clock — and notifies domain owners the moment something changes.
                     </p>
                     <p>
-                        For most SMEs, the reality of website security is grim: limited IT budgets, no dedicated security staff, and a false sense of safety because nothing has gone wrong yet. Continuous Monitoring is built to close that gap — bringing enterprise-level vigilance to businesses that couldn't previously afford it.
+                        For most SMEs, the reality of website security is grim: limited IT budgets, no dedicated security staff, and a false sense of safety because nothing has gone wrong yet. Continuous Monitoring is built to close that gap — bringing enterprise-level vigilance to businesses that couldn&apos;t previously afford it.
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">What Continuous Monitoring covers</h2>
                     <ul className="list-disc list-inside space-y-2 text-gray-700">
@@ -47,7 +47,7 @@ export default function PressReleaseContinuousMonitoringPage() {
                         According to recent cybersecurity research, over 43% of cyberattacks are directed at small businesses, yet only 14% of SMEs consider themselves prepared. A misconfigured DNS or expired SSL certificate is often all an attacker needs. VulnWatch Continuous Monitoring eliminates the window between a change happening and a business owner finding out.
                     </p>
                     <p>
-                        "We built Continuous Monitoring because a weekly scan is not enough. Attacks happen on Sundays at 2am. Our users needed something that never sleeps," said the VulnWatch founding team.
+                        &ldquo;We built Continuous Monitoring because a weekly scan is not enough. Attacks happen on Sundays at 2am. Our users needed something that never sleeps,&rdquo; said the VulnWatch founding team.
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">Getting started</h2>
                     <p>

@@ -32,10 +32,10 @@ export default function PressReleaseDnsHijackPage() {
                         <strong>Lagos, Nigeria — May 9, 2026</strong> — VulnWatch AI today announced the general availability of DNS hijack detection, a new capability that monitors over 14 million domains for unauthorised changes to DNS records in real time. The feature is available immediately to all VulnWatch users at no additional cost.
                     </p>
                     <p>
-                        DNS hijacking is one of the most underreported attack vectors for small and medium-sized businesses. Attackers silently redirect domain traffic to fraudulent servers, intercepting emails, login credentials, and customer data — often without the domain owner's knowledge for days or weeks.
+                        DNS hijacking is one of the most underreported attack vectors for small and medium-sized businesses. Attackers silently redirect domain traffic to fraudulent servers, intercepting emails, login credentials, and customer data — often without the domain owner&apos;s knowledge for days or weeks.
                     </p>
                     <p>
-                        VulnWatch's new detection engine continuously compares live DNS records against a verified historical baseline for each monitored domain. When a change is detected — whether an A record swap, MX record alteration, or nameserver modification — the domain owner receives an immediate alert with a full diff of what changed, when, and from which authoritative source.
+                        VulnWatch&apos;s new detection engine continuously compares live DNS records against a verified historical baseline for each monitored domain. When a change is detected — whether an A record swap, MX record alteration, or nameserver modification — the domain owner receives an immediate alert with a full diff of what changed, when, and from which authoritative source.
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">How it works</h2>
                     <p>

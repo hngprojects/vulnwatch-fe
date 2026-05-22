@@ -38,17 +38,17 @@ export default function News60SecondsScanPage() {
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">A window hackers exploit</h2>
                     <p>
-                        The attack vectors VulnWatch monitors are not sophisticated. They don't need to be. Expired SSL certificates, misconfigured DNS records, missing security headers — these are the digital equivalent of a shop owner leaving their front door unlocked because they forgot it was even a door.
+                        The attack vectors VulnWatch monitors are not sophisticated. They don&apos;t need to be. Expired SSL certificates, misconfigured DNS records, missing security headers — these are the digital equivalent of a shop owner leaving their front door unlocked because they forgot it was even a door.
                     </p>
                     <p>
-                        Hackers routinely scan millions of domains per day looking for exactly these kinds of oversights. Automated tools probe for open vulnerabilities continuously. A small business that hasn't checked its security posture in six months is almost certainly exposed in ways it doesn't know about.
+                        Hackers routinely scan millions of domains per day looking for exactly these kinds of oversights. Automated tools probe for open vulnerabilities continuously. A small business that hasn&apos;t checked its security posture in six months is almost certainly exposed in ways it doesn&apos;t know about.
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">Designed for African businesses</h2>
                     <p>
-                        VulnWatch's founders were deliberate about building for the African market from day one. The product is priced accessibly, operates without requiring any technical setup, and communicates in plain language that doesn't assume the reader has a computer science degree.
+                        VulnWatch&apos;s founders were deliberate about building for the African market from day one. The product is priced accessibly, operates without requiring any technical setup, and communicates in plain language that doesn&apos;t assume the reader has a computer science degree.
                     </p>
                     <p>
-                        "We wanted a product that works for the woman selling products through her website in Ibadan, not just the tech startup in Victoria Island," the team explained. "The threat is the same. The language and the price point needed to be different."
+                        &ldquo;We wanted a product that works for the woman selling products through her website in Ibadan, not just the tech startup in Victoria Island,&rdquo; the team explained. &ldquo;The threat is the same. The language and the price point needed to be different.&rdquo;
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">Getting started</h2>
                     <p>

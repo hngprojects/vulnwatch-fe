@@ -34,9 +34,9 @@ export default function PressReleaseExitsBetaPage() {
                     <p>
                         During the beta period, VulnWatch focused on three core capabilities: SSL certificate monitoring, DNS configuration analysis, and exposed credential detection. Feedback from beta users shaped the product significantly — leading to the introduction of real-time alerts, a redesigned vulnerability report, and one-click domain verification.
                     </p>
-                    <h2 className="text-xl font-semibold text-header mt-10">What's new at launch</h2>
+                    <h2 className="text-xl font-semibold text-header mt-10">What&apos;s new at launch</h2>
                     <p>
-                        With today's general availability launch, VulnWatch introduces several new features beyond what was available in beta:
+                        With today&apos;s general availability launch, VulnWatch introduces several new features beyond what was available in beta:
                     </p>
                     <ul className="list-disc list-inside space-y-2 text-gray-700">
                         <li>Continuous monitoring with customisable alert thresholds</li>
@@ -45,12 +45,12 @@ export default function PressReleaseExitsBetaPage() {
                         <li>Multi-domain dashboard for teams managing multiple properties</li>
                         <li>Scan scheduling — weekly or on-demand scans with email delivery</li>
                     </ul>
-                    <h2 className="text-xl font-semibold text-header mt-10">What's next</h2>
+                    <h2 className="text-xl font-semibold text-header mt-10">What&apos;s next</h2>
                     <p>
                         The team is actively working on integrations with popular CMS platforms and web hosting providers, making it even simpler for non-technical users to resolve detected issues. A public API for enterprise customers is also on the roadmap for Q3 2026.
                     </p>
                     <p>
-                        "Leaving beta doesn't mean slowing down — it means we now have the stability and the user base to build even faster," said the VulnWatch founding team. "50,000 scans a week is just the beginning."
+                        &ldquo;Leaving beta doesn&apos;t mean slowing down — it means we now have the stability and the user base to build even faster,&rdquo; said the VulnWatch founding team. &ldquo;50,000 scans a week is just the beginning.&rdquo;
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">About VulnWatch</h2>
                     <p>

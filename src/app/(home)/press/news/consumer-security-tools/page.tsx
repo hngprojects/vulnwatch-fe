@@ -48,7 +48,7 @@ export default function NewsConsumerSecurityToolsPage() {
                         The timing is not accidental. Cyberattacks against small businesses have risen sharply in the past three years, while the barriers to launching a website have fallen to near-zero. There are now millions of businesses operating online who have never had a security conversation. Tools like VulnWatch exist because the market has finally caught up to the need.
                     </p>
                     <p>
-                        "There's never been more risk and less protection at the SME level," noted one security industry analyst. "Consumer-grade security tools are filling a gap that should have been filled years ago."
+                        &ldquo;There&apos;s never been more risk and less protection at the SME level,&rdquo; noted one security industry analyst. &ldquo;Consumer-grade security tools are filling a gap that should have been filled years ago.&rdquo;
                     </p>
                     <h2 className="text-xl font-semibold text-header mt-10">What to look for in a security tool</h2>
                     <p>
