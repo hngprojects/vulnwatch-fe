@@ -46,6 +46,8 @@ export interface ScanSummaryDto {
   mediumSeverityIssues?: (string | FindingDto)[] | null;
   lowSeverityIssues?: (string | FindingDto)[] | null;
   goodNews: string | null;
+  topRecommendation?: string | null;
+  headline?: string | null;
 }
 
 export interface FindingGroupsDto {
