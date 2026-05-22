@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useEffectEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Copy, Check, Loader2, RefreshCw, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -194,6 +194,24 @@ function getToneClasses(tone: SummaryTone) {
   };
 }
 
+async function fetchReportOutcome(scanId: string) {
+  try {
+    const report = await scanService.getScanReport(scanId);
+    return {
+      type: "success" as const,
+      report,
+    };
+  } catch (loadError) {
+    return {
+      type: "error" as const,
+      message:
+        loadError instanceof Error
+          ? loadError.message
+          : "Unable to load AI security summary.",
+    };
+  }
+}
+
 export function AISecuritySummary({
   scanId,
   backHref = "/scan/report",
@@ -208,34 +226,61 @@ export function AISecuritySummary({
   const isReportPendingMessage = (message: string) =>
     /scan is not complete|current status:\s*(queued|running)/i.test(message);
 
-  const loadReport = async () => {
+  const loadReport = useEffectEvent(async () => {
+    startTransition(() => {
+      setLoading(true);
+      setError(null);
+      setShowFallbackSummary(false);
+    });
+
+    try {
+      const outcome = await fetchReportOutcome(scanId);
+
+      if (outcome.type === "success") {
+        startTransition(() => {
+          setReport(outcome.report);
+        });
+      } else if (isReportPendingMessage(outcome.message)) {
+        startTransition(() => {
+          setShowFallbackSummary(true);
+          setReport(null);
+        });
+      } else {
+        startTransition(() => {
+          setError(outcome.message);
+        });
+      }
+    } finally {
+      startTransition(() => {
+        setLoading(false);
+      });
+    }
+  });
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadReport();
+    });
+  }, [scanId]);
+
+  const handleRetry = async () => {
     setLoading(true);
     setError(null);
     setShowFallbackSummary(false);
 
-    try {
-      const nextReport = await scanService.getScanReport(scanId);
-      setReport(nextReport);
-    } catch (loadError) {
-      const message =
-        loadError instanceof Error
-          ? loadError.message
-          : "Unable to load AI security summary.";
+    const outcome = await fetchReportOutcome(scanId);
 
-      if (isReportPendingMessage(message)) {
-        setShowFallbackSummary(true);
-        setReport(null);
-      } else {
-        setError(message);
-      }
-    } finally {
-      setLoading(false);
+    if (outcome.type === "success") {
+      setReport(outcome.report);
+    } else if (isReportPendingMessage(outcome.message)) {
+      setShowFallbackSummary(true);
+      setReport(null);
+    } else {
+      setError(outcome.message);
     }
-  };
 
-  useEffect(() => {
-    void loadReport();
-  }, [scanId]);
+    setLoading(false);
+  };
 
   const currentDateLabel = formatDateLabel(report?.completedAt);
   const basicSummary = useMemo(
@@ -349,9 +394,7 @@ export function AISecuritySummary({
           "We couldn't load this scan summary",
           error,
           "Try Again",
-          () => {
-            void loadReport();
-          },
+          () => void handleRetry(),
         )
       ) : !report && !isUsingFallback ? (
         renderStateCard(
