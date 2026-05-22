@@ -45,7 +45,7 @@ export function DashboardHeader() {
   return (
     <>
       <header className={cn(
-        'h-16 bg-[#F0F0F0] md:bg-[#F4F4F4] items-center px-4 md:px-6 shrink-0 z-30 justify-between md:justify-start',
+        'py-4 bg-[#F0F0F0] items-center px-4 md:px-6 shrink-0 z-30 justify-between md:justify-start',
         pathname.startsWith('/scan/report') ? 'hidden lg:flex' : 'flex'
       )}>
         {/* Hamburger (Mobile: Right, Tablet: Left) */}

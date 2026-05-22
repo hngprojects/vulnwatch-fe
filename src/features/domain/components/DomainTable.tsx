@@ -51,11 +51,11 @@ function scoreLabel(score: number | null): string {
   return "Poor";
 }
 
-function getScoreCircleStyles(score: number | null): { bg: string; text: string } {
-  if (score === null) return { bg: "bg-[#F3F4F6]", text: "text-[#9CA3AF]" };
-  if (score >= 70) return { bg: "bg-[#03B073]", text: "text-[#FFFEFC]" };
-  if (score >= 50) return { bg: "bg-[#FCF0E8]", text: "text-[#DD6414]" };
-  return { bg: "bg-[#FFEBEC]", text: "text-[#D00416]" };
+function getScoreCircleStyles(score: number | null): { border: string; text: string } {
+  if (score === null) return { border: "border-[#E5E7EB] border-[4px]", text: "text-[#9CA3AF]" };
+  if (score >= 70) return { border: "border-[#03B073] border-[4px]", text: "text-[#03B073]" };
+  if (score >= 50) return { border: "border-[#DD6414] border-[4px]", text: "text-[#DD6414]" };
+  return { border: "border-[#D00416] border-[4px]", text: "text-[#D00416]" };
 }
 
 function formatDate(dateStr: string | null): string {
@@ -481,12 +481,12 @@ export default function DomainTable({ domains, loading = false, error = null, on
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-[#F3F4F6] flex items-center justify-center shrink-0">
-                          <Globe size={14} className="text-[#6B7280]" />
+                        <div className="w-7 h-7 rounded-full bg-[#FFFBF2] flex items-center justify-center shrink-0">
+                          <Globe size={14} className="text-[#072E28]" />
                         </div>
                         <div>
-                          <p className="font-medium text-[#111827]">{domain.domain}</p>
-                          <p className="text-xs text-[#9CA3AF]">
+                          <p className="text-[14px] font-medium text-[#2B2B2B] leading-tight">{domain.domain}</p>
+                          <p className="text-xs font-medium text-[#B3B3B3] mt-0.5">
                             Added on {formatDate(domain.createdAt)}
                           </p>
                         </div>
@@ -540,10 +540,10 @@ export default function DomainTable({ domains, loading = false, error = null, on
                       {domain.lastSecurityScore !== null ? (
                         <div className="flex items-center gap-2 font-geist">
                           {(() => {
-                            const { bg, text } = getScoreCircleStyles(domain.lastSecurityScore);
+                            const { border, text } = getScoreCircleStyles(domain.lastSecurityScore);
                             return (
                               <div
-                                className={`w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold ${bg} ${text}`}
+                                className={`w-12 h-12 rounded-full flex items-center justify-center text-[16px] font-bold bg-transparent ${border} ${text}`}
                               >
                                 {domain.lastSecurityScore}
                               </div>

@@ -47,7 +47,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className='hidden lg:flex flex-col w-55 min-h-screen bg-brand-sidebar-bg shrink-0'>
+    <aside className='hidden lg:flex flex-col w-55 min-h-screen bg-[#F0F0F0] shrink-0'>
       {/* Logo */}
       <div className='flex items-center h-16 my-5 px-5 border-b border-[#F3F4F6]'>
         <Link href='/dashboard'>

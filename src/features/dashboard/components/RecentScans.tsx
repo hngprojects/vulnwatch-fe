@@ -1,5 +1,6 @@
 import type { Scan, RiskLevel } from "@/types/dashboard.types";
 import { ScanLine, Target, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 
 
@@ -54,18 +55,17 @@ export function RecentScans({ scans }: RecentScansProps) {
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[#F3F4F6]">
-              <th className="text-left px-5 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wide">
+            <tr className="border-b border-[#CCCCCC]">
+              <th className="text-left px-5 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap">
                 Scan Date & Time
               </th>
-              <th className="text-left px-5 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wide">
+              <th className="text-left px-5 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap">
                 Scan Type
               </th>
-              <th className="text-left px-5 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wide">
+              <th className="text-left px-5 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap">
                 Risk Level
               </th>
-              
-              <th className="text-left px-5 py-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wide">
+              <th className="text-left px-5 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap">
                 Actions
               </th>
             </tr>
@@ -74,37 +74,38 @@ export function RecentScans({ scans }: RecentScansProps) {
             {scans.map((scan, index) => (
               <tr
                 key={scan.id}
-                className={
-                  index < scans.length - 1 ? "border-b border-[#F9FAFB]" : ""
-                }
+                className={cn(
+                  "hover:bg-[#F9FAFB]",
+                  index < scans.length - 1 ? "border-b border-[#E5E7EB]" : ""
+                )}
               >
-                <td className="px-5 py-4 text-[#374151]">
-                  <div className="text-xs font-bold">{formatDate(scan.date)}</div>
-                  <div className="text-[10px] text-[#9CA3AF] mt-1 font-medium">
+                <td className="px-5 py-4">
+                  <div className="text-[14px] font-medium text-[#2B2B2B] leading-tight">{formatDate(scan.date)}</div>
+                  <div className="text-xs text-[#B3B3B3] mt-0.5 font-medium">
                     {formatTime(scan.date)}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-[#374151]">
-                  <div className="flex items-center gap-2">
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-2 text-[14px] font-medium text-[#2B2B2B]">
                     {scan.scanType === "Quick Scan" ? (
-                      <ScanLine className="h-3.5 w-3.5 text-[#6B7280]" />
+                      <ScanLine className="h-3.5 w-3.5 text-[#2B2B2B]" />
                     ) : (
-                      <Target className="h-3.5 w-3.5 text-[#6B7280]" />
+                      <Target className="h-3.5 w-3.5 text-[#2B2B2B]" />
                     )}
-                    <span className="text-xs font-bold">{scan.scanType}</span>
+                    <span>{scan.scanType}</span>
                   </div>
                 </td>
                 <td className="px-5 py-4">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 text-[14px] font-medium text-[#2B2B2B]">
                     <span className={`h-1.5 w-1.5 rounded-full ${RISK_DOTS[scan.riskLevel]}`} />
-                    <span className="text-xs font-bold text-[#111827]">{scan.riskLevel}</span>
+                    <span>{scan.riskLevel}</span>
                   </div>
                 </td>
                
                 <td className="px-5 py-4">
                   <button
                     type="button"
-                    className="text-xs font-bold text-[#374151] hover:text-primary transition-colors flex items-center gap-1"
+                    className="text-[14px] font-medium text-[#2B2B2B] hover:text-primary transition-colors flex items-center gap-1"
                   >
                     View Details <ChevronRight className="h-3 w-3" />
                   </button>

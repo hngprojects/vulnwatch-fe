@@ -200,7 +200,7 @@ function ReportsTable() {
                 <p className="text-sm font-medium text-[#2B2B2B]">
                   {report.date}
                 </p>
-                <p className="mt-4 text-sm text-[#666666]">{report.time}</p>
+                <p className="mt-4 text-sm font-medium text-[#B3B3B3]">{report.time}</p>
               </td>
               <td className="px-8 py-3.5">
                 <div className="flex items-center gap-2 text-sm font-medium text-[#2B2B2B]">
