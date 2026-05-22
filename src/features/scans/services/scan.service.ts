@@ -1,4 +1,5 @@
 import { privateApi } from "@/lib/axios";
+import axios from "axios";
 
 // Maps our internal UI enum values to what the API expects
 const COVERAGE_MAP: Record<string, "Quick" | "Full"> = {
@@ -26,6 +27,74 @@ export interface ApiResponse<T> {
     code: string;
     message: string;
   } | null;
+}
+
+export interface ScanSummaryDto {
+  criticalIssues: string[] | null;
+  highSeverityIssues: string[] | null;
+  goodNews: string | null;
+}
+
+export interface FindingGroupsDto {
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  passCount: number;
+}
+
+export interface SubScoreItem {
+  score: number;
+  status: string | null;
+  detail: string | null;
+}
+
+export interface SubScoresDto {
+  exposure: SubScoreItem | null;
+  ssl: SubScoreItem | null;
+  dns: SubScoreItem | null;
+}
+
+export interface ScanReportDto {
+  scanId: string;
+  domainId: string;
+  domainName: string | null;
+  domainStatus: string;
+  status: "Queued" | "Running" | "Completed" | "Failed" | string;
+  coverage: "Quick" | "Full" | string;
+  securityScore: number | null;
+  riskLevel: string | null;
+  completedAt: string | null;
+  summary: ScanSummaryDto | null;
+  findingGroups: FindingGroupsDto | null;
+  subScores: SubScoresDto | null;
+}
+
+function unwrap<T>(response: { data: ApiResponse<T> }): T {
+  if (!response.data.isSuccess || !response.data.value) {
+    throw new Error(response.data.error?.message ?? "Request failed");
+  }
+
+  return response.data.value;
+}
+
+function getApiErrorMessage(error: unknown): string {
+  if (axios.isAxiosError<ApiResponse<unknown>>(error)) {
+    const apiMessage = error.response?.data?.error?.message;
+    if (apiMessage) {
+      return apiMessage;
+    }
+
+    if (error.response?.status) {
+      return `Request failed with status code ${error.response.status}`;
+    }
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return "Request failed";
 }
 
 // Helper function to extract only the pure domain name from any input URL/string
@@ -80,5 +149,17 @@ export const scanService = {
       },
     );
     return response.data;
+  },
+
+  async getScanReport(scanId: string): Promise<ScanReportDto> {
+    try {
+      const response = await privateApi.get<ApiResponse<ScanReportDto>>(
+        `/api/Scans/${scanId}/report`,
+      );
+
+      return unwrap(response);
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error));
+    }
   },
 };
