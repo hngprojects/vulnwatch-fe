@@ -55,7 +55,7 @@ export default function DashboardLayout({
   if (!token) return null;
 
   return (
-    <div className="flex h-screen bg-[#F5F5F5] overflow-hidden">
+    <div className="flex h-screen bg-[#F6F6F6] overflow-hidden">
       <Sidebar />
 
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden">

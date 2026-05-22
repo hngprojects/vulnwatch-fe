@@ -80,49 +80,86 @@ function formatDate(dateStr: string | null): string {
 type SortKey = "NONE" | "DOMAIN_AZ" | "DOMAIN_ZA" | "LAST_SCAN" | "SCORE_HIGH" | "SCORE_LOW";
 type MethodFilter = VerificationMethod | "ALL";
 
+// Helper to close all dropdowns
+type AllDropdowns = {
+  status?: boolean;
+  methodMobile?: boolean;
+  filter?: boolean;
+  sort?: boolean;
+};
+
 export default function DomainTable({ domains, loading = false, error = null, onAddDomain, onRetry }: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<DomainStatus | "ALL">("ALL");
   const [methodFilter, setMethodFilter] = useState<MethodFilter>("ALL");
   const [sortKey, setSortKey] = useState<SortKey>("NONE");
-  const [filterOpen, setFilterOpen] = useState(false);
+  // Dropdown open states
+  const [statusDropOpen, setStatusDropOpen] = useState(false);
+  const [methodMobileOpen, setMethodMobileOpen] = useState(false);
   const [filterDropOpen, setFilterDropOpen] = useState(false);
   const [sortDropOpen, setSortDropOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [detailsDomain, setDetailsDomain] = useState<Domain | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
+  const statusDropRef = useRef<HTMLDivElement>(null);
+  const methodMobileRef = useRef<HTMLDivElement>(null);
   const filterDropRef = useRef<HTMLDivElement>(null);
   const sortDropRef = useRef<HTMLDivElement>(null);
 
+  // Close all, then open the requested one
+  const openOnly = (which: keyof AllDropdowns) => {
+    setStatusDropOpen(which === "status");
+    setMethodMobileOpen(which === "methodMobile");
+    setFilterDropOpen(which === "filter");
+    setSortDropOpen(which === "sort");
+  };
+
+  // Click-outside: row action menu
   useEffect(() => {
     if (!openMenuId) return;
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpenMenuId(null);
-      }
+    const handle = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenMenuId(null);
     };
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
   }, [openMenuId]);
 
+  // Click-outside: All Status dropdown
+  useEffect(() => {
+    if (!statusDropOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (statusDropRef.current && !statusDropRef.current.contains(e.target as Node)) setStatusDropOpen(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [statusDropOpen]);
+
+  // Click-outside: mobile Method dropdown
+  useEffect(() => {
+    if (!methodMobileOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (methodMobileRef.current && !methodMobileRef.current.contains(e.target as Node)) setMethodMobileOpen(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [methodMobileOpen]);
+
+  // Click-outside: desktop Filter dropdown
   useEffect(() => {
     if (!filterDropOpen) return;
     const handle = (e: MouseEvent) => {
-      if (filterDropRef.current && !filterDropRef.current.contains(e.target as Node)) {
-        setFilterDropOpen(false);
-      }
+      if (filterDropRef.current && !filterDropRef.current.contains(e.target as Node)) setFilterDropOpen(false);
     };
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
   }, [filterDropOpen]);
 
+  // Click-outside: desktop Sort dropdown
   useEffect(() => {
     if (!sortDropOpen) return;
     const handle = (e: MouseEvent) => {
-      if (sortDropRef.current && !sortDropRef.current.contains(e.target as Node)) {
-        setSortDropOpen(false);
-      }
+      if (sortDropRef.current && !sortDropRef.current.contains(e.target as Node)) setSortDropOpen(false);
     };
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
@@ -178,31 +215,31 @@ export default function DomainTable({ domains, loading = false, error = null, on
         {/* Filters — ALWAYS visible, pushed to the right via ml-auto */}
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
 
-        {/* All Status — filter icon only on mobile */}
-        <div className="relative flex-1 sm:flex-none">
+        {/* All Status — always visible, closes siblings */}
+        <div className="relative flex-1 sm:flex-none" ref={statusDropRef}>
           <button
-            onClick={() => setFilterOpen((o) => !o)}
-            className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-1.5 h-10 px-3 text-[14px] font-medium rounded-[12px] border border-[#AABBCC] bg-[#FFFFFF] text-[#3C494ECC] hover:bg-[#F9FAFB]"
+            onClick={() => statusDropOpen ? setStatusDropOpen(false) : openOnly("status")}
+            className={`flex items-center justify-between sm:justify-start w-full sm:w-auto gap-1.5 h-10 px-3 text-[14px] font-medium rounded-[12px] border bg-[#FFFFFF] hover:bg-[#F9FAFB] transition-colors ${
+              statusFilter !== "ALL" ? "border-[#072E28] text-[#072E28]" : "border-[#AABBCC] text-[#3C494ECC]"
+            }`}
           >
             <div className="flex items-center gap-1.5">
-              {/* Filter icon: mobile only */}
-              <Filter size={14} className="sm:hidden text-[#3C494ECC] stroke-[1.25]" />
-              <span>
-                {statusFilter === "ALL" ? "All Status" : statusFilter}
-              </span>
+              <Filter size={14} className="sm:hidden stroke-[1.25]" />
+              <span>{statusFilter === "ALL" ? "All Status" : statusFilter}</span>
+              {statusFilter !== "ALL" && <span className="w-1.5 h-1.5 rounded-full bg-[#072E28]" />}
             </div>
-            <ChevronDown size={14} className="text-[#3C494ECC]" />
+            <ChevronDown size={14} className={`transition-transform ${statusDropOpen ? "rotate-180" : ""}`} />
           </button>
-          {filterOpen && (
-            <div className="absolute left-0 sm:left-auto sm:right-0 top-11 z-10 w-full sm:w-36 bg-white rounded-[12px] border border-[#AABBCC] shadow-lg overflow-hidden">
+          {statusDropOpen && (
+            <div className="absolute left-0 sm:left-auto sm:right-0 top-11 z-50 w-full sm:w-40 bg-white rounded-[12px] border border-[#AABBCC] shadow-lg overflow-hidden">
+              <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold text-[#9CA3AF] uppercase tracking-wider">Status</p>
               {(["ALL", "Verified", "Pending", "Failed"] as const).map((s) => (
                 <button
                   key={s}
-                  onClick={() => {
-                    setStatusFilter(s);
-                    setFilterOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-sm text-[#374151] hover:bg-[#F9FAFB]"
+                  onClick={() => { setStatusFilter(s); setStatusDropOpen(false); }}
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                    statusFilter === s ? "bg-[#072E28]/5 text-[#072E28] font-medium" : "text-[#374151] hover:bg-[#F9FAFB]"
+                  }`}
                 >
                   {s === "ALL" ? "All Status" : s}
                 </button>
@@ -211,18 +248,42 @@ export default function DomainTable({ domains, loading = false, error = null, on
           )}
         </div>
 
-          {/* All Method — mobile only */}
-          <div className="relative flex-1 sm:hidden">
-            <button className="flex items-center justify-between w-full gap-1.5 h-10 px-3 text-[14px] font-medium rounded-[12px] border border-[#AABBCC] bg-[#FFFFFF] text-[#3C494ECC] hover:bg-[#F9FAFB]">
-              <span>All Method</span>
-              <ChevronDown size={14} className="text-[#3C494ECC]" />
+          {/* All Method — mobile only, fully wired */}
+          <div className="relative flex-1 sm:hidden" ref={methodMobileRef}>
+            <button
+              onClick={() => methodMobileOpen ? setMethodMobileOpen(false) : openOnly("methodMobile")}
+              className={`flex items-center justify-between w-full gap-1.5 h-10 px-3 text-[14px] font-medium rounded-[12px] border bg-[#FFFFFF] hover:bg-[#F9FAFB] transition-colors ${
+                methodFilter !== "ALL" ? "border-[#072E28] text-[#072E28]" : "border-[#AABBCC] text-[#3C494ECC]"
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <span>{methodFilter === "ALL" ? "All Method" : METHOD_LABELS[methodFilter]}</span>
+                {methodFilter !== "ALL" && <span className="w-1.5 h-1.5 rounded-full bg-[#072E28]" />}
+              </div>
+              <ChevronDown size={14} className={`transition-transform ${methodMobileOpen ? "rotate-180" : ""}`} />
             </button>
+            {methodMobileOpen && (
+              <div className="absolute left-0 top-11 z-50 w-full bg-white rounded-[12px] border border-[#AABBCC] shadow-lg overflow-hidden">
+                <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold text-[#9CA3AF] uppercase tracking-wider">Verification Method</p>
+                {(["ALL", "DNS_TXT", "FILE_UPLOAD", "EMAIL"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => { setMethodFilter(m); setMethodMobileOpen(false); }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      methodFilter === m ? "bg-[#072E28]/5 text-[#072E28] font-medium" : "text-[#374151] hover:bg-[#F9FAFB]"
+                    }`}
+                  >
+                    {m === "ALL" ? "All Methods" : METHOD_LABELS[m]}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Desktop-only: Filter button — filters by Verification Method */}
           <div className="relative hidden sm:block" ref={filterDropRef}>
             <button
-              onClick={() => { setFilterDropOpen((o) => !o); setSortDropOpen(false); }}
+              onClick={() => filterDropOpen ? setFilterDropOpen(false) : openOnly("filter")}
               className={`flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border bg-[#FFFFFF] text-[#374151] hover:bg-[#F9FAFB] transition-colors ${
                 methodFilter !== "ALL" ? "border-[#072E28] text-[#072E28] font-medium" : "border-[#AABBCC]"
               }`}
@@ -256,7 +317,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
           {/* Desktop-only: Sort button */}
           <div className="relative hidden sm:block" ref={sortDropRef}>
             <button
-              onClick={() => { setSortDropOpen((o) => !o); setFilterDropOpen(false); }}
+              onClick={() => sortDropOpen ? setSortDropOpen(false) : openOnly("sort")}
               className={`flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border bg-[#FFFFFF] text-[#374151] hover:bg-[#F9FAFB] transition-colors ${
                 sortKey !== "NONE" ? "border-[#072E28] text-[#072E28] font-medium" : "border-[#AABBCC]"
               }`}
