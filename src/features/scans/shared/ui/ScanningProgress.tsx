@@ -24,7 +24,7 @@ const rings = [
 export default function ScanningProgress({
   value = 25,
   label = "Scanning....",
-  size = 280,
+  size = 340,
   color = "#3D4EFF",
   trackColor = "#E8EAFF",
 }: {
@@ -42,6 +42,7 @@ export default function ScanningProgress({
   const scaledRadius = RADIUS * (svgSize / 220);
   const scaledCircumference = 2 * Math.PI * scaledRadius;
   const scaledOffset = scaledCircumference * (1 - pct / 100);
+  const ringBaseSize = scaledRadius * 2 + 14;
 
   return (
     <div
@@ -54,20 +55,52 @@ export default function ScanningProgress({
         justifyContent: "center",
       }}
     >
-      {/* Outer fading rings */}
-      {rings.map((ring, i) => {
-        const scaledRingSize = ring.size * (size / 280);
+      {/* Inject style for keyframes */}
+      <style>{`
+        @keyframes sonar-ripple {
+          0% {
+            transform: scale(1);
+            opacity: 0;
+          }
+          2% {
+            opacity: 0.30;
+          }
+          20% {
+            opacity: 0.25;
+          }
+          40% {
+            opacity: 0.20;
+          }
+          60% {
+            opacity: 0.10;
+          }
+          80% {
+            opacity: 0.05;
+          }
+          100% {
+            transform: scale(1.65);
+            opacity: 0;
+          }
+        }
+        .sonar-ring {
+          animation: sonar-ripple 6s linear infinite;
+        }
+      `}</style>
+
+      {/* Outer pulsing rings originating from the center and expanding outward */}
+      {[0, -1.2, -2.4, -3.6, -4.8].map((delay, i) => {
         return (
           <div
             key={i}
+            className="sonar-ring"
             style={{
               position: "absolute",
-              width: scaledRingSize,
-              height: scaledRingSize,
+              width: ringBaseSize,
+              height: ringBaseSize,
               borderRadius: "50%",
-              border: `1.5px solid ${color}`,
-              opacity: ring.opacity,
+              border: "1.2px solid #292DEC",
               pointerEvents: "none",
+              animationDelay: `${delay}s`,
             }}
           />
         );
@@ -87,7 +120,7 @@ export default function ScanningProgress({
           r={scaledRadius}
           fill="none"
           stroke={trackColor}
-          strokeWidth={8}
+          strokeWidth={14}
         />
         {/* Progress arc */}
         <circle
@@ -96,7 +129,7 @@ export default function ScanningProgress({
           r={scaledRadius}
           fill="none"
           stroke={color}
-          strokeWidth={8}
+          strokeWidth={14}
           strokeLinecap="round"
           strokeDasharray={scaledCircumference}
           strokeDashoffset={scaledOffset}
@@ -120,7 +153,7 @@ export default function ScanningProgress({
           style={{
             fontSize: size * 0.128,
             fontWeight: 500,
-            color: "#1a1a2e",
+            color: "#666666",
             lineHeight: 1,
           }}
         >

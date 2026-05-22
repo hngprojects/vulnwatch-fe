@@ -45,9 +45,22 @@ export function LoginForm() {
           .login(response.value.accessToken, data.email);
         router.push("/dashboard");
       } else {
-        const errMsg = response.error?.message || "Login failed. Please check your credentials.";
-        toast.error(errMsg);
-        setError("root", { message: errMsg });
+        const isNotVerified =
+          response.error?.code === "403" ||
+          response.error?.message?.toLowerCase().includes("not been verified") ||
+          response.error?.message?.toLowerCase().includes("not verified");
+
+        if (isNotVerified) {
+          toast.error(
+            response.error?.message ||
+              "Your account has not been verified. Redirecting to verification page...",
+          );
+          router.push(`/register/verify-email?email=${encodeURIComponent(data.email)}`);
+        } else {
+          const errMsg = response.error?.message || "Login failed. Please check your credentials.";
+          toast.error(errMsg);
+          setError("root", { message: errMsg });
+        }
       }
     } catch {
       toast.error("An unexpected error occurred. Please try again later.");

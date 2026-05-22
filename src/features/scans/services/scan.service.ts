@@ -17,6 +17,29 @@ export interface ScanResponse {
   scanId: string;
   status: "Queued" | string;
   message: string;
+  initiatedAt?: string;
+}
+
+export interface ScanSubScore {
+  status: string; // e.g. "Pass"
+  score: number;
+  detail: string;
+}
+
+export interface ScanReport {
+  scanId: string;
+  domainId: string;
+  domainName: string;
+  requestedBy: string;
+  securityScore: number;
+  status: string; // e.g. "Completed"
+  initiatedAt: string;
+  completedAt?: string;
+  subScores: {
+    exposure: ScanSubScore;
+    ssl: ScanSubScore;
+    dns: ScanSubScore;
+  };
 }
 
 export interface ApiResponse<T> {
@@ -81,4 +104,12 @@ export const scanService = {
     );
     return response.data;
   },
+
+  async getScanReport(scanId: string): Promise<ApiResponse<ScanReport>> {
+    const response = await privateApi.get<ApiResponse<ScanReport>>(
+      `/api/Scans/${scanId}/report`
+    );
+    return response.data;
+  },
 };
+

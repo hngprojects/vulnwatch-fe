@@ -24,6 +24,9 @@ interface ScanCompleteModalProps {
   onOpenChange: (open: boolean) => void;
   domain?: string;
   scanId?: string;
+  duration?: string;
+  passed?: number;
+  failed?: number;
 }
 
 export default function ScanCompleteModal({
@@ -31,6 +34,9 @@ export default function ScanCompleteModal({
   onOpenChange,
   domain,
   scanId,
+  duration,
+  passed,
+  failed,
 }: ScanCompleteModalProps) {
   const router = useRouter();
 
@@ -185,19 +191,19 @@ export default function ScanCompleteModal({
 
                 <div className="grid grid-cols-3 gap-4 justify-center">
                   <ScanResultCardItem
-                    statCount="2m 14s"
+                    statCount={duration ?? "—"}
                     icon={<Clock size={18} />}
                     description="Duration"
                     severity="neutral"
                   />
                   <ScanResultCardItem
-                    statCount="34"
+                    statCount={passed !== undefined ? String(passed) : "—"}
                     icon={<CheckCircleIcon size={18} />}
                     description="Passed"
                     severity="excellent"
                   />
                   <ScanResultCardItem
-                    statCount="3"
+                    statCount={failed !== undefined ? String(failed) : "—"}
                     icon={<AlertTriangleIcon size={18} />}
                     description="Failed"
                     severity="critical"

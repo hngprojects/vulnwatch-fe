@@ -117,9 +117,18 @@ export default function ScanSetupForm() {
         ) {
           toast.info(response.value.message);
         }
-        const encodedScanId = encodeURIComponent(response.value.scanId);
+        
+        const { scanId, initiatedAt } = response.value;
+        // Fallback to current time if backend has not deployed initiatedAt field yet
+        const activeInitiatedAt = initiatedAt || new Date().toISOString();
+
+        const encodedScanId = encodeURIComponent(scanId);
         const encodedDomain = encodeURIComponent(data.domain);
-        router.push(`/scan/progress?scanId=${encodedScanId}&domain=${encodedDomain}`);
+        const encodedInitiatedAt = encodeURIComponent(activeInitiatedAt);
+
+        router.push(
+          `/scan/progress?scanId=${encodedScanId}&domain=${encodedDomain}&initiatedAt=${encodedInitiatedAt}`
+        );
       } else {
         toast.error(response.error?.message || "Failed to start scan. Please try again.");
       }
