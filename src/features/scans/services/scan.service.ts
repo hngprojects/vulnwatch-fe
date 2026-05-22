@@ -26,15 +26,34 @@ export interface ScanSubScore {
   detail: string;
 }
 
+export interface ScanSummaryDto {
+  criticalIssues: string[] | null;
+  highSeverityIssues: string[] | null;
+  goodNews: string | null;
+}
+
+export interface FindingGroupsDto {
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  passCount: number;
+}
+
 export interface ScanReport {
   scanId: string;
   domainId: string;
   domainName: string;
+  domainStatus?: string;
   requestedBy: string;
   securityScore: number;
   status: string; // e.g. "Completed"
+  coverage?: string;
+  riskLevel?: string | null;
   initiatedAt: string;
   completedAt?: string;
+  summary?: ScanSummaryDto | null;
+  findingGroups?: FindingGroupsDto | null;
   subScores: {
     exposure: ScanSubScore;
     ssl: ScanSubScore;

@@ -48,4 +48,9 @@ export const domainService = {
     const res = await privateApi.get<ApiResponse<Domain>>(`/api/Domains/${domainId}`);
     return unwrap(res);
   },
+
+  async deleteDomain(id: string): Promise<{ message: string }> {
+    const res = await privateApi.delete<ApiResponse<{ message: string }>>(`/api/Domains/${id}`);
+    return unwrap(res);
+  },
 };

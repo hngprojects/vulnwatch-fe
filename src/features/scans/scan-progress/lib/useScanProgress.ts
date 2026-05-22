@@ -198,6 +198,7 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
         hubConnectionRef.current.stop().catch((e) => console.log("Error stopping connection:", e));
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanId, initiatedAtParam]);
 
   return {

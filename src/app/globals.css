@@ -33,6 +33,13 @@
   --color-brand-light-gray: #ededed;
   --color-brand-medium-gray: #f5f5f5;
   --color-brand-sidebar-bg: #f0f0f0;
+
+  --color-scan-green-400: #1daf61;
+  --color-scan-red-400: #D00416;
+  --color-scan-red-bg: #FDEBEC;
+  --color-scan-yellow-900: #b27f06;
+  --color-scan-primary-900: #072e28;
+  --color-scan-dark-700: #2b2b2b;
 }
 
 :root {

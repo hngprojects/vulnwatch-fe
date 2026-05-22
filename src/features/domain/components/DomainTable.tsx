@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import {
   Globe,
   Search,
@@ -230,12 +229,12 @@ export default function DomainTable({ domains, loading = false, error = null, on
                 <p className="text-[14px] font-normal text-[#3C494E] font-geist">
                   {formatDate(domain.createdAt)}
                 </p>
-                <Link
-                  href={`/domain/${domain.id}`}
-                  className="text-[16px] font-bold text-[#2B2B2B] font-geist hover:underline cursor-pointer"
+                <button
+                  onClick={() => setDetailsDomain(domain)}
+                  className="text-[14px] font-bold text-[#2B2B2B] font-geist hover:underline cursor-pointer bg-transparent border-0 p-0"
                 >
-                  View Domain
-                </Link>
+                  View Details
+                </button>
               </div>
             </div>
           ))
@@ -451,7 +450,30 @@ export default function DomainTable({ domains, loading = false, error = null, on
                                 Re-verify
                               </button>
                             )}
-                            <button className="w-full text-left px-4 py-2 text-sm text-[#EF4444] hover:bg-[#FEF2F2]">
+                            <button
+                              onClick={async () => {
+                                setOpenMenuId(null);
+                                const toastId = toast.loading("Removing domain...", {
+                                  description: `Deleting ${domain.domain}`,
+                                });
+                                try {
+                                  const res = await domainService.deleteDomain(domain.id);
+                                  toast.success(res.message || "Domain removed successfully!", {
+                                    id: toastId,
+                                  });
+                                  if (onRetry) onRetry();
+                                } catch (err: unknown) {
+                                  const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
+                                  const backendMessage = axiosError.response?.data?.error?.message;
+                                  const errMsg = backendMessage || (err instanceof Error ? err.message : "Failed to remove domain.");
+                                  toast.error(errMsg, {
+                                    id: toastId,
+                                  });
+                                  if (onRetry) onRetry();
+                                }
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-[#EF4444] hover:bg-[#FEF2F2]"
+                            >
                               Remove
                             </button>
                           </div>
@@ -470,6 +492,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
         domain={detailsDomain}
         open={detailsDomain !== null}
         onOpenChange={(open) => { if (!open) setDetailsDomain(null); }}
+        onDeleted={onRetry}
       />
     </div>
   );
