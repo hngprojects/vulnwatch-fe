@@ -171,6 +171,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
     if (sortKey === "DOMAIN_AZ") list = [...list].sort((a, b) => a.domain.localeCompare(b.domain));
     else if (sortKey === "DOMAIN_ZA") list = [...list].sort((a, b) => b.domain.localeCompare(a.domain));
     else if (sortKey === "LAST_SCAN") list = [...list].sort((a, b) => {
+      if (!a.lastScannedAt && !b.lastScannedAt) return 0;
       if (!a.lastScannedAt) return 1;
       if (!b.lastScannedAt) return -1;
       return new Date(b.lastScannedAt).getTime() - new Date(a.lastScannedAt).getTime();

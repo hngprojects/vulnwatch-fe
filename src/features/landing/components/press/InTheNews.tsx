@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import { newsItems } from "../../constants/press";
 
@@ -12,8 +11,10 @@ export default function InTheNews() {
             <ul className="divide-y divide-gray-200">
                 {newsItems.map((item) => (
                     <li key={item.headline}>
-                        <Link
+                        <a
                             href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="group flex items-start justify-between gap-6 py-6"
                         >
                             <div className="flex-1">
@@ -38,7 +39,7 @@ export default function InTheNews() {
                                 aria-hidden="true"
                                 className="h-4 w-4 shrink-0"
                             />
-                        </Link>
+                        </a>
                     </li>
                 ))}
             </ul>
