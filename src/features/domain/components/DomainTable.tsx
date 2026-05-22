@@ -77,38 +77,80 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
+type SortKey = "NONE" | "DOMAIN_AZ" | "DOMAIN_ZA" | "LAST_SCAN" | "SCORE_HIGH" | "SCORE_LOW";
+type MethodFilter = VerificationMethod | "ALL";
+
 export default function DomainTable({ domains, loading = false, error = null, onAddDomain, onRetry }: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<DomainStatus | "ALL">("ALL");
+  const [methodFilter, setMethodFilter] = useState<MethodFilter>("ALL");
+  const [sortKey, setSortKey] = useState<SortKey>("NONE");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [filterDropOpen, setFilterDropOpen] = useState(false);
+  const [sortDropOpen, setSortDropOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [detailsDomain, setDetailsDomain] = useState<Domain | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
+  const filterDropRef = useRef<HTMLDivElement>(null);
+  const sortDropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!openMenuId) return;
-
     const handleOutsideClick = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpenMenuId(null);
       }
     };
-
     document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [openMenuId]);
+
+  useEffect(() => {
+    if (!filterDropOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (filterDropRef.current && !filterDropRef.current.contains(e.target as Node)) {
+        setFilterDropOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [filterDropOpen]);
+
+  useEffect(() => {
+    if (!sortDropOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (sortDropRef.current && !sortDropRef.current.contains(e.target as Node)) {
+        setSortDropOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [sortDropOpen]);
 
   // Only consider domains loaded once loading is done
   const hasDomains = !loading && domains.length > 0;
 
-  const filtered = domains.filter((d) => {
-    const matchesSearch = d.domain.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filtered = (() => {
+    let list = domains.filter((d) => {
+      const matchesSearch = d.domain.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
+      const matchesMethod = methodFilter === "ALL" || d.verificationMethod === methodFilter;
+      return matchesSearch && matchesStatus && matchesMethod;
+    });
+
+    if (sortKey === "DOMAIN_AZ") list = [...list].sort((a, b) => a.domain.localeCompare(b.domain));
+    else if (sortKey === "DOMAIN_ZA") list = [...list].sort((a, b) => b.domain.localeCompare(a.domain));
+    else if (sortKey === "LAST_SCAN") list = [...list].sort((a, b) => {
+      if (!a.lastScannedAt) return 1;
+      if (!b.lastScannedAt) return -1;
+      return new Date(b.lastScannedAt).getTime() - new Date(a.lastScannedAt).getTime();
+    });
+    else if (sortKey === "SCORE_HIGH") list = [...list].sort((a, b) => (b.lastSecurityScore ?? -1) - (a.lastSecurityScore ?? -1));
+    else if (sortKey === "SCORE_LOW") list = [...list].sort((a, b) => (a.lastSecurityScore ?? 999) - (b.lastSecurityScore ?? 999));
+
+    return list;
+  })();
 
   return (
     <div className="space-y-4">
@@ -177,16 +219,80 @@ export default function DomainTable({ domains, loading = false, error = null, on
             </button>
           </div>
 
-          {/* Desktop-only: Filter + Sort buttons */}
-          <button className="hidden sm:flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border border-[#AABBCC] bg-[#FFFFFF] text-[#374151] hover:bg-[#F9FAFB]">
-            <Filter size={14} />
-            <span>Filter</span>
-          </button>
+          {/* Desktop-only: Filter button — filters by Verification Method */}
+          <div className="relative hidden sm:block" ref={filterDropRef}>
+            <button
+              onClick={() => { setFilterDropOpen((o) => !o); setSortDropOpen(false); }}
+              className={`flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border bg-[#FFFFFF] text-[#374151] hover:bg-[#F9FAFB] transition-colors ${
+                methodFilter !== "ALL" ? "border-[#072E28] text-[#072E28] font-medium" : "border-[#AABBCC]"
+              }`}
+            >
+              <Filter size={14} />
+              <span>Filter</span>
+              {methodFilter !== "ALL" && (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#072E28] ml-0.5" />
+              )}
+            </button>
+            {filterDropOpen && (
+              <div className="absolute right-0 top-11 z-50 w-52 bg-white rounded-[12px] border border-[#AABBCC] shadow-lg overflow-hidden">
+                <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold text-[#9CA3AF] uppercase tracking-wider">Verification Method</p>
+                {(["ALL", "DNS_TXT", "FILE_UPLOAD", "EMAIL"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => { setMethodFilter(m); setFilterDropOpen(false); }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      methodFilter === m
+                        ? "bg-[#072E28]/5 text-[#072E28] font-medium"
+                        : "text-[#374151] hover:bg-[#F9FAFB]"
+                    }`}
+                  >
+                    {m === "ALL" ? "All Methods" : METHOD_LABELS[m]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-          <button className="hidden sm:flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border border-[#AABBCC] bg-[#FFFFFF] text-[#374151] hover:bg-[#F9FAFB]">
-            <ArrowUpDown size={14} />
-            <span>Sort</span>
-          </button>
+          {/* Desktop-only: Sort button */}
+          <div className="relative hidden sm:block" ref={sortDropRef}>
+            <button
+              onClick={() => { setSortDropOpen((o) => !o); setFilterDropOpen(false); }}
+              className={`flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border bg-[#FFFFFF] text-[#374151] hover:bg-[#F9FAFB] transition-colors ${
+                sortKey !== "NONE" ? "border-[#072E28] text-[#072E28] font-medium" : "border-[#AABBCC]"
+              }`}
+            >
+              <ArrowUpDown size={14} />
+              <span>Sort</span>
+              {sortKey !== "NONE" && (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#072E28] ml-0.5" />
+              )}
+            </button>
+            {sortDropOpen && (
+              <div className="absolute right-0 top-11 z-50 w-52 bg-white rounded-[12px] border border-[#AABBCC] shadow-lg overflow-hidden">
+                <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold text-[#9CA3AF] uppercase tracking-wider">Sort by</p>
+                {([
+                  { key: "NONE", label: "Default" },
+                  { key: "DOMAIN_AZ", label: "Domain A → Z" },
+                  { key: "DOMAIN_ZA", label: "Domain Z → A" },
+                  { key: "LAST_SCAN", label: "Last Scan (newest)" },
+                  { key: "SCORE_HIGH", label: "Security Score (high → low)" },
+                  { key: "SCORE_LOW", label: "Security Score (low → high)" },
+                ] as const).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => { setSortKey(key as SortKey); setSortDropOpen(false); }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      sortKey === key
+                        ? "bg-[#072E28]/5 text-[#072E28] font-medium"
+                        : "text-[#374151] hover:bg-[#F9FAFB]"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
