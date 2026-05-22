@@ -99,4 +99,18 @@ export const authService = {
     );
     return res.json();
   },
+
+  async resendVerification(
+    email: string,
+  ): Promise<ApiResponse<{ message: string }>> {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const res = await fetch(`${API_BASE}/api/Auth/resend`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+    return res.json();
+  },
 };
