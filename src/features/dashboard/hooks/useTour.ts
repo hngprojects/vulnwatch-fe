@@ -6,12 +6,12 @@ const TOUR_KEY = 'vuln_watch_tour_completed'
 
 export function useTour() {
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
-    const [isVisible, setIsVisible] = useState(() => {
-        if (typeof window === 'undefined') return false
-        return !localStorage.getItem(TOUR_KEY)
-    })
+    const [isVisible, setIsVisible] = useState(false)
 
-    // check local storage for tour completion
+    useEffect(() => {
+        setIsVisible(!localStorage.getItem(TOUR_KEY))
+    }, [])
+
     useEffect(() => {
         if (isVisible) {
             document.body.style.overflow = 'hidden'
