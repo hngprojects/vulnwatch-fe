@@ -32,15 +32,15 @@ const METHOD_LABELS: Record<VerificationMethod, string> = {
 };
 
 const STATUS_COLORS: Record<DomainStatus, string> = {
-  Verified: "bg-[#ECFDF5] text-[#10B981]",
-  Pending: "bg-[#FFF7ED] text-[#F59E0B]",
-  Failed: "bg-[#FEF2F2] text-[#EF4444]",
+  Verified: "bg-[#03B073] text-[#FFFEFC]",
+  Pending: "bg-[#FCF0E8] text-[#DD6414]",
+  Failed: "bg-[#FFEBEC] text-[#D00416]",
 };
 
 const STATUS_DOTS: Record<DomainStatus, string> = {
-  Verified: "bg-[#10B981]",
-  Pending: "bg-[#F59E0B]",
-  Failed: "bg-[#EF4444]",
+  Verified: "bg-[#FFFEFC]",
+  Pending: "bg-[#DD6414]",
+  Failed: "bg-[#D00416]",
 };
 
 function scoreLabel(score: number | null): string {
@@ -51,20 +51,11 @@ function scoreLabel(score: number | null): string {
   return "Poor";
 }
 
-function scoreColor(score: number | null): string {
-  if (score === null) return "text-[#9CA3AF]";
-  if (score >= 90) return "text-[#10B981]";
-  if (score >= 70) return "text-[#3B82F6]";
-  if (score >= 50) return "text-[#F59E0B]";
-  return "text-[#EF4444]";
-}
-
-function scoreBorderColor(score: number | null): string {
-  if (score === null) return "border-[#E5E7EB]";
-  if (score >= 90) return "border-[#10B981]";
-  if (score >= 70) return "border-[#3B82F6]";
-  if (score >= 50) return "border-[#F59E0B]";
-  return "border-[#EF4444]";
+function getScoreCircleStyles(score: number | null): { bg: string; text: string } {
+  if (score === null) return { bg: "bg-[#F3F4F6]", text: "text-[#9CA3AF]" };
+  if (score >= 70) return { bg: "bg-[#03B073]", text: "text-[#FFFEFC]" };
+  if (score >= 50) return { bg: "bg-[#FCF0E8]", text: "text-[#DD6414]" };
+  return { bg: "bg-[#FFEBEC]", text: "text-[#D00416]" };
 }
 
 function formatDate(dateStr: string | null): string {
@@ -172,7 +163,8 @@ export default function DomainTable({ domains, loading = false, error = null, on
     let list = domains.filter((d) => {
       const matchesSearch = d.domain.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
-      const matchesMethod = methodFilter === "ALL" || d.verificationMethod === methodFilter;
+      const method = d.verificationMethod ?? "DNS_TXT";
+      const matchesMethod = methodFilter === "ALL" || method === methodFilter;
       return matchesSearch && matchesStatus && matchesMethod;
     });
 
@@ -518,7 +510,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
 
                     <td className="px-4 py-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[domain.status] ?? "bg-[#F3F4F6] text-[#6B7280]"}`}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[12px] text-xs font-medium ${STATUS_COLORS[domain.status] ?? "bg-[#F3F4F6] text-[#6B7280]"}`}
                       >
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[domain.status] ?? "bg-[#9CA3AF]"}`}
@@ -527,36 +519,42 @@ export default function DomainTable({ domains, loading = false, error = null, on
                       </span>
                     </td>
 
-                    <td className="px-4 py-4 text-[#6B7280] whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       {domain.lastScannedAt ? (
                         <>
-                          <p>{formatDate(domain.lastScannedAt)}</p>
-                          <p className="text-xs text-[#9CA3AF]">
+                          <p className="text-[14px] font-medium text-[#2B2B2B] leading-normal">{formatDate(domain.lastScannedAt)}</p>
+                          <p className="text-xs font-medium text-[#B3B3B3] leading-normal mt-0.5">
                             {new Date(domain.lastScannedAt).toLocaleTimeString("en-US", {
                               hour: "2-digit",
                               minute: "2-digit",
+                              hour12: true,
                             })}
                           </p>
                         </>
                       ) : (
-                        <span className="text-[#9CA3AF] text-xs">Not scanned yet</span>
+                        <span className="text-[#B3B3B3] text-xs font-medium">Not scanned yet</span>
                       )}
                     </td>
 
                     <td className="px-4 py-4">
                       {domain.lastSecurityScore !== null ? (
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold ${scoreBorderColor(domain.lastSecurityScore)} ${scoreColor(domain.lastSecurityScore)}`}
-                          >
-                            {domain.lastSecurityScore}
-                          </div>
-                          <span className={`text-sm font-medium ${scoreColor(domain.lastSecurityScore)}`}>
+                        <div className="flex items-center gap-2 font-geist">
+                          {(() => {
+                            const { bg, text } = getScoreCircleStyles(domain.lastSecurityScore);
+                            return (
+                              <div
+                                className={`w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold ${bg} ${text}`}
+                              >
+                                {domain.lastSecurityScore}
+                              </div>
+                            );
+                          })()}
+                          <span className="text-[14px] font-medium text-[#2B2B2B]">
                             {scoreLabel(domain.lastSecurityScore)}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-[#9CA3AF]">Not available</span>
+                        <span className="text-xs text-[#9CA3AF] font-geist">Not available</span>
                       )}
                     </td>
 
@@ -566,7 +564,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
                         size="sm"
                         variant="outline"
                         onClick={() => setDetailsDomain(domain)}
-                        className="text-xs h-8 px-3 rounded-lg border-[#E5E7EB] text-[#374151] hover:bg-[#F9FAFB]"
+                        className="text-xs h-8 px-3 rounded-lg border border-[#CCCCCC] text-[#2B2B2B] font-medium bg-white hover:bg-[#F9FAFB]"
                       >
                         View Details
                       </Button>
@@ -575,7 +573,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
                           onClick={() =>
                             setOpenMenuId(openMenuId === domain.id ? null : domain.id)
                           }
-                          className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:bg-[#F9FAFB]"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-[#2B2B2B] bg-transparent hover:bg-[#F9FAFB]/50 border-0"
                         >
                           <MoreVertical size={14} />
                         </button>
