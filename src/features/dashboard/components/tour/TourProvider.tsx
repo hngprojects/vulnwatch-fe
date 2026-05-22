@@ -6,9 +6,9 @@ import { TourPosition } from '../../data/tourSteps'
 
 const positionClasses: Record<TourPosition, string> = {
     'step-1': 'top-20 -right-32 -translate-x-1/2 md:bottom-8 md:right-8 md:top-auto md:translate-x-0',
-    'step-2': 'bottom-15 right-4 md:bottom-8 md:right-8',
+    'step-2': 'bottom-4 right-4 md:bottom-8 md:right-8',
     'step-3': 'top-30 left-5 md:left-60',
-    'step-4': 'top-40 left-5 md:left-50 md:top-120 lg:top-120 lg:left-150 lg:bottom-50',
+    'step-4': 'bottom-4 right-4 md:bottom-8 md:right-8',
 }
 
 export function TourProvider() {

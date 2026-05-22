@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import GeneralSettings from "./GeneralSettings";
-import SecuritySettings from "./SecuritySettings";
-import SessionManagement from "./SessionManagement";
+import ComingSoon from "./ComingSoon";
 
 type Tab = "general" | "security" | "session";
 
@@ -37,9 +36,9 @@ const Settings = () => {
       </div>
 
       <div className="mt-6">
-        {activeTab === "general" && <div><GeneralSettings/></div>}
-        {activeTab === "security" && <div><SecuritySettings/></div>}
-        {activeTab === "session" && <div><SessionManagement/></div>}
+        {activeTab === "general" && <GeneralSettings />}
+        {activeTab === "security" && <ComingSoon title="Security Settings" />}
+        {activeTab === "session" && <ComingSoon title="Session Management" />}
       </div>
     </div>
   );
