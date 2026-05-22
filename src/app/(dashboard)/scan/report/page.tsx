@@ -131,8 +131,17 @@ function ScanReportContent() {
 
   const criticalCount = report.findingGroups?.criticalCount ?? 0;
   const highCount = report.findingGroups?.highCount ?? 0;
-  const criticalText = report.summary?.criticalIssues?.[0] || "No critical issues detected on your domain.";
-  const highText = report.summary?.highSeverityIssues?.[0] || "No high-severity issues detected on your domain.";
+  
+  const firstCritical = report.summary?.criticalIssues?.[0];
+  const criticalText = firstCritical
+    ? (typeof firstCritical === "string" ? firstCritical : firstCritical.title)
+    : "No critical issues detected on your domain.";
+
+  const firstHigh = report.summary?.highSeverityIssues?.[0];
+  const highText = firstHigh
+    ? (typeof firstHigh === "string" ? firstHigh : firstHigh.title)
+    : "No high-severity issues detected on your domain.";
+
   const goodNewsText = report.summary?.goodNews || "Your domain shows good base security configurations.";
 
   const findings = [
@@ -264,17 +273,29 @@ function ScanReportContent() {
         <ScanReportScoreStatCard
           score={report.subScores.exposure.score}
           type="Exposure"
-          description={report.subScores.exposure.detail || "Exposed assets and public endpoints check."}
+          description={
+            report.subScores.exposure.explanation ||
+            report.subScores.exposure.detail ||
+            "Exposed assets and public endpoints check."
+          }
         />
         <ScanReportScoreStatCard
           score={report.subScores.ssl.score}
           type="SSL"
-          description={report.subScores.ssl.detail || "TLS/SSL configuration and cipher suite safety."}
+          description={
+            report.subScores.ssl.explanation ||
+            report.subScores.ssl.detail ||
+            "TLS/SSL configuration and cipher suite safety."
+          }
         />
         <ScanReportScoreStatCard
           score={report.subScores.dns.score}
           type="DNS"
-          description={report.subScores.dns.detail || "MX, SPF, DMARC, and DNS record delegation."}
+          description={
+            report.subScores.dns.explanation ||
+            report.subScores.dns.detail ||
+            "MX, SPF, DMARC, and DNS record delegation."
+          }
         />
       </div>
     </div>
