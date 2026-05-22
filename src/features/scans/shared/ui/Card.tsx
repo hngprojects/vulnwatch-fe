@@ -5,7 +5,7 @@ const variants = cva("rounded-xl", {
   variants: {
     variant: {
       neutral: "border border-neutral-200 bg-white",
-      critical: "bg-scan-red-400/10 text-scan-red-400",
+      critical: "bg-scan-red-bg text-scan-red-400",
       warning: "bg-scan-yellow-900/10 text-scan-yellow-900",
       pass: "bg-scan-green-400/10 text-scan-green-400",
     },

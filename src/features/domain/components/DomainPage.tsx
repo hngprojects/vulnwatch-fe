@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import DomainStatsCards from "./DomainStatsCards";
 import DomainTable from "./DomainTable";
 import AddDomainModal from "./AddDomainModal";
-import EmailVerificationSearch from "./EmailVerificationSearch";
+
 import { domainService } from "../services/domain.service";
 import type { DomainsListValue } from "../types/domain.types";
 import { useSearchParams } from "next/navigation";
@@ -16,8 +16,7 @@ export default function DomainPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [showEmailVerificationSearch, setShowEmailVerificationSearch] =
-    useState(false);
+
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -55,13 +54,6 @@ export default function DomainPage() {
   const pending = domains.filter((d) => d.status === "Pending").length;
   const verified = domains.filter((d) => d.status === "Verified").length;
 
-  if (showEmailVerificationSearch) {
-    return (
-      <EmailVerificationSearch
-        onCancel={() => setShowEmailVerificationSearch(false)}
-      />
-    );
-  }
 
   return (
     <div className="px-4 md:px-6 py-6 space-y-6">
@@ -72,23 +64,13 @@ export default function DomainPage() {
             Manage and verify your monitor domains
           </p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowEmailVerificationSearch(true)}
-            className="h-10 rounded-lg border-[#072E28] px-4 text-[#072E28] hover:bg-[#F3F7F6]"
-          >
-            Verify email
-          </Button>
-          <Button
-            onClick={() => setModalOpen(true)}
-            className="bg-[#072E28] text-white hover:bg-[#072E28]/90 rounded-lg h-10 px-4"
-          >
-            <PlusCircle size={16} className="mr-2" />
-            Add domain
-          </Button>
-        </div>
+        <Button
+          onClick={() => setModalOpen(true)}
+          className="bg-[#072E28] text-white hover:bg-[#072E28]/90 rounded-lg h-10 px-4"
+        >
+          <PlusCircle size={16} className="mr-2" />
+          Add domain
+        </Button>
       </div>
 
       <DomainStatsCards total={total} pending={pending} verified={verified} />

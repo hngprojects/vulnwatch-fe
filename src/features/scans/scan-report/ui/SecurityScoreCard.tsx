@@ -30,10 +30,10 @@ export default function SecurityScoreCard({ score }: Props) {
           strokeWidth={10}
           color={
             variant === "critical"
-              ? "#e85f5f"
+              ? "#D00416"
               : variant === "warning"
                 ? "#edb428"
-                : ""
+                : "#1daf61"
           }
           size={200}
         />
