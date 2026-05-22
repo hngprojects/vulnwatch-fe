@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useSearchParams } from "next/navigation";
 import { Mail, ArrowRight, Loader2, MailCheck, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,10 +11,27 @@ import { AuthCard } from "./AuthCard";
 const COOLDOWN_SECONDS = 60;
 
 export function RegisterVerifyEmail() {
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "";
+  const [email, setEmail] = useState("");
   const [countdown, setCountdown] = useState(0);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    let isMounted = true;
+    if (typeof window !== "undefined") {
+      const storedEmail = window.sessionStorage.getItem("verify_email_address") || "";
+      setTimeout(() => {
+        if (isMounted) {
+          setEmail(storedEmail);
+        }
+      }, 0);
+    }
+    return () => {
+      isMounted = false;
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem("verify_email_address");
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (countdown <= 0) return;

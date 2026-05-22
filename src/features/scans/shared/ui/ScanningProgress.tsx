@@ -76,6 +76,11 @@ export default function ScanningProgress({
         .sonar-ring {
           animation: sonar-ripple 6s linear infinite;
         }
+        @media (prefers-reduced-motion: reduce) {
+          .sonar-ring {
+            animation: none !important;
+          }
+        }
       `}</style>
 
       {/* Outer pulsing rings originating from the center and expanding outward */}

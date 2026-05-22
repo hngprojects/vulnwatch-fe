@@ -34,6 +34,9 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
     try {
       const start = new Date(startIso).getTime();
       const end = new Date(endIso).getTime();
+      if (!Number.isFinite(start) || !Number.isFinite(end)) {
+        return "0s";
+      }
       const diffMs = Math.max(0, end - start);
       const totalSeconds = Math.floor(diffMs / 1000);
       const mins = Math.floor(totalSeconds / 60);
@@ -99,17 +102,24 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
     const startProgressSimulation = (alreadyFinished: boolean) => {
       if (alreadyFinished) return;
 
-      const startTime = initiatedAtParam ? new Date(initiatedAtParam).getTime() : Date.now();
+      let startTime = initiatedAtParam ? new Date(initiatedAtParam).getTime() : Date.now();
+      if (!Number.isFinite(startTime)) {
+        startTime = Date.now();
+      }
 
       timerId = setInterval(() => {
         if (!isMounted) return;
 
         const elapsed = Date.now() - startTime;
-        const computedProgress = Math.min(95, Math.floor((elapsed / SCAN_DURATION_MS) * 100));
+        let computedProgress = Math.min(95, Math.floor((elapsed / SCAN_DURATION_MS) * 100));
+        if (!Number.isFinite(computedProgress) || computedProgress < 0) {
+          computedProgress = 0;
+        }
         
         setProgress((prev) => {
           // Keep advancing but don't go backwards
-          return Math.max(prev, computedProgress);
+          const nextVal = Math.max(prev, computedProgress);
+          return Math.min(100, Math.max(0, nextVal));
         });
 
         // Determine step index based on progress value (5 steps: 0-19, 20-39, 40-59, 60-79, 80+)
@@ -185,7 +195,24 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
         await connection.invoke("JoinUserGroup", userId);
         console.log(`Connected to SignalR scan hub. Joined user group: ${userId}`);
       } catch (err) {
-        console.error("SignalR connection failed:", err);
+        console.error("SignalR connection failed, triggering fallback completion...", err);
+        if (isMounted) {
+          if (timerId) clearInterval(timerId);
+          try {
+            const reportRes = await scanService.getScanReport(scanId);
+            if (isMounted && reportRes.isSuccess && reportRes.value) {
+              handleCompletedState(reportRes.value);
+            } else {
+              setProgress(100);
+              setStepStatuses(["completed", "completed", "completed", "completed", "completed"]);
+              setIsCompleted(true);
+            }
+          } catch {
+            setProgress(100);
+            setStepStatuses(["completed", "completed", "completed", "completed", "completed"]);
+            setIsCompleted(true);
+          }
+        }
       }
     };
 

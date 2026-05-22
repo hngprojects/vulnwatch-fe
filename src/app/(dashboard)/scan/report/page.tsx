@@ -23,6 +23,10 @@ const formatScannedDate = (dateString?: string) => {
   if (!dateString) return "Scanned date unknown";
   try {
     const date = new Date(dateString);
+    const time = date.getTime();
+    if (!Number.isFinite(time)) {
+      return "Scanned date unknown";
+    }
     const day = date.getDate();
     const month = date.toLocaleString("default", { month: "long" });
     const year = date.getFullYear();

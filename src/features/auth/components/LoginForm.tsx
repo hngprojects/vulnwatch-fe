@@ -55,7 +55,10 @@ export function LoginForm() {
             response.error?.message ||
               "Your account has not been verified. Redirecting to verification page...",
           );
-          router.push(`/register/verify-email?email=${encodeURIComponent(data.email)}`);
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem("verify_email_address", data.email);
+          }
+          router.push("/register/verify-email");
         } else {
           const errMsg = response.error?.message || "Login failed. Please check your credentials.";
           toast.error(errMsg);

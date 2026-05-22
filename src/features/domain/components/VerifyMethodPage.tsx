@@ -54,11 +54,11 @@ function Stepper() {
 const PRE_CHECKS = [
   {
     title: "Your domain is registered",
-    desc: "Make sure you have access to your domain register account",
+    desc: "Make sure you have access to your domain registrar account",
   },
   {
-    title: "Choose a verified method",
-    desc: "You can verify using DNS, file upload, or email",
+    title: "Verify via DNS",
+    desc: "Add the provided DNS TXT record to your domain",
   },
   {
     title: "Verification may take few minutes",
@@ -77,6 +77,10 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
     domainService
       .getDomain(domainId)
       .then(setDomain)
+      .catch((err) => {
+        console.error("Failed to load domain details:", err);
+        setDomain(null);
+      })
       .finally(() => setLoading(false));
   }, [domainId]);
 
@@ -133,7 +137,7 @@ export default function VerifyMethodPage({ domainId }: { domainId: string }) {
             DNS TXT Record
           </p>
           <p className="text-xs font-normal text-brand-gray font-geist">
-            Add a TXT record to your document
+            Add a TXT record to your domain
           </p>
         </div>
 

@@ -41,7 +41,10 @@ export function SignUpForm() {
           (response.value as { message?: string } | null)?.message ??
           'Successfully registered!';
         toast.success(successMessage);
-        router.push(`/register/verify-email?email=${encodeURIComponent(data.email)}`);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem("verify_email_address", data.email);
+        }
+        router.push("/register/verify-email");
       } else {
         toast.error(response.error?.message || 'Registration failed');
         setError('root', {
