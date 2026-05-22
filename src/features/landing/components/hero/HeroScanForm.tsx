@@ -10,6 +10,21 @@ import {
 } from "../../constants/hero-content";
 import { ROUTES } from "@/constants/routes";
 
+import { z } from "zod";
+
+const domainSchema = z.string().refine((val) => {
+  const raw = val.trim();
+  if (!raw) return false;
+  try {
+    const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    const urlObj = new URL(normalized);
+    const host = urlObj.hostname;
+    return host.includes(".") && !host.startsWith(".") && !host.endsWith(".") && host.split(".").pop()!.length >= 2;
+  } catch {
+    return false;
+  }
+});
+
 function MobileScanButton() {
   const router = useRouter();
 
@@ -35,15 +50,25 @@ function DesktopScanForm() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  const isValid = domainSchema.safeParse(url).success;
+
   const handleScan = () => {
     const raw = url.trim();
     if (!raw) {
       setError("Please enter a website URL");
       return;
     }
+    const result = domainSchema.safeParse(raw);
+    if (!result.success) {
+      setError("Please enter a valid URL e.g. example.com");
+      return;
+    }
+
     try {
       const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-      new URL(normalized);
+      const urlObj = new URL(normalized);
+      const hostname = urlObj.hostname;
+      localStorage.setItem("pending_scan_domain", hostname);
       setError("");
       router.push(ROUTES.REGISTER);
     } catch {
@@ -81,13 +106,14 @@ function DesktopScanForm() {
         <button
           type="button"
           onClick={handleScan}
-          className="flex cursor-pointer items-center justify-center
-            w-[83px] h-[46px] rounded bg-primary px-[10px] py-[13px]
-            transition-opacity hover:opacity-90 focus:outline-none
-            focus-visible:ring-2 focus-visible:ring-white"
+          className={`flex items-center justify-center rounded bg-primary transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+            isValid
+              ? "w-[83px] h-[46px] opacity-100 scale-100 blur-0 cursor-pointer px-[10px] py-[13px]"
+              : "w-0 h-[46px] opacity-0 scale-90 blur-sm pointer-events-none overflow-hidden p-0"
+          }`}
           aria-label={HERO_ARIA.scanButton}
         >
-          <span className="font-inter text-base leading-5 font-semibold text-white">
+          <span className="font-inter text-base leading-5 font-semibold text-white truncate">
             {HERO_SCAN_ACTION_TEXT}
           </span>
         </button>
