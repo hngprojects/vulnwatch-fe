@@ -1,4 +1,9 @@
-const SettingsIcon = ({ className }: { className?: string }) => {
+const SettingsIcon = ({
+  className,
+}: {
+  className?: string;
+  isActive?: boolean;
+}) => {
   return (
     <svg
       width='1em'

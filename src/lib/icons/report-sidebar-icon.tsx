@@ -1,12 +1,9 @@
 const ReportSidebarIcon = ({
   className,
-  isActive = false,
 }: {
   className?: string;
   isActive?: boolean;
 }) => {
-  const fill = isActive ? "#FFFFFF" : "#666666";
-
   return (
     <svg
       width='1em'
@@ -18,7 +15,7 @@ const ReportSidebarIcon = ({
     >
       <path
         d='M4 14H6V7H4V14ZM8 14H10V4H8V14ZM12 14H14V10H12V14ZM2 18C1.45 18 0.979167 17.8042 0.5875 17.4125C0.195833 17.0208 0 16.55 0 16V2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0H16C16.55 0 17.0208 0.195833 17.4125 0.5875C17.8042 0.979167 18 1.45 18 2V16C18 16.55 17.8042 17.0208 17.4125 17.4125C17.0208 17.8042 16.55 18 16 18H2ZM2 16H16V2H2V16ZM2 2V16V2Z'
-        fill={fill}
+        fill='currentColor'
       />
     </svg>
   );
