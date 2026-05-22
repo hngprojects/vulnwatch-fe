@@ -32,15 +32,15 @@ const METHOD_LABELS: Record<VerificationMethod, string> = {
 };
 
 const STATUS_COLORS: Record<DomainStatus, string> = {
-  Verified: "bg-[#ECFDF5] text-[#10B981]",
-  Pending: "bg-[#FFF7ED] text-[#F59E0B]",
-  Failed: "bg-[#FEF2F2] text-[#EF4444]",
+  Verified: "bg-brand-success text-brand-verified-text",
+  Pending: "bg-brand-pending-bg text-brand-pending-text",
+  Failed: "bg-brand-failed-bg text-brand-failed-text",
 };
 
 const STATUS_DOTS: Record<DomainStatus, string> = {
-  Verified: "bg-[#10B981]",
-  Pending: "bg-[#F59E0B]",
-  Failed: "bg-[#EF4444]",
+  Verified: "bg-brand-verified-text",
+  Pending: "bg-brand-pending-text",
+  Failed: "bg-brand-failed-text",
 };
 
 function scoreLabel(score: number | null): string {
@@ -51,20 +51,11 @@ function scoreLabel(score: number | null): string {
   return "Poor";
 }
 
-function scoreColor(score: number | null): string {
-  if (score === null) return "text-[#9CA3AF]";
-  if (score >= 90) return "text-[#10B981]";
-  if (score >= 70) return "text-[#3B82F6]";
-  if (score >= 50) return "text-[#F59E0B]";
-  return "text-[#EF4444]";
-}
-
-function scoreBorderColor(score: number | null): string {
-  if (score === null) return "border-[#E5E7EB]";
-  if (score >= 90) return "border-[#10B981]";
-  if (score >= 70) return "border-[#3B82F6]";
-  if (score >= 50) return "border-[#F59E0B]";
-  return "border-[#EF4444]";
+function getScoreCircleStyles(score: number | null): { border: string; text: string } {
+  if (score === null) return { border: "border-gray-200 border-[4px]", text: "text-gray-400" };
+  if (score >= 70) return { border: "border-brand-success border-[4px]", text: "text-brand-success" };
+  if (score >= 50) return { border: "border-brand-pending-text border-[4px]", text: "text-brand-pending-text" };
+  return { border: "border-brand-failed-text border-[4px]", text: "text-brand-failed-text" };
 }
 
 function formatDate(dateStr: string | null): string {
@@ -77,38 +68,118 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
+type SortKey = "NONE" | "DOMAIN_AZ" | "DOMAIN_ZA" | "LAST_SCAN" | "SCORE_HIGH" | "SCORE_LOW";
+type MethodFilter = VerificationMethod | "ALL";
+
+// Helper to close all dropdowns
+type AllDropdowns = {
+  status?: boolean;
+  methodMobile?: boolean;
+  filter?: boolean;
+  sort?: boolean;
+};
+
 export default function DomainTable({ domains, loading = false, error = null, onAddDomain, onRetry }: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<DomainStatus | "ALL">("ALL");
-  const [filterOpen, setFilterOpen] = useState(false);
+  const [methodFilter, setMethodFilter] = useState<MethodFilter>("ALL");
+  const [sortKey, setSortKey] = useState<SortKey>("NONE");
+  // Dropdown open states
+  const [statusDropOpen, setStatusDropOpen] = useState(false);
+  const [methodMobileOpen, setMethodMobileOpen] = useState(false);
+  const [filterDropOpen, setFilterDropOpen] = useState(false);
+  const [sortDropOpen, setSortDropOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [detailsDomain, setDetailsDomain] = useState<Domain | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
+  const statusDropRef = useRef<HTMLDivElement>(null);
+  const methodMobileRef = useRef<HTMLDivElement>(null);
+  const filterDropRef = useRef<HTMLDivElement>(null);
+  const sortDropRef = useRef<HTMLDivElement>(null);
 
+  // Close all, then open the requested one
+  const openOnly = (which: keyof AllDropdowns) => {
+    setStatusDropOpen(which === "status");
+    setMethodMobileOpen(which === "methodMobile");
+    setFilterDropOpen(which === "filter");
+    setSortDropOpen(which === "sort");
+  };
+
+  // Click-outside: row action menu
   useEffect(() => {
     if (!openMenuId) return;
-
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpenMenuId(null);
-      }
+    const handle = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenMenuId(null);
     };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
   }, [openMenuId]);
+
+  // Click-outside: All Status dropdown
+  useEffect(() => {
+    if (!statusDropOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (statusDropRef.current && !statusDropRef.current.contains(e.target as Node)) setStatusDropOpen(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [statusDropOpen]);
+
+  // Click-outside: mobile Method dropdown
+  useEffect(() => {
+    if (!methodMobileOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (methodMobileRef.current && !methodMobileRef.current.contains(e.target as Node)) setMethodMobileOpen(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [methodMobileOpen]);
+
+  // Click-outside: desktop Filter dropdown
+  useEffect(() => {
+    if (!filterDropOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (filterDropRef.current && !filterDropRef.current.contains(e.target as Node)) setFilterDropOpen(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [filterDropOpen]);
+
+  // Click-outside: desktop Sort dropdown
+  useEffect(() => {
+    if (!sortDropOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (sortDropRef.current && !sortDropRef.current.contains(e.target as Node)) setSortDropOpen(false);
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [sortDropOpen]);
 
   // Only consider domains loaded once loading is done
   const hasDomains = !loading && domains.length > 0;
 
-  const filtered = domains.filter((d) => {
-    const matchesSearch = d.domain.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filtered = (() => {
+    let list = domains.filter((d) => {
+      const matchesSearch = d.domain.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
+      const method = d.verificationMethod ?? "DNS_TXT";
+      const matchesMethod = methodFilter === "ALL" || method === methodFilter;
+      return matchesSearch && matchesStatus && matchesMethod;
+    });
+
+    if (sortKey === "DOMAIN_AZ") list = [...list].sort((a, b) => a.domain.localeCompare(b.domain));
+    else if (sortKey === "DOMAIN_ZA") list = [...list].sort((a, b) => b.domain.localeCompare(a.domain));
+    else if (sortKey === "LAST_SCAN") list = [...list].sort((a, b) => {
+      if (!a.lastScannedAt) return 1;
+      if (!b.lastScannedAt) return -1;
+      return new Date(b.lastScannedAt).getTime() - new Date(a.lastScannedAt).getTime();
+    });
+    else if (sortKey === "SCORE_HIGH") list = [...list].sort((a, b) => (b.lastSecurityScore ?? -1) - (a.lastSecurityScore ?? -1));
+    else if (sortKey === "SCORE_LOW") list = [...list].sort((a, b) => (a.lastSecurityScore ?? 999) - (b.lastSecurityScore ?? 999));
+
+    return list;
+  })();
 
   return (
     <div className="space-y-4">
@@ -121,14 +192,14 @@ export default function DomainTable({ domains, loading = false, error = null, on
           <div className="relative w-full sm:max-w-xs">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#3C494E]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-slate"
             />
             <input
               type="text"
               placeholder="Search domains..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 h-10 text-[14px] font-medium rounded-[12px] border border-[#AABBCC] bg-white text-[#3C494E] placeholder:text-[#3C494ECC] placeholder:font-medium placeholder:text-[14px] focus:outline-none focus:ring-2 focus:ring-[#072E28]/20"
+              className="w-full pl-9 pr-3 h-10 text-[14px] font-medium rounded-[12px] border border-brand-input-border bg-white text-brand-slate placeholder:text-brand-slate-light placeholder:font-medium placeholder:text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
         )}
@@ -136,31 +207,31 @@ export default function DomainTable({ domains, loading = false, error = null, on
         {/* Filters — ALWAYS visible, pushed to the right via ml-auto */}
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
 
-        {/* All Status — filter icon only on mobile */}
-        <div className="relative flex-1 sm:flex-none">
+        {/* All Status — always visible, closes siblings */}
+        <div className="relative flex-1 sm:flex-none" ref={statusDropRef}>
           <button
-            onClick={() => setFilterOpen((o) => !o)}
-            className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-1.5 h-10 px-3 text-[14px] font-medium rounded-[12px] border border-[#AABBCC] bg-[#FFFFFF] text-[#3C494ECC] hover:bg-[#F9FAFB]"
+            onClick={() => statusDropOpen ? setStatusDropOpen(false) : openOnly("status")}
+            className={`flex items-center justify-between sm:justify-start w-full sm:w-auto gap-1.5 h-10 px-3 text-[14px] font-medium rounded-[12px] border bg-white hover:bg-gray-50 transition-colors ${
+              statusFilter !== "ALL" ? "border-primary text-primary" : "border-brand-input-border text-brand-slate-light"
+            }`}
           >
             <div className="flex items-center gap-1.5">
-              {/* Filter icon: mobile only */}
-              <Filter size={14} className="sm:hidden text-[#3C494ECC] stroke-[1.25]" />
-              <span>
-                {statusFilter === "ALL" ? "All Status" : statusFilter}
-              </span>
+              <Filter size={14} className="sm:hidden stroke-[1.25]" />
+              <span>{statusFilter === "ALL" ? "All Status" : statusFilter}</span>
+              {statusFilter !== "ALL" && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
             </div>
-            <ChevronDown size={14} className="text-[#3C494ECC]" />
+            <ChevronDown size={14} className={`transition-transform ${statusDropOpen ? "rotate-180" : ""}`} />
           </button>
-          {filterOpen && (
-            <div className="absolute left-0 sm:left-auto sm:right-0 top-11 z-10 w-full sm:w-36 bg-white rounded-[12px] border border-[#AABBCC] shadow-lg overflow-hidden">
+          {statusDropOpen && (
+            <div className="absolute left-0 sm:left-auto sm:right-0 top-11 z-50 w-full sm:w-40 bg-white rounded-[12px] border border-brand-input-border shadow-lg overflow-hidden">
+              <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status</p>
               {(["ALL", "Verified", "Pending", "Failed"] as const).map((s) => (
                 <button
                   key={s}
-                  onClick={() => {
-                    setStatusFilter(s);
-                    setFilterOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-sm text-[#374151] hover:bg-[#F9FAFB]"
+                  onClick={() => { setStatusFilter(s); setStatusDropOpen(false); }}
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                    statusFilter === s ? "bg-primary/5 text-primary font-medium" : "text-gray-700 hover:bg-gray-50"
+                  }`}
                 >
                   {s === "ALL" ? "All Status" : s}
                 </button>
@@ -169,36 +240,124 @@ export default function DomainTable({ domains, loading = false, error = null, on
           )}
         </div>
 
-          {/* All Method — mobile only */}
-          <div className="relative flex-1 sm:hidden">
-            <button className="flex items-center justify-between w-full gap-1.5 h-10 px-3 text-[14px] font-medium rounded-[12px] border border-[#AABBCC] bg-[#FFFFFF] text-[#3C494ECC] hover:bg-[#F9FAFB]">
-              <span>All Method</span>
-              <ChevronDown size={14} className="text-[#3C494ECC]" />
+          {/* All Method — mobile only, fully wired */}
+          <div className="relative flex-1 sm:hidden" ref={methodMobileRef}>
+            <button
+              onClick={() => methodMobileOpen ? setMethodMobileOpen(false) : openOnly("methodMobile")}
+              className={`flex items-center justify-between w-full gap-1.5 h-10 px-3 text-[14px] font-medium rounded-[12px] border bg-white hover:bg-gray-50 transition-colors ${
+                methodFilter !== "ALL" ? "border-primary text-primary" : "border-brand-input-border text-brand-slate-light"
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <span>{methodFilter === "ALL" ? "All Method" : METHOD_LABELS[methodFilter]}</span>
+                {methodFilter !== "ALL" && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
+              </div>
+              <ChevronDown size={14} className={`transition-transform ${methodMobileOpen ? "rotate-180" : ""}`} />
             </button>
+            {methodMobileOpen && (
+              <div className="absolute left-0 top-11 z-50 w-full bg-white rounded-[12px] border border-brand-input-border shadow-lg overflow-hidden">
+                <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Verification Method</p>
+                {(["ALL", "DNS_TXT", "FILE_UPLOAD", "EMAIL"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => { setMethodFilter(m); setMethodMobileOpen(false); }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      methodFilter === m ? "bg-primary/5 text-primary font-medium" : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {m === "ALL" ? "All Methods" : METHOD_LABELS[m]}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Desktop-only: Filter + Sort buttons */}
-          <button className="hidden sm:flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border border-[#AABBCC] bg-[#FFFFFF] text-[#374151] hover:bg-[#F9FAFB]">
-            <Filter size={14} />
-            <span>Filter</span>
-          </button>
+          {/* Desktop-only: Filter button — filters by Verification Method */}
+          <div className="relative hidden sm:block" ref={filterDropRef}>
+            <button
+              onClick={() => filterDropOpen ? setFilterDropOpen(false) : openOnly("filter")}
+              className={`flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border bg-white text-gray-700 hover:bg-gray-50 transition-colors ${
+                methodFilter !== "ALL" ? "border-primary text-primary font-medium" : "border-brand-input-border"
+              }`}
+            >
+              <Filter size={14} />
+              <span>Filter</span>
+              {methodFilter !== "ALL" && (
+                <span className="w-1.5 h-1.5 rounded-full bg-primary ml-0.5" />
+              )}
+            </button>
+            {filterDropOpen && (
+              <div className="absolute right-0 top-11 z-50 w-52 bg-white rounded-[12px] border border-brand-input-border shadow-lg overflow-hidden">
+                <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Verification Method</p>
+                {(["ALL", "DNS_TXT", "FILE_UPLOAD", "EMAIL"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => { setMethodFilter(m); setFilterDropOpen(false); }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      methodFilter === m
+                        ? "bg-primary/5 text-primary font-medium"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {m === "ALL" ? "All Methods" : METHOD_LABELS[m]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-          <button className="hidden sm:flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border border-[#AABBCC] bg-[#FFFFFF] text-[#374151] hover:bg-[#F9FAFB]">
-            <ArrowUpDown size={14} />
-            <span>Sort</span>
-          </button>
+          {/* Desktop-only: Sort button */}
+          <div className="relative hidden sm:block" ref={sortDropRef}>
+            <button
+              onClick={() => sortDropOpen ? setSortDropOpen(false) : openOnly("sort")}
+              className={`flex items-center gap-1.5 h-10 px-3 text-sm rounded-[12px] border bg-white text-gray-700 hover:bg-gray-50 transition-colors ${
+                sortKey !== "NONE" ? "border-primary text-primary font-medium" : "border-brand-input-border"
+              }`}
+            >
+              <ArrowUpDown size={14} />
+              <span>Sort</span>
+              {sortKey !== "NONE" && (
+                <span className="w-1.5 h-1.5 rounded-full bg-primary ml-0.5" />
+              )}
+            </button>
+            {sortDropOpen && (
+              <div className="absolute right-0 top-11 z-50 w-52 bg-white rounded-[12px] border border-brand-input-border shadow-lg overflow-hidden">
+                <p className="px-4 pt-3 pb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Sort by</p>
+                {([
+                  { key: "NONE", label: "Default" },
+                  { key: "DOMAIN_AZ", label: "Domain A → Z" },
+                  { key: "DOMAIN_ZA", label: "Domain Z → A" },
+                  { key: "LAST_SCAN", label: "Last Scan (newest)" },
+                  { key: "SCORE_HIGH", label: "Security Score (high → low)" },
+                  { key: "SCORE_LOW", label: "Security Score (low → high)" },
+                ] as const).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => { setSortKey(key as SortKey); setSortDropOpen(false); }}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      sortKey === key
+                        ? "bg-primary/5 text-primary font-medium"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* ── Mobile Card List (hidden on sm+) ── */}
       <div className="sm:hidden flex flex-col gap-4">
         {loading ? (
-          <div className="flex items-center justify-center py-16 bg-white rounded-[12px] border border-[#AABBCC]">
-            <Loader2 size={24} className="animate-spin text-[#072E28]" />
+          <div className="flex items-center justify-center py-16 bg-white rounded-[12px] border border-brand-input-border">
+            <Loader2 size={24} className="animate-spin text-primary" />
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-[12px] border border-[#AABBCC] gap-3">
-            <p className="text-sm text-[#6B7280] font-geist text-center">{error}</p>
+          <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-[12px] border border-brand-input-border gap-3">
+            <p className="text-sm text-gray-500 font-geist text-center">{error}</p>
             {onRetry && (
               <Button variant="outline" onClick={onRetry} className="text-sm">
                 Retry
@@ -206,13 +365,13 @@ export default function DomainTable({ domains, loading = false, error = null, on
             )}
           </div>
         ) : !hasDomains ? (
-          <div className="bg-white rounded-[12px] border border-[#AABBCC] p-8 shadow-sm">
+          <div className="bg-white rounded-[12px] border border-brand-input-border p-8 shadow-sm">
             <DomainEmptyState onAddDomain={onAddDomain} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-[8px] border border-[#0000001A]">
-            <p className="text-[16px] font-semibold text-[#2B2B2B] font-geist">No domains found</p>
-            <p className="text-xs text-[#6B7280] font-geist mt-1 text-center">
+          <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-[8px] border border-black/10">
+            <p className="text-[16px] font-semibold text-brand-dark font-geist">No domains found</p>
+            <p className="text-xs text-gray-500 font-geist mt-1 text-center">
               We couldn&apos;t find any domains matching your search or filters.
             </p>
           </div>
@@ -220,18 +379,18 @@ export default function DomainTable({ domains, loading = false, error = null, on
           filtered.map((domain) => (
             <div
               key={domain.id}
-              className="bg-white rounded-[8px] border border-[#0000001A] p-4 flex flex-col gap-3 shadow-sm animate-in fade-in duration-200"
+              className="bg-white rounded-[8px] border border-black/10 p-4 flex flex-col gap-3 shadow-sm animate-in fade-in duration-200"
             >
-              <p className="text-[20px] font-medium text-[#2B2B2B] font-geist leading-tight">
+              <p className="text-[20px] font-medium text-brand-dark font-geist leading-tight">
                 {domain.domain}
               </p>
               <div className="flex items-center justify-between mt-1">
-                <p className="text-[14px] font-normal text-[#3C494E] font-geist">
+                <p className="text-[14px] font-normal text-brand-slate font-geist">
                   {formatDate(domain.createdAt)}
                 </p>
                 <button
                   onClick={() => setDetailsDomain(domain)}
-                  className="text-[14px] font-bold text-[#2B2B2B] font-geist hover:underline cursor-pointer bg-transparent border-0 p-0"
+                  className="text-[14px] font-bold text-brand-dark font-geist hover:underline cursor-pointer bg-transparent border-0 p-0"
                 >
                   View Details
                 </button>
@@ -242,33 +401,33 @@ export default function DomainTable({ domains, loading = false, error = null, on
       </div>
 
       {/* ── Desktop Table (hidden on mobile) ── */}
-      <div className="hidden sm:block bg-white rounded-[12px] border border-[#CCCCCC] overflow-hidden">
+      <div className="hidden sm:block bg-white rounded-[12px] border border-brand-border overflow-hidden">
         <div className="overflow-x-auto min-h-[240px]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#CCCCCC] bg-[#F9FAFB]">
-                <th className="text-left px-4 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap font-geist">
+              <tr className="border-b border-brand-border bg-gray-50">
+                <th className="text-left px-4 py-5 text-[14px] font-medium text-brand-dark whitespace-nowrap font-geist">
                   <span className="flex items-center gap-1">
                     Domain
-                    <ArrowUpDown size={14} className="text-[#2B2B2B]" />
+                    <ArrowUpDown size={14} className="text-brand-dark" />
                   </span>
                 </th>
-                <th className="text-left px-4 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap font-geist">
+                <th className="text-left px-4 py-5 text-[14px] font-medium text-brand-dark whitespace-nowrap font-geist">
                   Verification Method
                 </th>
-                <th className="text-left px-4 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap font-geist">
+                <th className="text-left px-4 py-5 text-[14px] font-medium text-brand-dark whitespace-nowrap font-geist">
                   <span className="flex items-center gap-1">
                     Status
-                    <ArrowUpDown size={14} className="text-[#2B2B2B]" />
+                    <ArrowUpDown size={14} className="text-brand-dark" />
                   </span>
                 </th>
-                <th className="text-left px-4 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap font-geist">
+                <th className="text-left px-4 py-5 text-[14px] font-medium text-brand-dark whitespace-nowrap font-geist">
                   Last Scan
                 </th>
-                <th className="text-left px-4 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap font-geist">
+                <th className="text-left px-4 py-5 text-[14px] font-medium text-brand-dark whitespace-nowrap font-geist">
                   Security Score
                 </th>
-                <th className="text-left px-4 py-5 text-[14px] font-medium text-[#2B2B2B] whitespace-nowrap font-geist">
+                <th className="text-left px-4 py-5 text-[14px] font-medium text-brand-dark whitespace-nowrap font-geist">
                   Action
                 </th>
               </tr>
@@ -278,7 +437,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
                 <tr>
                   <td colSpan={6} className="text-center py-16">
                     <div className="flex items-center justify-center">
-                      <Loader2 size={24} className="animate-spin text-[#072E28]" />
+                      <Loader2 size={24} className="animate-spin text-primary" />
                     </div>
                   </td>
                 </tr>
@@ -286,7 +445,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
                 <tr>
                   <td colSpan={6} className="text-center py-16">
                     <div className="flex flex-col items-center justify-center gap-3">
-                      <p className="text-sm text-[#6B7280] font-geist">{error}</p>
+                      <p className="text-sm text-gray-500 font-geist">{error}</p>
                       {onRetry && (
                         <Button variant="outline" onClick={onRetry} className="text-sm">
                           Retry
@@ -307,8 +466,8 @@ export default function DomainTable({ domains, loading = false, error = null, on
                 <tr>
                   <td colSpan={6} className="text-center py-16 font-geist">
                     <div className="flex flex-col items-center justify-center">
-                      <p className="text-[16px] font-semibold text-[#2B2B2B]">No domains found</p>
-                      <p className="text-sm text-[#6B7280] mt-1">
+                      <p className="text-[16px] font-semibold text-brand-dark">No domains found</p>
+                      <p className="text-sm text-gray-500 mt-1">
                         We couldn&apos;t find any domains matching your current search or filters.
                       </p>
                     </div>
@@ -318,16 +477,16 @@ export default function DomainTable({ domains, loading = false, error = null, on
                 filtered.map((domain, index) => (
                   <tr
                     key={domain.id}
-                    className="border-b border-[#E5E7EB] last:border-b-0 hover:bg-[#F9FAFB]"
+                    className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-[#F3F4F6] flex items-center justify-center shrink-0">
-                          <Globe size={14} className="text-[#6B7280]" />
+                        <div className="w-7 h-7 rounded-full bg-brand-globe-bg flex items-center justify-center shrink-0">
+                          <Globe size={14} className="text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-[#111827]">{domain.domain}</p>
-                          <p className="text-xs text-[#9CA3AF]">
+                          <p className="text-[14px] font-medium text-brand-dark leading-tight">{domain.domain}</p>
+                          <p className="text-xs font-medium text-brand-muted mt-0.5">
                             Added on {formatDate(domain.createdAt)}
                           </p>
                         </div>
@@ -339,10 +498,10 @@ export default function DomainTable({ domains, loading = false, error = null, on
                         const method = domain.verificationMethod ?? "DNS_TXT";
                         return (
                           <span
-                            className="inline-flex items-center gap-1.5 rounded-[12px] text-[14px] font-medium text-[#2B2B2B] bg-[#EDEDED]"
+                            className="inline-flex items-center gap-1.5 rounded-[12px] text-[14px] font-medium text-brand-dark bg-brand-light-gray"
                             style={{ padding: "4px 10px" }}
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#072E28] shrink-0" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                             {METHOD_LABELS[method]}
                           </span>
                         );
@@ -351,138 +510,145 @@ export default function DomainTable({ domains, loading = false, error = null, on
 
                     <td className="px-4 py-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[domain.status] ?? "bg-[#F3F4F6] text-[#6B7280]"}`}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-[12px] text-xs font-medium ${STATUS_COLORS[domain.status] ?? "bg-gray-100 text-gray-500"}`}
                       >
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[domain.status] ?? "bg-[#9CA3AF]"}`}
+                          className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[domain.status] ?? "bg-gray-400"}`}
                         />
                         {domain.status}
                       </span>
                     </td>
 
-                    <td className="px-4 py-4 text-[#6B7280] whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       {domain.lastScannedAt ? (
                         <>
-                          <p>{formatDate(domain.lastScannedAt)}</p>
-                          <p className="text-xs text-[#9CA3AF]">
+                          <p className="text-[14px] font-medium text-brand-dark leading-normal">{formatDate(domain.lastScannedAt)}</p>
+                          <p className="text-xs font-medium text-brand-muted leading-normal mt-0.5">
                             {new Date(domain.lastScannedAt).toLocaleTimeString("en-US", {
                               hour: "2-digit",
                               minute: "2-digit",
+                              hour12: true,
                             })}
                           </p>
                         </>
                       ) : (
-                        <span className="text-[#9CA3AF] text-xs">Not scanned yet</span>
+                        <span className="text-brand-muted text-xs font-medium">Not scanned yet</span>
                       )}
                     </td>
 
                     <td className="px-4 py-4">
                       {domain.lastSecurityScore !== null ? (
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-xs font-bold ${scoreBorderColor(domain.lastSecurityScore)} ${scoreColor(domain.lastSecurityScore)}`}
-                          >
-                            {domain.lastSecurityScore}
-                          </div>
-                          <span className={`text-sm font-medium ${scoreColor(domain.lastSecurityScore)}`}>
+                        <div className="flex items-center gap-2 font-geist">
+                          {(() => {
+                            const { border, text } = getScoreCircleStyles(domain.lastSecurityScore);
+                            return (
+                              <div
+                                className={`w-12 h-12 rounded-full flex items-center justify-center text-[16px] font-bold bg-transparent ${border} ${text}`}
+                              >
+                                {domain.lastSecurityScore}
+                              </div>
+                            );
+                          })()}
+                          <span className="text-[14px] font-medium text-brand-dark">
                             {scoreLabel(domain.lastSecurityScore)}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-[#9CA3AF]">Not available</span>
+                        <span className="text-xs text-gray-400 font-geist">Not available</span>
                       )}
                     </td>
 
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setDetailsDomain(domain)}
-                        className="text-xs h-8 px-3 rounded-lg border-[#E5E7EB] text-[#374151] hover:bg-[#F9FAFB]"
-                      >
-                        View Details
-                      </Button>
-                      <div className="relative" ref={openMenuId === domain.id ? menuRef : undefined}>
-                        <button
-                          onClick={() =>
-                            setOpenMenuId(openMenuId === domain.id ? null : domain.id)
-                          }
-                          className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center text-[#6B7280] hover:bg-[#F9FAFB]"
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setDetailsDomain(domain)}
+                          className="text-xs h-8 px-3 rounded-lg border border-brand-border text-brand-dark font-medium bg-white hover:bg-gray-50"
                         >
-                          <MoreVertical size={14} />
-                        </button>
-                        {openMenuId === domain.id && (
-                          <div className={`absolute right-0 z-50 w-32 bg-white rounded-xl border border-[#E5E7EB] shadow-lg overflow-hidden ${index === filtered.length - 1 && filtered.length > 1 ? "bottom-9" : "top-9"}`}>
-                            {domain.status !== "Verified" && (
+                          View Details
+                        </Button>
+                        <div className="relative" ref={openMenuId === domain.id ? menuRef : undefined}>
+                          <button
+                            onClick={() =>
+                              setOpenMenuId(openMenuId === domain.id ? null : domain.id)
+                            }
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-brand-dark bg-transparent hover:bg-gray-50/50 border-0"
+                          >
+                            <MoreVertical size={14} />
+                          </button>
+                          {openMenuId === domain.id && (
+                            <div className={`absolute right-0 z-50 w-32 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden ${index === filtered.length - 1 && filtered.length > 1 ? "bottom-9" : "top-9"}`}>
+                              {domain.status !== "Verified" && (
+                                <button
+                                  onClick={async () => {
+                                    setOpenMenuId(null);
+                                    const toastId = toast.loading("Checking DNS verification...", {
+                                      description: `Verifying ${domain.domain}`,
+                                    });
+                                    try {
+                                      const updatedDomain = await domainService.verifyDomain(domain.id);
+                                      if (updatedDomain.status === "Verified") {
+                                        toast.success("Domain verified successfully!", {
+                                          id: toastId,
+                                          description: `${domain.domain} is now verified.`,
+                                        });
+                                      } else {
+                                        toast.error("Verification failed. DNS records might still be propagating.", {
+                                          id: toastId,
+                                          description: `${domain.domain} remains pending.`,
+                                        });
+                                      }
+                                      if (onRetry) onRetry();
+                                    } catch (err: unknown) {
+                                      const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
+                                      const backendMessage = axiosError.response?.data?.error?.message;
+                                      const errMsg = backendMessage || (err instanceof Error ? err.message : "Verification failed. DNS records might still be propagating.");
+                                      toast.error(errMsg, {
+                                        id: toastId,
+                                      });
+                                      if (onRetry) onRetry();
+                                    }
+                                  }}
+                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                >
+                                  Re-verify
+                                </button>
+                              )}
                               <button
                                 onClick={async () => {
                                   setOpenMenuId(null);
-                                  const toastId = toast.loading("Checking DNS verification...", {
-                                    description: `Verifying ${domain.domain}`,
+                                  const toastId = toast.loading("Removing domain...", {
+                                    description: `Deleting ${domain.domain}`,
                                   });
                                   try {
-                                    const updatedDomain = await domainService.verifyDomain(domain.id);
-                                    if (updatedDomain.status === "Verified") {
-                                      toast.success("Domain verified successfully!", {
-                                        id: toastId,
-                                        description: `${domain.domain} is now verified.`,
-                                      });
-                                    } else {
-                                      toast.error("Verification failed. DNS records might still be propagating.", {
-                                        id: toastId,
-                                        description: `${domain.domain} remains pending.`,
-                                      });
-                                    }
+                                    const res = await domainService.deleteDomain(domain.id);
+                                    toast.success(res.message || "Domain removed successfully!", {
+                                      id: toastId,
+                                    });
                                     if (onRetry) onRetry();
                                   } catch (err: unknown) {
                                     const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
                                     const backendMessage = axiosError.response?.data?.error?.message;
-                                    const errMsg = backendMessage || (err instanceof Error ? err.message : "Verification failed. DNS records might still be propagating.");
+                                    const errMsg = backendMessage || (err instanceof Error ? err.message : "Failed to remove domain.");
                                     toast.error(errMsg, {
                                       id: toastId,
                                     });
                                     if (onRetry) onRetry();
                                   }
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB]"
+                                className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
                               >
-                                Re-verify
+                                Remove
                               </button>
-                            )}
-                            <button
-                              onClick={async () => {
-                                setOpenMenuId(null);
-                                const toastId = toast.loading("Removing domain...", {
-                                  description: `Deleting ${domain.domain}`,
-                                });
-                                try {
-                                  const res = await domainService.deleteDomain(domain.id);
-                                  toast.success(res.message || "Domain removed successfully!", {
-                                    id: toastId,
-                                  });
-                                  if (onRetry) onRetry();
-                                } catch (err: unknown) {
-                                  const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
-                                  const backendMessage = axiosError.response?.data?.error?.message;
-                                  const errMsg = backendMessage || (err instanceof Error ? err.message : "Failed to remove domain.");
-                                  toast.error(errMsg, {
-                                    id: toastId,
-                                  });
-                                  if (onRetry) onRetry();
-                                }
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-[#EF4444] hover:bg-[#FEF2F2]"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        )}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              )))}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
