@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, KeyRound, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, ArrowRight, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -131,7 +131,7 @@ export function ResetPasswordForm() {
             <PasswordInput
               label="New Password"
               placeholder="........"
-              helperText="Use at least 12 characters, with numbers & symbols."
+              helperText="Use at least 8 characters, with numbers & symbols."
               error={errors.newPassword?.message}
               {...register("newPassword")}
             />

@@ -17,7 +17,7 @@ export interface ApiResponse<T> {
 export const authService = {
   async login(
     data: LoginFormData,
-  ): Promise<ApiResponse<{ token: string; email: string }>> {
+  ): Promise<ApiResponse<{ accessToken: string; refreshToken: string }>> {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
     const res = await fetch(`${API_BASE}/api/Auth/login`, {
       method: "POST",
@@ -63,12 +63,19 @@ export const authService = {
     data: Pick<ResetPasswordFormData, "email" | "token" | "newPassword">,
   ): Promise<ApiResponse<{ message: string }>> {
     const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+    
+    // Some backends decode token inputs once or twice. We URL-encode to preserve '+' and '/'
+    const encodedToken = encodeURIComponent(data.token);
+
     const res = await fetch(`${API_BASE}/api/Auth/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        ...data,
+        token: encodedToken,
+      }),
     });
     return res.json();
   },

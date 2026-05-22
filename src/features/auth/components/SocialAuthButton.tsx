@@ -58,7 +58,8 @@ export function SocialAuthButton({
 
       const data = await response.json();
       if (data.isSuccess && data.value.accessToken) {
-        toast.success("Google login successful!");
+        const successMessage = data.message ?? "Google login successful!";
+        toast.success(successMessage);
         
         // Decode tokens to get picture and email
         let picture = "";

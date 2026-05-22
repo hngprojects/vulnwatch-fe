@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { type KeyboardEvent, useLayoutEffect, useRef, useState } from "react";
 
 type LegalTab = {
   id: string;
@@ -97,6 +97,37 @@ export function LegalDocs() {
   });
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
+  const handleTabKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    currentIndex: number,
+  ) => {
+    const lastIndex = legalTabs.length - 1;
+    let nextIndex: number | null = null;
+
+    switch (event.key) {
+      case "ArrowRight":
+      case "ArrowDown":
+        nextIndex = currentIndex === lastIndex ? 0 : currentIndex + 1;
+        break;
+      case "ArrowLeft":
+      case "ArrowUp":
+        nextIndex = currentIndex === 0 ? lastIndex : currentIndex - 1;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = lastIndex;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    setActiveTab(legalTabs[nextIndex]);
+    tabRefs.current[nextIndex]?.focus();
+  };
+
   useLayoutEffect(() => {
     const activeIndex = legalTabs.findIndex((tab) => tab.id === activeTab.id);
     const activeButton = tabRefs.current[activeIndex];
@@ -154,7 +185,9 @@ export function LegalDocs() {
                     role="tab"
                     aria-selected={isActive}
                     aria-controls={`${tab.id}-panel`}
+                    tabIndex={isActive ? 0 : -1}
                     onClick={() => setActiveTab(tab)}
+                    onKeyDown={(event) => handleTabKeyDown(event, index)}
                     className={[
                       "relative flex min-h-14 cursor-pointer items-center justify-center px-1 py-3 text-center",
                       "text-[11px] leading-4 font-medium tracking-[-0.3px] transition-colors sm:text-[12px]",

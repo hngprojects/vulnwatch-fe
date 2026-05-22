@@ -38,16 +38,16 @@ export function LoginForm() {
       const response = await authService.login(data);
 
       if (response.isSuccess && response.value) {
-        toast.success("Successfully logged in!");
+        const msg = (response.value as { message?: string }).message ?? "Successfully logged in!";
+        toast.success(msg);
         useAuthStore
           .getState()
-          .login(response.value.token, response.value.email);
+          .login(response.value.accessToken, data.email);
         router.push("/dashboard");
       } else {
-        toast.error(response.error?.message || "Login failed");
-        setError("root", {
-          message: response.error?.message || "Login failed",
-        });
+        const errMsg = response.error?.message || "Login failed. Please check your credentials.";
+        toast.error(errMsg);
+        setError("root", { message: errMsg });
       }
     } catch {
       toast.error("An unexpected error occurred. Please try again later.");
@@ -71,7 +71,7 @@ export function LoginForm() {
             </Link>
           </div>
           <p className="font-geist text-center text-[15px] font-normal text-[#666666] sm:text-[16px]">
-            Enter your credentials to access the secure enterprise dashboard.
+            Eter yor credentials to access the secure enterprise dashboard.
           </p>
         </div>
 

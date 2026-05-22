@@ -1,14 +1,7 @@
-import type { Scan, RiskLevel, ScanStatus } from "@/types/dashboard.types";
+import type { Scan, RiskLevel } from "@/types/dashboard.types";
 import { ScanLine, Target, ChevronRight } from "lucide-react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
 
-const RISK_STYLES: Record<RiskLevel, string> = {
-  Critical: "bg-red-100 text-red-700",
-  High: "bg-orange-100 text-orange-700",
-  Medium: "bg-amber-100 text-amber-700",
-  Low: "bg-green-100 text-green-700",
-};
+
 
 const RISK_DOTS: Record<RiskLevel, string> = {
   Critical: "bg-red-500",
@@ -42,9 +35,9 @@ interface RecentScansProps {
 
 export function RecentScans({ scans }: RecentScansProps) {
   return (
-    <div className="bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[#F3F4F6]">
+    <div className="flex flex-col gap-3">
+      {/* Header — plain text above the table, no background */}
+      <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[#111827]">Recent Scans</h3>
         <button
           type="button"
@@ -53,6 +46,9 @@ export function RecentScans({ scans }: RecentScansProps) {
           View all <ChevronRight className="h-3 w-3" />
         </button>
       </div>
+
+      {/* Table card */}
+      <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
 
       {/* Table — desktop */}
       <div className="hidden md:block overflow-x-auto">
@@ -151,13 +147,19 @@ export function RecentScans({ scans }: RecentScansProps) {
                   {scan.status === "Complete" ? "Good" : "Action Needed"}
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <button className="text-[10px] font-bold text-[#374151]">View Details</button>
-                <ChevronRight className="h-3.5 w-3.5 text-[#9CA3AF]" />
+              <div>
+                <button
+                  type="button"
+                  className="flex items-center gap-1 text-[10px] font-bold text-[#374151]"
+                >
+                  <span>View Details</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-[#9CA3AF]" />
+                </button>
               </div>
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

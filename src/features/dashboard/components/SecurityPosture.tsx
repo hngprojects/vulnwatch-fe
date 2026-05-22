@@ -9,18 +9,6 @@ export function SecurityPosture({ score }: SecurityPostureProps) {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
 
-  const getStatusLabel = (s: number) => {
-    if (s >= 85) return { label: "Strong", color: "#22C55E" };
-    if (s >= 65) return { label: "Moderate", color: "#F59E0B" };
-    return { label: "At Risk", color: "#EF4444" };
-  };
-
-  const { label: statusLabel, color: statusColor } = getStatusLabel(score);
-
-  // Ring color based on score
-  const ringColor =
-    score >= 85 ? "#22C55E" : score >= 65 ? "#A0E870" : "#EF4444";
-
   return (
     <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6 flex flex-col gap-6 h-full">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 flex-1">
@@ -35,7 +23,7 @@ export function SecurityPosture({ score }: SecurityPostureProps) {
           </p>
           <Link
             href="/report"
-            className="mt-4 text-sm font-bold text-primary hover:opacity-70 transition-opacity flex items-center gap-1"
+            className="mt-4 font-geist font-normal text-[16px] leading-[16px] tracking-[2%] text-[#072E28] hover:opacity-70 transition-opacity flex items-center gap-1"
           >
             View all issues <span className="text-lg">→</span>
           </Link>

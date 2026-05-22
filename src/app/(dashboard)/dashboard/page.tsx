@@ -9,6 +9,7 @@ import { SecurityPosture } from '@/features/dashboard/components/SecurityPosture
 import { AISecurityAssistant } from '@/features/dashboard/components/AISecurityAssistant';
 import { RecentScans } from '@/features/dashboard/components/RecentScans';
 import { mockDashboardData } from '@/features/dashboard/constants/mock-data';
+import { TourProvider } from '@/features/dashboard/components/tour/TourProvider';
 
 // Toggle this to false to preview the empty state
 const HAS_SCANS = false;
@@ -21,9 +22,12 @@ export default function DashboardPage() {
   if (!HAS_SCANS) {
     return (
       <div className='px-4 md:px-6 py-6'>
+        <TourProvider />
         <div className='mb-6'>
-          <h1 className='text-xl font-bold text-[#111827]'>Your dashboard</h1>
-          <p className='text-sm text-[#6B7280] mt-0.5'>
+          <h1 className='font-geist text-[40px] font-bold text-[#111827]'>
+            Your dashboard
+          </h1>
+          <p className='font-inter text-[20px] font-normal text-[#6B7280] mt-1'>
             Your security overview will be displayed here
           </p>
         </div>
@@ -34,6 +38,7 @@ export default function DashboardPage() {
 
   return (
     <div className='px-4 md:px-6 py-6 space-y-5 max-w-7xl mx-auto'>
+      <TourProvider />
       {/* Page header */}
       <div className='flex flex-col gap-5'>
         <div className='flex items-center justify-between'>
