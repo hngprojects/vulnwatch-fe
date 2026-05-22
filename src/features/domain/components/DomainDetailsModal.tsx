@@ -1,20 +1,23 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Clock, X, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
+import { Clock, X, RefreshCw, CheckCircle2, AlertCircle, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogDescription,
   DialogClose,
 } from "@/components/ui/dialog";
 import { domainService } from "../services/domain.service";
 import type { Domain, DomainStatus, VerificationMethod } from "../types/domain.types";
+import { toast } from "sonner";
 
 interface Props {
   domain: Domain | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onDeleted?: () => void;
 }
 
 const METHOD_LABELS: Record<VerificationMethod, string> = {
@@ -87,9 +90,10 @@ function StatusIcon({ status }: { status: DomainStatus }) {
   );
 }
 
-export default function DomainDetailsModal({ domain, open, onOpenChange }: Props) {
+export default function DomainDetailsModal({ domain, open, onOpenChange, onDeleted }: Props) {
   const [checkedDomain, setCheckedDomain] = useState<Domain | null>(null);
   const [checking, setChecking] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Use the freshly-fetched domain when it belongs to the same ID, otherwise fall back to the prop
   const liveDomain = (checkedDomain?.id === domain?.id ? checkedDomain : null) ?? domain;
@@ -148,6 +152,10 @@ export default function DomainDetailsModal({ domain, open, onOpenChange }: Props
             {cfg.title}
           </DialogTitle>
 
+          <DialogDescription className="sr-only">
+            Domain verification details and options for {liveDomain.domain}.
+          </DialogDescription>
+
           {/* Subtitle */}
           <p className="text-sm text-[#6B7280] max-w-xs leading-relaxed">
             {liveDomain.status === "Pending" ? (
@@ -205,13 +213,50 @@ export default function DomainDetailsModal({ domain, open, onOpenChange }: Props
 
         {/* Buttons */}
         <div className="px-6 pb-6 flex items-center gap-3">
-          <DialogClose className="flex-1 h-11 rounded-xl border border-[#E5E7EB] bg-white text-sm font-medium text-[#374151] hover:bg-[#F9FAFB] transition-colors">
+          <button
+            onClick={async () => {
+              if (deleting) return;
+              if (confirm(`Are you sure you want to remove ${liveDomain.domain}?`)) {
+                setDeleting(true);
+                const toastId = toast.loading("Removing domain...", {
+                  description: `Deleting ${liveDomain.domain}`,
+                });
+                try {
+                  const res = await domainService.deleteDomain(liveDomain.id);
+                  toast.success(res.message || "Domain removed successfully!", {
+                    id: toastId,
+                  });
+                  onOpenChange(false);
+                  if (onDeleted) onDeleted();
+                } catch (err: unknown) {
+                  const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
+                  const backendMessage = axiosError.response?.data?.error?.message;
+                  const errMsg = backendMessage || (err instanceof Error ? err.message : "Failed to remove domain.");
+                  toast.error(errMsg, {
+                    id: toastId,
+                  });
+                } finally {
+                  setDeleting(false);
+                }
+              }
+            }}
+            disabled={deleting}
+            className="flex-1 h-11 rounded-xl border border-[#FCA5A5] bg-white text-sm font-medium text-[#EF4444] hover:bg-[#FEF2F2] hover:border-[#EF4444] transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            <Trash2 size={15} />
+            Remove
+          </button>
+
+          <DialogClose
+            disabled={deleting}
+            className="flex-1 h-11 rounded-xl border border-[#E5E7EB] bg-white text-sm font-medium text-[#374151] hover:bg-[#F9FAFB] transition-colors disabled:opacity-60"
+          >
             Close
           </DialogClose>
           {liveDomain.status === "Pending" && (
             <button
               onClick={handleCheck}
-              disabled={checking}
+              disabled={checking || deleting}
               className="flex-1 h-11 rounded-xl bg-[#072E28] text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#072E28]/90 transition-colors disabled:opacity-60"
             >
               <RefreshCw size={15} className={checking ? "animate-spin" : ""} />
