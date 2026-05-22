@@ -13,7 +13,7 @@ export default function PressReleaseExitsBetaPage() {
             <div className="mx-auto max-w-3xl px-6 py-24 md:py-32">
                 <Link
                     href="/press"
-                    className="mb-10 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition"
+                    className="mb-8 flex w-fit items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition"
                 >
                     <ArrowLeft size={14} />
                     Back to Press
