@@ -38,29 +38,29 @@ const summaryCards: SummaryCard[] = [
     label: "Total Scans",
     value: 24,
     icon: CircleGauge,
-    iconClassName: "text-[#2F80ED]",
-    iconWrapClassName: "bg-[#EAF3FF]",
+    iconClassName: "text-brand-info",
+    iconWrapClassName: "bg-brand-info-bg",
   },
   {
     label: "High Risk Found",
     value: 7,
     icon: ShieldAlert,
-    iconClassName: "text-[#FF3366]",
-    iconWrapClassName: "bg-[#FFE8EF]",
+    iconClassName: "text-brand-risk-critical",
+    iconWrapClassName: "bg-brand-risk-critical-bg",
   },
   {
     label: "Medium Risk Found",
     value: 13,
     icon: ShieldEllipsis,
-    iconClassName: "text-[#F97316]",
-    iconWrapClassName: "bg-[#FFF1E7]",
+    iconClassName: "text-brand-risk-high",
+    iconWrapClassName: "bg-brand-risk-high-bg",
   },
   {
     label: "Low Risk Found",
     value: 32,
     icon: ShieldCheck,
-    iconClassName: "text-[#1DBF73]",
-    iconWrapClassName: "bg-[#E8FFF3]",
+    iconClassName: "text-brand-risk-low",
+    iconWrapClassName: "bg-brand-risk-low-bg",
   },
 ];
 
@@ -108,9 +108,9 @@ const reportRows: ReportRow[] = [
 ];
 
 const riskDotClassName: Record<RiskLevel, string> = {
-  Low: "bg-[#1DBF73]",
-  High: "bg-[#F97316]",
-  Critical: "bg-[#FF3366]",
+  Low: "bg-brand-risk-low",
+  High: "bg-brand-risk-high",
+  Critical: "bg-brand-risk-critical",
 };
 
 const currentPage = 1;
@@ -121,7 +121,7 @@ const totalPages = Math.ceil(totalReports / pageSize);
 function ScanTypeIcon({ scanType }: { scanType: ReportRow["scanType"] }) {
   const Icon = scanType === "Quick Scan" ? RotateCw : Shield;
 
-  return <Icon className="h-4 w-4 shrink-0 text-[#374151]" strokeWidth={1.8} />;
+  return <Icon className="h-4 w-4 shrink-0 text-gray-700" strokeWidth={1.8} />;
 }
 
 function RiskIndicator({ level, status }: { level: RiskLevel; status: string }) {
@@ -132,9 +132,9 @@ function RiskIndicator({ level, status }: { level: RiskLevel; status: string }) 
           className={cn("h-2 w-2 rounded-full", riskDotClassName[level])}
           aria-hidden="true"
         />
-        <span className="text-sm font-medium text-[#2B2B2B]">{level}</span>
+        <span className="text-sm font-medium text-brand-dark">{level}</span>
       </div>
-      <p className="text-sm text-[#666666]">{status}</p>
+      <p className="text-sm text-brand-gray">{status}</p>
     </div>
   );
 }
@@ -149,11 +149,11 @@ function SummaryCards() {
         ({ label, value, icon: Icon, iconClassName, iconWrapClassName }) => (
           <article
             key={label}
-            className="flex min-h-14 items-center justify-between rounded-md border border-[#EEEEEE] bg-white px-3 py-2 shadow-[0_1px_4px_rgba(17,24,39,0.03)]"
+            className="flex min-h-14 items-center justify-between rounded-md border border-brand-border-light bg-white px-3 py-2 shadow-[0_1px_4px_rgba(17,24,39,0.03)]"
           >
             <div>
-              <p className="text-sm leading-5 text-[#666666]">{label}</p>
-              <p className="text-base leading-5 font-semibold text-[#2B2B2B]">
+              <p className="text-sm leading-5 text-brand-gray">{label}</p>
+              <p className="text-base leading-5 font-semibold text-brand-dark">
                 {value}
               </p>
             </div>
@@ -175,9 +175,9 @@ function SummaryCards() {
 
 function ReportsTable() {
   return (
-    <div className="hidden overflow-hidden rounded-md border border-[#EEEEEE] bg-white lg:block">
+    <div className="hidden overflow-hidden rounded-md border border-brand-border-light bg-white lg:block">
       <table className="w-full table-fixed text-left">
-        <thead className="bg-[#F9FAFB] text-sm font-semibold text-[#2B2B2B]">
+        <thead className="bg-gray-50 text-sm font-semibold text-brand-dark">
           <tr>
             <th scope="col" className="w-[33%] px-8 py-5">
               Scan Date &amp; Time
@@ -193,17 +193,17 @@ function ReportsTable() {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#EEEEEE]">
+        <tbody className="divide-y divide-brand-border-light">
           {reportRows.map((report) => (
             <tr key={report.id} className="align-top">
               <td className="px-8 py-3.5">
-                <p className="text-sm font-medium text-[#2B2B2B]">
+                <p className="text-sm font-medium text-brand-dark">
                   {report.date}
                 </p>
-                <p className="mt-4 text-sm text-[#666666]">{report.time}</p>
+                <p className="mt-4 text-sm font-medium text-brand-muted">{report.time}</p>
               </td>
               <td className="px-8 py-3.5">
-                <div className="flex items-center gap-2 text-sm font-medium text-[#2B2B2B]">
+                <div className="flex items-center gap-2 text-sm font-medium text-brand-dark">
                   <ScanTypeIcon scanType={report.scanType} />
                   {report.scanType}
                 </div>
@@ -214,7 +214,7 @@ function ReportsTable() {
               <td className="px-8 py-3.5">
                 <Link
                   href="/scan/report"
-                  className="inline-flex items-center gap-3 text-sm font-medium text-[#2B2B2B] transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  className="inline-flex items-center gap-3 text-sm font-medium text-brand-dark transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   aria-label={`View details for ${report.date} ${report.scanType}`}
                 >
                   View Details
@@ -236,18 +236,18 @@ function MobileReportCards() {
       {reportRows.map((report) => (
         <article
           key={report.id}
-          className="rounded-lg border border-[#EEEEEE] bg-white p-4 shadow-[0_1px_4px_rgba(17,24,39,0.03)]"
+          className="rounded-lg border border-brand-border-light bg-white p-4 shadow-[0_1px_4px_rgba(17,24,39,0.03)]"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-[#2B2B2B]">
+              <p className="text-sm font-semibold text-brand-dark">
                 {report.date}
               </p>
-              <p className="mt-1 text-sm text-[#666666]">{report.time}</p>
+              <p className="mt-1 text-sm text-brand-gray">{report.time}</p>
             </div>
             <Link
               href="/scan/report"
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#EEEEEE] text-[#2B2B2B] transition-colors hover:bg-[#F9FAFB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-brand-border-light text-brand-dark transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label={`View details for ${report.date} ${report.scanType}`}
             >
               <ChevronRight className="h-5 w-5" strokeWidth={1.8} />
@@ -256,16 +256,16 @@ function MobileReportCards() {
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.04em] text-[#8A8A8A]">
+              <p className="text-xs font-medium uppercase tracking-[0.04em] text-brand-text-light">
                 Scan Type
               </p>
-              <div className="mt-2 flex items-center gap-2 text-sm font-medium text-[#2B2B2B]">
+              <div className="mt-2 flex items-center gap-2 text-sm font-medium text-brand-dark">
                 <ScanTypeIcon scanType={report.scanType} />
                 {report.scanType}
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.04em] text-[#8A8A8A]">
+              <p className="text-xs font-medium uppercase tracking-[0.04em] text-brand-text-light">
                 Risk Level
               </p>
               <div className="mt-2">
@@ -288,15 +288,15 @@ function Pagination() {
   return (
     <nav
       aria-label="Report pagination"
-      className="flex flex-col gap-4 border-t border-[#EEEEEE] px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8"
+      className="flex flex-col gap-4 border-t border-brand-border-light px-5 py-4 sm:flex-row sm:items-center sm:justify-between lg:px-8"
     >
-      <p className="text-sm text-[#666666]">
+      <p className="text-sm text-brand-gray">
         Showing {firstItem} to {lastItem} of {totalReports} reports
       </p>
       <div className="flex items-center gap-3">
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#F0F0F0] text-[#D5D5D5] disabled:cursor-not-allowed"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-brand-sidebar-bg text-brand-disabled disabled:cursor-not-allowed"
           aria-label="Previous page"
           disabled
         >
@@ -304,7 +304,7 @@ function Pagination() {
         </button>
         {pageNumbers.map((page) =>
           page === "..." ? (
-            <span key={page} className="px-1 text-sm text-[#666666]">
+            <span key={page} className="px-1 text-sm text-brand-gray">
               ...
             </span>
           ) : (
@@ -314,8 +314,8 @@ function Pagination() {
               className={cn(
                 "inline-flex h-10 w-10 items-center justify-center rounded-md border text-sm transition-colors disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 page === "1"
-                  ? "border-primary text-[#2B2B2B]"
-                  : "border-[#F0F0F0] text-[#666666]",
+                  ? "border-primary text-brand-dark"
+                  : "border-brand-sidebar-bg text-brand-gray",
               )}
               aria-current={page === "1" ? "page" : undefined}
               disabled
@@ -326,7 +326,7 @@ function Pagination() {
         )}
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#F0F0F0] text-[#D5D5D5] disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-brand-sidebar-bg text-brand-disabled disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label="Next page"
           disabled
         >
@@ -342,8 +342,8 @@ export default function Report() {
     <div className="px-4 py-5 md:px-6 lg:px-4 lg:py-3">
       <div className="space-y-6">
         <header>
-          <h1 className="text-xl font-bold leading-7 text-[#2B2B2B]">Reports</h1>
-          <p className="mt-1 text-sm text-[#666666]">
+          <h1 className="text-xl font-bold leading-7 text-brand-dark">Reports</h1>
+          <p className="mt-1 text-sm text-brand-gray">
             View and manage all your security scan reports
           </p>
         </header>
@@ -351,20 +351,20 @@ export default function Report() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-4">
             <span
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#2B2B2B]"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-brand-dark"
               aria-hidden="true"
             >
               <Globe2 className="h-5 w-5" strokeWidth={1.8} />
             </span>
             <div>
-              <h2 className="text-base font-semibold text-[#2B2B2B]">Domain</h2>
-              <p className="mt-1 text-sm text-[#666666]">www.mycompany.com</p>
+              <h2 className="text-base font-semibold text-brand-dark">Domain</h2>
+              <p className="mt-1 text-sm text-brand-gray">www.mycompany.com</p>
             </div>
           </div>
 
           <button
             type="button"
-            className="flex h-12 w-full items-center justify-between rounded-md border border-[#EEEEEE] bg-white px-5 text-sm font-medium text-[#2B2B2B] shadow-[0_1px_4px_rgba(17,24,39,0.03)] disabled:cursor-not-allowed disabled:opacity-75 md:w-72"
+            className="flex h-12 w-full items-center justify-between rounded-md border border-brand-border-light bg-white px-5 text-sm font-medium text-brand-dark shadow-[0_1px_4px_rgba(17,24,39,0.03)] disabled:cursor-not-allowed disabled:opacity-75 md:w-72"
             disabled
           >
             <span className="flex items-center gap-3">

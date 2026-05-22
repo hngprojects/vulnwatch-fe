@@ -7,7 +7,7 @@ const steps = [
     title: "Add Your Domain",
     description:
       "Generate daily/weekly sales and profit reports. Export to CSV/PDF with one click",
-    image: "/images/dashboard.jpg",
+    image: "/images/landing-page/01.png",
     alt: "VulnWatch Dashboard",
     imageLeft: true,
   },
@@ -16,7 +16,7 @@ const steps = [
     title: "Scan Your Website",
     description:
       "Full access to settings, reports, and tax configurations between Admin and Users",
-    image: "/images/scan.jpg",
+    image: "/images/landing-page/02.png",
     alt: "Scan Your Website",
     imageLeft: false,
   },
@@ -25,7 +25,7 @@ const steps = [
     title: "Get Report",
     description:
       "Expiring SSL certificate, misconfigured DNS and exposed admin pages can break your site & lead to loss of customer trust overnight.",
-    image: "/images/report.jpg",
+    image: "/images/landing-page/03.png",
     alt: "SSL Expiry Email Report",
     imageLeft: true,
   },
