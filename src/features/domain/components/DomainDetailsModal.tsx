@@ -36,16 +36,16 @@ const STATUS_CONFIG: Record<DomainStatus, {
   statusRowValue: string;
 }> = {
   Pending: {
-    badge: "bg-[#FCF0E8] text-[#F57C00]",
-    dot: "bg-[#F57C00]",
+    badge: "bg-[#FCF0E8] text-[#2B2B2B] font-semibold rounded-[20px]",
+    dot: "bg-[#DD6414]",
     badgeLabel: "Pending Verification",
     title: "Verification in progress",
     iconBg: "bg-[#FCF0E8]",
-    iconColor: "text-[#F57C00]",
+    iconColor: "text-[#DD6414]",
     statusRowValue: "Awaiting confirmation",
   },
   Verified: {
-    badge: "bg-[#ECFDF5] text-[#10B981]",
+    badge: "bg-[#ECFDF5] text-[#10B981] font-semibold rounded-[20px]",
     dot: "bg-[#10B981]",
     badgeLabel: "Verified",
     title: "Domain ownership confirmed",
@@ -54,7 +54,7 @@ const STATUS_CONFIG: Record<DomainStatus, {
     statusRowValue: "Verified",
   },
   Failed: {
-    badge: "bg-[#FEF2F2] text-[#EF4444]",
+    badge: "bg-[#FEF2F2] text-[#EF4444] font-semibold rounded-[20px]",
     dot: "bg-[#EF4444]",
     badgeLabel: "Verification Failed",
     title: "We couldn't verify this domain",
@@ -167,7 +167,7 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
           <StatusIcon status={liveDomain.status} />
 
           {/* Status badge */}
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${cfg.badge}`}>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs ${cfg.badge}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
             {cfg.badgeLabel}
           </span>
@@ -182,23 +182,23 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
           </DialogDescription>
 
           {/* Subtitle */}
-          <p className="text-sm text-[#6B7280] max-w-xs leading-relaxed">
+          <p className="text-sm font-medium text-[#666666] max-w-xs leading-relaxed">
             {liveDomain.status === "Pending" ? (
               <>
                 We&apos;re confirming ownerships of{" "}
-                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>.
+                <span className="font-semibold text-[#2B2B2B]">{liveDomain.domain}</span>.
                 {" "}This usually takes{" "}
-                <span className="font-semibold text-[#111827]">5-30 minutes</span>
+                <span className="font-semibold text-[#2B2B2B]">5-30 minutes</span>
               </>
             ) : liveDomain.status === "Verified" ? (
               <>
-                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>{" "}
+                <span className="font-semibold text-[#2B2B2B]">{liveDomain.domain}</span>{" "}
                 has been successfully verified and is ready to scan.
               </>
             ) : (
               <>
                 We couldn&apos;t verify{" "}
-                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>.
+                <span className="font-semibold text-[#2B2B2B]">{liveDomain.domain}</span>.
                 {" "}Please check your DNS settings and try again.
               </>
             )}
@@ -206,7 +206,7 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
         </div>
 
         {/* Details card */}
-        <div className="mx-6 mb-4 rounded-xl border border-[#E5E7EB] overflow-hidden">
+        <div className="mx-6 mb-4 rounded-xl border border-[#DCDCDC] bg-[#F6F6F6] overflow-hidden">
           {(() => {
             const token = liveDomain.verificationToken || liveDomain.instructions?.value || (checking ? "Loading..." : "");
             const rawHost = liveDomain.txtRecord || liveDomain.instructions?.txtRecord || "_vulnwatch-verify";
@@ -229,17 +229,24 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
             return details.map(({ label, value, copyable }) => (
               <div
                 key={label}
-                className="flex items-center justify-between px-4 py-3 border-b border-[#F3F4F6] last:border-b-0"
+                className="flex items-center justify-between px-4 py-3 border-b border-[#DCDCDC] last:border-b-0"
               >
-                <span className="text-sm text-[#6B7280]">{label}</span>
+                <span className="text-sm font-medium text-[#666666]">{label}</span>
                 <div className="flex items-center gap-2 max-w-[65%] min-w-0">
-                  <span className="text-sm font-semibold text-[#111827] truncate select-all" title={value}>
+                  <span
+                    className={`text-sm truncate select-all ${
+                      label === "Domain"
+                        ? "font-medium text-[#666666]"
+                        : "font-semibold text-[#2B2B2B]"
+                    }`}
+                    title={value}
+                  >
                     {value}
                   </span>
                   {copyable && (
                     <button
                       onClick={() => handleCopy(value, label)}
-                      className="p-1 hover:bg-[#F3F4F6] rounded text-[#6B7280] hover:text-[#111827] transition-colors shrink-0 cursor-pointer"
+                      className="p-1 hover:bg-[#E5E7EB] rounded text-[#6B7280] hover:text-[#111827] transition-colors shrink-0 cursor-pointer"
                     >
                       {copiedField === label ? (
                         <Check size={14} className="text-brand-green" />
@@ -254,12 +261,11 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
           })()}
         </div>
 
-        {/* Auto-refresh bar — only for pending */}
         {liveDomain.status === "Pending" && (
           <div className="mx-6 mb-5">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs text-[#6B7280]">We&apos;re checking every 5 minutes</span>
-              <span className="text-xs font-medium text-[#A0E870]">Auto-refresh on</span>
+              <span className="text-xs font-medium text-[#666666]">Auto-refresh on</span>
             </div>
             <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
               <div className="h-full w-2/5 bg-[#A0E870] rounded-full" />
