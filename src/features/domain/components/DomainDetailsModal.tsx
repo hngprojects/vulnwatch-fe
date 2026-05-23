@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Clock, X, RefreshCw, CheckCircle2, AlertCircle, Trash2 } from "lucide-react";
+import { Clock, X, RefreshCw, CheckCircle2, AlertCircle, Trash2, Copy, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -94,6 +94,15 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
   const [checkedDomain, setCheckedDomain] = useState<Domain | null>(null);
   const [checking, setChecking] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopy = useCallback((text: string, field: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedField(field);
+      toast.success(`${field} copied to clipboard!`);
+      setTimeout(() => setCopiedField(null), 2000);
+    });
+  }, []);
 
   // Use the freshly-fetched domain when it belongs to the same ID, otherwise fall back to the prop
   const liveDomain = (checkedDomain?.id === domain?.id ? checkedDomain : null) ?? domain;
@@ -182,20 +191,51 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
 
         {/* Details card */}
         <div className="mx-6 mb-4 rounded-xl border border-[#E5E7EB] overflow-hidden">
-          {[
-            { label: "Domain", value: liveDomain.domain },
-            { label: "Method", value: method },
-            { label: "Submitted", value: timeAgo(liveDomain.createdAt) },
-            { label: "Status", value: cfg.statusRowValue },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="flex items-center justify-between px-4 py-3 border-b border-[#F3F4F6] last:border-b-0"
-            >
-              <span className="text-sm text-[#6B7280]">{label}</span>
-              <span className="text-sm font-semibold text-[#111827]">{value}</span>
-            </div>
-          ))}
+          {(() => {
+            const token = liveDomain.verificationToken || liveDomain.instructions?.value || "";
+            const rawHost = liveDomain.txtRecord || liveDomain.instructions?.txtRecord || "_vulnwatch-verify";
+            const domainName = liveDomain.domain || "";
+            const host = (domainName && rawHost.endsWith(`.${domainName}`))
+              ? rawHost.slice(0, -(domainName.length + 1))
+              : rawHost;
+
+            const showVerificationDetails = liveDomain.status !== "Verified";
+
+            const details = [
+              { label: "Domain", value: liveDomain.domain },
+              { label: "Method", value: method },
+              { label: "Submitted", value: timeAgo(liveDomain.createdAt) },
+              ...(showVerificationDetails && host ? [{ label: "TXT Host / Name", value: host, copyable: true }] : []),
+              ...(showVerificationDetails && token ? [{ label: "TXT Value", value: token, copyable: true }] : []),
+              { label: "Status", value: cfg.statusRowValue },
+            ];
+
+            return details.map(({ label, value, copyable }) => (
+              <div
+                key={label}
+                className="flex items-center justify-between px-4 py-3 border-b border-[#F3F4F6] last:border-b-0"
+              >
+                <span className="text-sm text-[#6B7280]">{label}</span>
+                <div className="flex items-center gap-2 max-w-[65%] min-w-0">
+                  <span className="text-sm font-semibold text-[#111827] truncate select-all" title={value}>
+                    {value}
+                  </span>
+                  {copyable && (
+                    <button
+                      onClick={() => handleCopy(value, label)}
+                      className="p-1 hover:bg-[#F3F4F6] rounded text-[#6B7280] hover:text-[#111827] transition-colors shrink-0 cursor-pointer"
+                    >
+                      {copiedField === label ? (
+                        <Check size={14} className="text-brand-green" />
+                      ) : (
+                        <Copy size={14} />
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ));
+          })()}
         </div>
 
         {/* Auto-refresh bar — only for pending */}
