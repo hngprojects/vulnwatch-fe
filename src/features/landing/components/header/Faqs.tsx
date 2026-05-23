@@ -229,9 +229,9 @@ const FaqSection = () => {
         <div className="grid items-center gap-16 bg-[#FAFAFA] px-4 py-10 sm:px-6 md:grid-cols-[min-content_1fr] md:rounded-4xl md:p-14">
           <div className="space-y-12">
             <div className="space-y-4">
-              <h1 className="mb-2 text-4xl font-semibold text-[#2b2b2b] md:text-[40px]">
+              <h2 className="mb-2 text-4xl font-semibold text-[#2b2b2b] md:text-[40px]">
                 Frequently asked questions
-              </h1>
+              </h2>
               <p className="text-muted-foreground">
                 Have Questions? Here are quick answers to some of the most
                 common queries

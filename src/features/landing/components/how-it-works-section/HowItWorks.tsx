@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 
 const steps = [
   {
@@ -57,13 +56,10 @@ const HowItWorks = () => {
           <div className="rounded-3xl bg-[#F1FCEA] pt-10 pb-0 md:border-0">
             <div className="mx-auto max-w-275 md:px-20">
               <div className="flex flex-col gap-6 md:gap-0">
-                {steps.map((step, index) => (
+                {steps.map((step) => (
                   <div
                     key={step.id}
-                    className={cn(
-                      "flex justify-center",
-                      index === 1 && "md:-translate-x-39",
-                    )}
+                    className="flex justify-center"
                   >
                     <div className="w-full md:hidden">
                       <div className="border-[#072E28] bg-cards relative z-10 ml-14 h-48 overflow-hidden rounded-tl-3xl border-t-[5px]">

@@ -19,9 +19,9 @@ const Testimonials = () => {
         >
           Testimonials
         </Card>
-        <h1 className="text-4xl font-semibold text-[#2b2b2b]">
+        <h2 className="text-4xl font-semibold text-[#2b2b2b]">
           Trusted by over 12,000+ teams worldwide
-        </h1>
+        </h2>
         <p className="text-muted-foreground">
           Loved by website security teams. Doubt us? Here&apos;s what our
           amazing users say.
