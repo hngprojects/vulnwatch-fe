@@ -120,6 +120,22 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
     }
   }, [liveDomain]);
 
+  // fetch full domain details on open or domain change
+  useEffect(() => {
+    if (open && domain) {
+      setCheckedDomain(null);
+      setChecking(true);
+      domainService.getDomain(domain.id)
+        .then((updated) => {
+          setCheckedDomain(updated);
+        })
+        .catch(() => {})
+        .finally(() => setChecking(false));
+    } else if (!open) {
+      setCheckedDomain(null);
+    }
+  }, [open, domain]);
+
   // auto-refresh every 5 minutes for pending domains
   useEffect(() => {
     if (!open || liveDomain?.status !== "Pending") return;
@@ -192,7 +208,7 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
         {/* Details card */}
         <div className="mx-6 mb-4 rounded-xl border border-[#E5E7EB] overflow-hidden">
           {(() => {
-            const token = liveDomain.verificationToken || liveDomain.instructions?.value || "";
+            const token = liveDomain.verificationToken || liveDomain.instructions?.value || (checking ? "Loading..." : "");
             const rawHost = liveDomain.txtRecord || liveDomain.instructions?.txtRecord || "_vulnwatch-verify";
             const domainName = liveDomain.domain || "";
             const host = (domainName && rawHost.endsWith(`.${domainName}`))
@@ -204,8 +220,8 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
             const details = [
               { label: "Domain", value: liveDomain.domain },
               { label: "Method", value: method },
-              ...(showVerificationDetails && host ? [{ label: "TXT Host / Name", value: host, copyable: true }] : []),
-              ...(showVerificationDetails && token ? [{ label: "TXT Value", value: token, copyable: true }] : []),
+              ...(showVerificationDetails && host ? [{ label: "TXT Host / Name", value: host, copyable: !checking }] : []),
+              ...(showVerificationDetails && token ? [{ label: "TXT Value", value: token, copyable: token !== "Loading..." }] : []),
               { label: "Submitted", value: timeAgo(liveDomain.createdAt) },
               { label: "Status", value: cfg.statusRowValue },
             ];
