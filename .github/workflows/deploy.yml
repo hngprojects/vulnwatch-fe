@@ -72,14 +72,24 @@ jobs:
               ENV_FILE="/etc/vulnwatch/staging/frontend.env"
             fi
 
-            cd "$DEPLOY_DIR"
+            BACKUP_DIR="${DEPLOY_DIR}-backup"
 
-            # Pull latest code
+            # ── Backup current version ────────────────────────────────────
+            if [ -d "$DEPLOY_DIR" ] && [ "$(ls -A $DEPLOY_DIR)" ]; then
+              echo "Backing up current version..."
+              rm -rf "$BACKUP_DIR"
+              cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
+            else
+              echo "No existing deployment found. Fresh deploy, no backup created."
+            fi
+
+            # ── Pull latest code ──────────────────────────────────────────
             echo "Pulling latest code from $BRANCH..."
+            cd "$DEPLOY_DIR"
             git reset --hard HEAD
             git pull origin "$BRANCH"
 
-            # Re-link persistent env file before building
+            # ── Re-link persistent env file before building ───────────────
             if [ -f "$ENV_FILE" ]; then
               echo "Linking .env.local from $ENV_FILE..."
               ln -sf "$ENV_FILE" "$DEPLOY_DIR/.env.local"
@@ -87,24 +97,41 @@ jobs:
               echo "WARNING: $ENV_FILE not found. Build may not have correct env vars."
             fi
 
-            # Install dependencies
+            # ── Install dependencies and build ────────────────────────────
             echo "Installing dependencies..."
             pnpm install
 
-            # Build the app with env vars in place
             echo "Building application..."
-            pnpm build
+            if ! pnpm build; then
+              echo "Build failed. Rolling back..."
 
-            # Stop and flush old PM2 process
+              if [ -d "$BACKUP_DIR" ] && [ "$(ls -A $BACKUP_DIR)" ]; then
+                pm2 delete $APP_NAME || true
+                pm2 flush $APP_NAME || true
+                rm -rf "$DEPLOY_DIR"
+                cp -r "$BACKUP_DIR" "$DEPLOY_DIR"
+                cd "$DEPLOY_DIR"
+                pm2 start "pnpm start --port $PORT" --name "$APP_NAME" --cwd "$DEPLOY_DIR"
+                pm2 save
+                rm -rf "$BACKUP_DIR"
+                echo "Rollback successful. Site is running on previous version."
+              else
+                echo "No backup available. This was a fresh deploy — site is down."
+              fi
+
+              exit 1
+            fi
+
+            # ── Stop old PM2 process ──────────────────────────────────────
             pm2 delete $APP_NAME || true
             pm2 flush $APP_NAME || true
 
-            # Start app with PM2
+            # ── Start app with PM2 ────────────────────────────────────────
             echo "Starting $APP_NAME with PM2..."
             pm2 start "pnpm start --port $PORT" --name "$APP_NAME" --cwd "$DEPLOY_DIR"
             pm2 save
 
-            # Health check — retry 5 times, 3 seconds apart
+            # ── Health check ──────────────────────────────────────────────
             echo "Running health check..."
             HEALTHY=false
             for i in 1 2 3 4 5; do
@@ -120,9 +147,35 @@ jobs:
             done
 
             if [ "$HEALTHY" = "false" ]; then
-              echo "Health check failed after 5 attempts."
+              echo "Health check failed. Rolling back..."
+
               pm2 delete $APP_NAME || true
+
+              if [ -d "$BACKUP_DIR" ] && [ "$(ls -A $BACKUP_DIR)" ]; then
+                rm -rf "$DEPLOY_DIR"
+                cp -r "$BACKUP_DIR" "$DEPLOY_DIR"
+                cd "$DEPLOY_DIR"
+
+                # Re-link env after rollback
+                if [ -f "$ENV_FILE" ]; then
+                  ln -sf "$ENV_FILE" "$DEPLOY_DIR/.env.local"
+                fi
+
+                pm2 start "pnpm start --port $PORT" --name "$APP_NAME" --cwd "$DEPLOY_DIR"
+                pm2 save
+                rm -rf "$BACKUP_DIR"
+                echo "Rollback successful. Site is running on previous version."
+              else
+                echo "No backup available. This was a fresh deploy — site is down."
+              fi
+
               exit 1
+            fi
+
+            # ── Cleanup backup after successful deploy ────────────────────
+            if [ -d "$BACKUP_DIR" ]; then
+              echo "Deploy successful. Cleaning up backup..."
+              rm -rf "$BACKUP_DIR"
             fi
 
             echo "Deploy successful!"
