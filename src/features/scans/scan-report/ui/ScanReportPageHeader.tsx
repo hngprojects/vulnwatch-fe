@@ -24,6 +24,7 @@ interface ScanReportPageHeaderProps {
 
 export default function ScanReportPageHeader({
   domain,
+  scanId,
   domainStatus = "verified",
 }: ScanReportPageHeaderProps) {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function ScanReportPageHeader({
   };
 
   const handleViewAllFindings = () => {
-    router.push("/scan/findings");
+    router.push(`/scan/report/findings?scanId=${encodeURIComponent(scanId || "")}`);
   };
 
   return (

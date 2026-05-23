@@ -15,7 +15,7 @@ import { scanOverview } from './findings/scan-findings-data';
 import { SslTab } from './findings/ssl/SslTab';
 
 const tabs: FindingTab[] = [
-  { id: 'all', label: 'All Findings', href: '/scan/findings' },
+  { id: 'all', label: 'All Findings', href: '/scan/report/findings' },
   { id: 'exposure', label: 'Exposure', href: '/scan/exposure' },
   { id: 'ssl', label: 'SSL', href: '/scan/ssl' },
   { id: 'dns', label: 'DNS', href: '/scan/dns' },

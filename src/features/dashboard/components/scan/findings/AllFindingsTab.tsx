@@ -82,7 +82,7 @@ export function AllFindingsTab() {
   }, [scanId]);
 
   const handleFilterToggle = (severity: string) => {
-    const base = `/scan/findings${scanId ? `?scanId=${encodeURIComponent(scanId)}` : ''}`;
+    const base = `/scan/report/findings${scanId ? `?scanId=${encodeURIComponent(scanId)}` : ''}`;
     if (severityFilter === severity) {
       router.push(base); // Clear filter if clicked again
     } else {
@@ -91,7 +91,7 @@ export function AllFindingsTab() {
   };
 
   const handleClearFilter = () => {
-    router.push(`/scan/findings${scanId ? `?scanId=${encodeURIComponent(scanId)}` : ''}`);
+    router.push(`/scan/report/findings${scanId ? `?scanId=${encodeURIComponent(scanId)}` : ''}`);
   };
 
   if (loading) {

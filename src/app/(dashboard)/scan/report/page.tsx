@@ -269,7 +269,7 @@ function ScanReportContent() {
                 score={result.score}
                 severityCount={result.findingsCount}
                 description={result.description}
-                href={scanId ? `/scan/findings?scanId=${encodeURIComponent(scanId)}&severity=${result.severity}` : undefined}
+                href={scanId ? `/scan/report/findings?scanId=${encodeURIComponent(scanId)}&severity=${result.severity}` : undefined}
               />
             ))}
           </div>
