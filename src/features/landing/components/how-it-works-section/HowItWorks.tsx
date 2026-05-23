@@ -33,11 +33,11 @@ const HowItWorks = () => {
             <span className="mb-6 inline-block rounded-lg border border-brand-border-gray bg-brand-bg-light px-5 py-2 text-sm font-bold text-header">
               How It Works
             </span>
-            <h2 className="font-geist font-semibold text-brand-dark text-center mt-4 max-w-154.25 text-3xl sm:text-4xl md:text-5xl">
+            <h2 className="font-geist font-semibold text-brand-dark text-center mt-4 text-3xl sm:text-4xl md:text-5xl">
               Three (3) steps
               <br className="hidden md:block" /> from Curious to Confident
             </h2>
-            <p className="font-geist font-normal text-brand-gray text-center mt-4 max-w-138.75 text-lg md:text-xl">
+            <p className="font-geist font-normal text-brand-gray text-center mt-4 text-lg md:text-xl">
               No installs, no agents, no access to your hosting account.
               <br className="hidden md:block" /> Just a domain and a minute of your time.
             </p>
