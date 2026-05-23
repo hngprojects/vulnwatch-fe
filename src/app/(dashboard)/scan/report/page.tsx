@@ -131,8 +131,17 @@ function ScanReportContent() {
 
   const criticalCount = report.findingGroups?.criticalCount ?? 0;
   const highCount = report.findingGroups?.highCount ?? 0;
-  const criticalText = report.summary?.criticalIssues?.[0] || "No critical issues detected on your domain.";
-  const highText = report.summary?.highSeverityIssues?.[0] || "No high-severity issues detected on your domain.";
+  
+  const firstCritical = report.summary?.criticalIssues?.[0];
+  const criticalText = firstCritical
+    ? (typeof firstCritical === "string" ? firstCritical : firstCritical.title)
+    : "No critical issues detected on your domain.";
+
+  const firstHigh = report.summary?.highSeverityIssues?.[0];
+  const highText = firstHigh
+    ? (typeof firstHigh === "string" ? firstHigh : firstHigh.title)
+    : "No high-severity issues detected on your domain.";
+
   const goodNewsText = report.summary?.goodNews || "Your domain shows good base security configurations.";
 
   const findings = [
@@ -140,26 +149,31 @@ function ScanReportContent() {
       findingsCount: report.findingGroups?.criticalCount ?? 0,
       description: "Could cause serious harm if not fixed soon",
       score: 12, // Critical range (0-20)
+      severity: "critical",
     },
     {
       findingsCount: report.findingGroups?.highCount ?? 0,
       description: "Important to fix within the next 2 weeks",
       score: 32, // High priority range (21-40)
+      severity: "high",
     },
     {
       findingsCount: report.findingGroups?.mediumCount ?? 0,
       description: "Important to fix within the next 2 weeks",
       score: 55, // Medium range (41-60)
+      severity: "medium",
     },
     {
       findingsCount: report.findingGroups?.lowCount ?? 0,
       description: "Important to fix within the next 2 weeks",
       score: 76, // Low range (61-80)
+      severity: "low",
     },
     {
       findingsCount: report.findingGroups?.passCount ?? 0,
       description: "These areas passed our checks",
       score: 98, // Pass range (81-100)
+      severity: "pass",
     },
   ];
 
@@ -255,6 +269,7 @@ function ScanReportContent() {
                 score={result.score}
                 severityCount={result.findingsCount}
                 description={result.description}
+                href={scanId ? `/scan/report/findings?scanId=${encodeURIComponent(scanId)}&severity=${result.severity}` : undefined}
               />
             ))}
           </div>
@@ -264,17 +279,29 @@ function ScanReportContent() {
         <ScanReportScoreStatCard
           score={report.subScores.exposure.score}
           type="Exposure"
-          description={report.subScores.exposure.detail || "Exposed assets and public endpoints check."}
+          description={
+            report.subScores.exposure.explanation ||
+            report.subScores.exposure.detail ||
+            "Exposed assets and public endpoints check."
+          }
         />
         <ScanReportScoreStatCard
           score={report.subScores.ssl.score}
           type="SSL"
-          description={report.subScores.ssl.detail || "TLS/SSL configuration and cipher suite safety."}
+          description={
+            report.subScores.ssl.explanation ||
+            report.subScores.ssl.detail ||
+            "TLS/SSL configuration and cipher suite safety."
+          }
         />
         <ScanReportScoreStatCard
           score={report.subScores.dns.score}
           type="DNS"
-          description={report.subScores.dns.detail || "MX, SPF, DMARC, and DNS record delegation."}
+          description={
+            report.subScores.dns.explanation ||
+            report.subScores.dns.detail ||
+            "MX, SPF, DMARC, and DNS record delegation."
+          }
         />
       </div>
     </div>

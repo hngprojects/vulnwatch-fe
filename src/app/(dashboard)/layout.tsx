@@ -27,9 +27,12 @@ export default function DashboardLayout({
     // Immediately remove from localStorage to prevent duplicate calls in React Strict Mode
     localStorage.removeItem("pending_scan_domain");
 
+    let mounted = true;
+
     const registerPendingDomain = async () => {
       try {
         const response = await domainService.createDomain({ domain: pendingDomain });
+        if (!mounted) return;
         router.push(`/domain/${response.id}/verify?token=${encodeURIComponent(response.verificationToken)}`);
       } catch (error) {
         console.error("Failed to create pending domain:", error);
@@ -41,7 +44,13 @@ export default function DashboardLayout({
           );
 
           if (existing && existing.status !== "Verified") {
-            router.push(`/domain/${existing.id}/verify?token=${encodeURIComponent(existing.verificationToken ?? "")}`);
+            if (!mounted) return;
+            if (existing.verificationToken) {
+              router.push(`/domain/${existing.id}/verify?token=${encodeURIComponent(existing.verificationToken)}`);
+            } else {
+              console.error("Domain is pending but has no verification token:", existing);
+              router.push("/dashboard");
+            }
           }
         } catch (fetchError) {
           console.error("Failed to resolve existing domains:", fetchError);
@@ -50,6 +59,10 @@ export default function DashboardLayout({
     };
 
     registerPendingDomain();
+
+    return () => {
+      mounted = false;
+    };
   }, [token, router]);
 
   if (!token) return null;

@@ -12,18 +12,21 @@ import { ROUTES } from "@/constants/routes";
 
 import { z } from "zod";
 
-const domainSchema = z.string().refine((val) => {
+function extractHostname(val: string): string | null {
   const raw = val.trim();
-  if (!raw) return false;
+  if (!raw) return null;
   try {
     const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
     const urlObj = new URL(normalized);
     const host = urlObj.hostname;
-    return host.includes(".") && !host.startsWith(".") && !host.endsWith(".") && host.split(".").pop()!.length >= 2;
+    const isValidHost = host.includes(".") && !host.startsWith(".") && !host.endsWith(".") && host.split(".").pop()!.length >= 2;
+    return isValidHost ? host : null;
   } catch {
-    return false;
+    return null;
   }
-});
+}
+
+const domainSchema = z.string().refine((val) => extractHostname(val) !== null);
 
 function MobileScanButton() {
   const router = useRouter();
@@ -64,22 +67,15 @@ function DesktopScanForm() {
       setError("Please enter a website URL");
       return;
     }
-    const result = domainSchema.safeParse(raw);
-    if (!result.success) {
+    const hostname = extractHostname(raw);
+    if (!hostname) {
       setError("Please enter a valid URL e.g. example.com");
       return;
     }
 
-    try {
-      const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-      const urlObj = new URL(normalized);
-      const hostname = urlObj.hostname;
-      localStorage.setItem("pending_scan_domain", hostname);
-      setError("");
-      router.push(ROUTES.REGISTER);
-    } catch {
-      setError("Please enter a valid URL e.g. example.com");
-    }
+    localStorage.setItem("pending_scan_domain", hostname);
+    setError("");
+    router.push(ROUTES.REGISTER);
   };
 
   return (
@@ -112,10 +108,11 @@ function DesktopScanForm() {
         <button
           type="button"
           onClick={handleScan}
+          disabled={!isValid}
           className={`flex items-center justify-center rounded bg-primary w-[83px] h-[46px] px-[10px] py-[13px] transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
             isValid
-              ? "opacity-100 scale-100 blur-0 cursor-pointer pointer-events-auto"
-              : "opacity-50 scale-100 blur-[1px] pointer-events-none cursor-not-allowed"
+              ? "opacity-100 scale-100 blur-0 cursor-pointer"
+              : "opacity-50 scale-100 blur-[1px] cursor-not-allowed"
           }`}
           aria-label={HERO_ARIA.scanButton}
         >

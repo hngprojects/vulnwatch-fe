@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Clock, X, RefreshCw, CheckCircle2, AlertCircle, Trash2 } from "lucide-react";
+import { Clock, X, RefreshCw, CheckCircle2, AlertCircle, Trash2, Copy, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -36,16 +36,16 @@ const STATUS_CONFIG: Record<DomainStatus, {
   statusRowValue: string;
 }> = {
   Pending: {
-    badge: "bg-[#FCF0E8] text-[#F57C00]",
-    dot: "bg-[#F57C00]",
+    badge: "bg-[#FCF0E8] text-[#2B2B2B] font-semibold rounded-[20px]",
+    dot: "bg-[#DD6414]",
     badgeLabel: "Pending Verification",
     title: "Verification in progress",
     iconBg: "bg-[#FCF0E8]",
-    iconColor: "text-[#F57C00]",
+    iconColor: "text-[#DD6414]",
     statusRowValue: "Awaiting confirmation",
   },
   Verified: {
-    badge: "bg-[#ECFDF5] text-[#10B981]",
+    badge: "bg-[#ECFDF5] text-[#10B981] font-semibold rounded-[20px]",
     dot: "bg-[#10B981]",
     badgeLabel: "Verified",
     title: "Domain ownership confirmed",
@@ -54,7 +54,7 @@ const STATUS_CONFIG: Record<DomainStatus, {
     statusRowValue: "Verified",
   },
   Failed: {
-    badge: "bg-[#FEF2F2] text-[#EF4444]",
+    badge: "bg-[#FEF2F2] text-[#EF4444] font-semibold rounded-[20px]",
     dot: "bg-[#EF4444]",
     badgeLabel: "Verification Failed",
     title: "We couldn't verify this domain",
@@ -94,6 +94,15 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
   const [checkedDomain, setCheckedDomain] = useState<Domain | null>(null);
   const [checking, setChecking] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopy = useCallback((text: string, field: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedField(field);
+      toast.success(`${field} copied to clipboard!`);
+      setTimeout(() => setCopiedField(null), 2000);
+    });
+  }, []);
 
   // Use the freshly-fetched domain when it belongs to the same ID, otherwise fall back to the prop
   const liveDomain = (checkedDomain?.id === domain?.id ? checkedDomain : null) ?? domain;
@@ -101,22 +110,82 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
   const handleCheck = useCallback(async () => {
     if (!liveDomain) return;
     setChecking(true);
+    const toastId = toast.loading("Checking verification...", {
+      description: `Verifying ${liveDomain.domain}`,
+    });
     try {
-      const updated = await domainService.getDomain(liveDomain.id);
+      const updated = await domainService.verifyDomain(liveDomain.id);
       setCheckedDomain(updated);
-    } catch {
-      // silently fail — domain data stays as-is
+      
+      if (updated.status === "Verified") {
+        toast.success("Domain verified successfully!", {
+          id: toastId,
+          description: `${liveDomain.domain} is now verified.`,
+        });
+        if (onDeleted) onDeleted();
+      } else {
+        toast.info("Verification in progress", {
+          id: toastId,
+          description: "Check your DNS if the record is correct. The changes might still be propagating.",
+        });
+      }
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
+      const backendMessage = axiosError.response?.data?.error?.message;
+      const errMsg = backendMessage || (err instanceof Error ? err.message : "Failed to verify domain.");
+      toast.error(errMsg, {
+        id: toastId,
+      });
     } finally {
       setChecking(false);
     }
-  }, [liveDomain]);
+  }, [liveDomain, onDeleted]);
+
+  const handleSilentCheck = useCallback(async () => {
+    if (!liveDomain || liveDomain.status !== "Pending") return;
+    try {
+      const updated = await domainService.getDomain(liveDomain.id);
+      setCheckedDomain(updated);
+      if (updated.status === "Verified" && onDeleted) {
+        onDeleted();
+      }
+    } catch {
+      // silently ignore background failures
+    }
+  }, [liveDomain, onDeleted]);
+
+  // fetch full domain details on open or domain change
+  useEffect(() => {
+    if (!open || !domain) return;
+
+    let cancelled = false;
+
+    async function fetchDomainDetails() {
+      setChecking(true);
+      try {
+        const updated = await domainService.getDomain(domain!.id);
+        if (!cancelled) setCheckedDomain(updated);
+      } catch {
+        // silently ignore
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    }
+
+    void fetchDomainDetails();
+
+    return () => {
+      cancelled = true;
+      setCheckedDomain(null);
+    };
+  }, [open, domain]);
 
   // auto-refresh every 5 minutes for pending domains
   useEffect(() => {
     if (!open || liveDomain?.status !== "Pending") return;
-    const id = setInterval(handleCheck, 5 * 60 * 1000);
+    const id = setInterval(handleSilentCheck, 5 * 60 * 1000);
     return () => clearInterval(id);
-  }, [open, liveDomain?.status, handleCheck]);
+  }, [open, liveDomain?.status, handleSilentCheck]);
 
   if (!liveDomain) return null;
 
@@ -142,7 +211,7 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
           <StatusIcon status={liveDomain.status} />
 
           {/* Status badge */}
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${cfg.badge}`}>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs ${cfg.badge}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
             {cfg.badgeLabel}
           </span>
@@ -157,23 +226,23 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
           </DialogDescription>
 
           {/* Subtitle */}
-          <p className="text-sm text-[#6B7280] max-w-xs leading-relaxed">
+          <p className="text-sm font-medium text-[#666666] max-w-xs leading-relaxed">
             {liveDomain.status === "Pending" ? (
               <>
                 We&apos;re confirming ownerships of{" "}
-                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>.
+                <span className="font-semibold text-[#2B2B2B]">{liveDomain.domain}</span>.
                 {" "}This usually takes{" "}
-                <span className="font-semibold text-[#111827]">5-30 minutes</span>
+                <span className="font-semibold text-[#2B2B2B]">5-30 minutes</span>
               </>
             ) : liveDomain.status === "Verified" ? (
               <>
-                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>{" "}
+                <span className="font-semibold text-[#2B2B2B]">{liveDomain.domain}</span>{" "}
                 has been successfully verified and is ready to scan.
               </>
             ) : (
               <>
                 We couldn&apos;t verify{" "}
-                <span className="font-semibold text-[#111827]">{liveDomain.domain}</span>.
+                <span className="font-semibold text-[#2B2B2B]">{liveDomain.domain}</span>.
                 {" "}Please check your DNS settings and try again.
               </>
             )}
@@ -181,29 +250,66 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
         </div>
 
         {/* Details card */}
-        <div className="mx-6 mb-4 rounded-xl border border-[#E5E7EB] overflow-hidden">
-          {[
-            { label: "Domain", value: liveDomain.domain },
-            { label: "Method", value: method },
-            { label: "Submitted", value: timeAgo(liveDomain.createdAt) },
-            { label: "Status", value: cfg.statusRowValue },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="flex items-center justify-between px-4 py-3 border-b border-[#F3F4F6] last:border-b-0"
-            >
-              <span className="text-sm text-[#6B7280]">{label}</span>
-              <span className="text-sm font-semibold text-[#111827]">{value}</span>
-            </div>
-          ))}
+        <div className="mx-6 mb-4 rounded-xl border border-[#DCDCDC] bg-[#F6F6F6] overflow-hidden">
+          {(() => {
+            const token = liveDomain.verificationToken || liveDomain.instructions?.value || (checking ? "Loading..." : "");
+            const rawHost = liveDomain.txtRecord || liveDomain.instructions?.txtRecord || "_vulnwatch-verify";
+            const domainName = liveDomain.domain || "";
+            const host = (domainName && rawHost.endsWith(`.${domainName}`))
+              ? rawHost.slice(0, -(domainName.length + 1))
+              : rawHost;
+
+            const showVerificationDetails = liveDomain.status !== "Verified";
+
+            const details = [
+              { label: "Domain", value: liveDomain.domain },
+              { label: "Method", value: method },
+              ...(showVerificationDetails && host ? [{ label: "TXT Host / Name", value: host, copyable: !checking }] : []),
+              ...(showVerificationDetails && token ? [{ label: "TXT Value", value: token, copyable: token !== "Loading..." }] : []),
+              { label: "Submitted", value: timeAgo(liveDomain.createdAt) },
+              { label: "Status", value: cfg.statusRowValue },
+            ];
+
+            return details.map(({ label, value, copyable }) => (
+              <div
+                key={label}
+                className="flex items-center justify-between px-4 py-3 border-b border-[#DCDCDC] last:border-b-0"
+              >
+                <span className="text-sm font-medium text-[#666666]">{label}</span>
+                <div className="flex items-center gap-2 max-w-[65%] min-w-0">
+                  <span
+                    className={`text-sm truncate select-all ${
+                      label === "Domain"
+                        ? "font-medium text-[#666666]"
+                        : "font-semibold text-[#2B2B2B]"
+                    }`}
+                    title={value}
+                  >
+                    {value}
+                  </span>
+                  {copyable && (
+                    <button
+                      onClick={() => handleCopy(value, label)}
+                      className="p-1 hover:bg-[#E5E7EB] rounded text-[#6B7280] hover:text-[#111827] transition-colors shrink-0 cursor-pointer"
+                    >
+                      {copiedField === label ? (
+                        <Check size={14} className="text-brand-green" />
+                      ) : (
+                        <Copy size={14} />
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ));
+          })()}
         </div>
 
-        {/* Auto-refresh bar — only for pending */}
         {liveDomain.status === "Pending" && (
           <div className="mx-6 mb-5">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs text-[#6B7280]">We&apos;re checking every 5 minutes</span>
-              <span className="text-xs font-medium text-[#A0E870]">Auto-refresh on</span>
+              <span className="text-xs font-medium text-[#666666]">Auto-refresh on</span>
             </div>
             <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
               <div className="h-full w-2/5 bg-[#A0E870] rounded-full" />

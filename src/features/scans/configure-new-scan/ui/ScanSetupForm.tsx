@@ -153,20 +153,34 @@ export default function ScanSetupForm() {
             Run a safe non-intrusive security scan to find misconfigurations and potential risk
           </p>
         </div>
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="hidden md:inline-flex bg-[#072E28] rounded-lg px-8 h-12 font-semibold text-white text-base shrink-0 cursor-pointer disabled:opacity-60"
-        >
-          {isSubmitting ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Starting...
-            </span>
-          ) : (
-            "Start Scan"
-          )}
-        </Button>
+        {selectedDomain && (
+          <div className="hidden md:flex items-center gap-3 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              asChild
+              className="border-[1.5px] border-[#072E28] text-[#072E28] hover:bg-[#072E28]/5 h-12 px-6 font-semibold rounded-lg flex items-center justify-center transition-colors"
+            >
+              <Link href={`/scan/history?domainId=${domains.find(d => d.domain === selectedDomain)?.id}&domainName=${encodeURIComponent(selectedDomain)}`}>
+                View Scan History
+              </Link>
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-[#072E28] rounded-lg px-8 h-12 font-semibold text-white text-base cursor-pointer disabled:opacity-60"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Starting...
+                </span>
+              ) : (
+                "Start Scan"
+              )}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Domain input (Searchable Select Dropdown) */}
@@ -283,9 +297,13 @@ export default function ScanSetupForm() {
         {/* Helper text or Errors */}
         {errors.domain ? (
           <p className="text-xs text-red-500 font-medium mt-1">{errors.domain.message}</p>
+        ) : selectedDomain ? (
+          <p className="text-xs text-[#6B7280] mt-1">
+            We will scan through <span className="font-semibold">{selectedDomain}</span> and all associated assets.
+          </p>
         ) : (
           <p className="text-xs text-[#6B7280] mt-1">
-            We will scan your selected verified domain and all associated assets.
+            We will scan through your selected verified domain and all associated assets.
           </p>
         )}
 
@@ -342,9 +360,10 @@ export default function ScanSetupForm() {
       {/* Green security banner */}
       <div className="bg-[#A0E870] rounded-lg px-5 py-4 flex items-center gap-3">
         <ShieldCheck className="text-[#072E28] shrink-0" size={22} />
-        <p className="text-sm font-medium text-[#072E28]">
-          We only access publicly available data.{" "}
-          <span className="font-normal">No intrusive testing is performed</span>
+        <p className="text-sm font-medium text-[#666666]">
+          We only access publicly available data.
+          <br />
+          <span className="font-normal text-[#666666]">No intrusive testing is performed</span>
         </p>
       </div>
 
@@ -368,21 +387,35 @@ export default function ScanSetupForm() {
           This scan is safe and does not attempt to exploit or harm your system
         </p>
 
-        {/* Mobile only Start Scan Button (Placed at the very bottom of everything) */}
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="block md:hidden bg-[#072E28] rounded-lg w-full h-12 font-semibold text-white text-base cursor-pointer mt-4 disabled:opacity-60"
-        >
-          {isSubmitting ? (
-            <span className="flex items-center gap-2 justify-center">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Starting scan...
-            </span>
-          ) : (
-            "Start Scan"
-          )}
-        </Button>
+        {/* Mobile only buttons */}
+        {selectedDomain && (
+          <div className="flex flex-col gap-3 mt-4 md:hidden">
+            <Button
+              type="button"
+              variant="outline"
+              asChild
+              className="border-[1.5px] border-[#072E28] text-[#072E28] hover:bg-[#072E28]/5 h-12 w-full font-semibold rounded-lg flex items-center justify-center transition-colors"
+            >
+              <Link href={`/scan/history?domainId=${domains.find(d => d.domain === selectedDomain)?.id}&domainName=${encodeURIComponent(selectedDomain)}`}>
+                View Scan History
+              </Link>
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-[#072E28] rounded-lg w-full h-12 font-semibold text-white text-base cursor-pointer disabled:opacity-60"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2 justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Starting scan...
+                </span>
+              ) : (
+                "Start Scan"
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </form>
   );

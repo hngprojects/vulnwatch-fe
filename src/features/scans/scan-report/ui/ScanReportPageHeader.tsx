@@ -24,6 +24,7 @@ interface ScanReportPageHeaderProps {
 
 export default function ScanReportPageHeader({
   domain,
+  scanId,
   domainStatus = "verified",
 }: ScanReportPageHeaderProps) {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function ScanReportPageHeader({
   };
 
   const handleViewAllFindings = () => {
-    router.push("/scan/findings");
+    router.push(`/scan/report/findings?scanId=${encodeURIComponent(scanId || "")}`);
   };
 
   return (
@@ -94,8 +95,10 @@ export default function ScanReportPageHeader({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 gap-y-2 flex-wrap">
           <div className="flex items-center gap-2">
-            <Globe size={18} />
-            <span>{domain}</span>
+            <div className="w-8 h-8 rounded-full bg-brand-globe-bg flex items-center justify-center shrink-0">
+              <Globe size={16} className="text-primary" />
+            </div>
+            <span className="font-semibold text-brand-dark">{domain}</span>
           </div>
           <div
             className={cn(
