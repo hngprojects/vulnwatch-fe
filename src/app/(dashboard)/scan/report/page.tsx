@@ -149,26 +149,31 @@ function ScanReportContent() {
       findingsCount: report.findingGroups?.criticalCount ?? 0,
       description: "Could cause serious harm if not fixed soon",
       score: 12, // Critical range (0-20)
+      severity: "critical",
     },
     {
       findingsCount: report.findingGroups?.highCount ?? 0,
       description: "Important to fix within the next 2 weeks",
       score: 32, // High priority range (21-40)
+      severity: "high",
     },
     {
       findingsCount: report.findingGroups?.mediumCount ?? 0,
       description: "Important to fix within the next 2 weeks",
       score: 55, // Medium range (41-60)
+      severity: "medium",
     },
     {
       findingsCount: report.findingGroups?.lowCount ?? 0,
       description: "Important to fix within the next 2 weeks",
       score: 76, // Low range (61-80)
+      severity: "low",
     },
     {
       findingsCount: report.findingGroups?.passCount ?? 0,
       description: "These areas passed our checks",
       score: 98, // Pass range (81-100)
+      severity: "pass",
     },
   ];
 
@@ -264,6 +269,7 @@ function ScanReportContent() {
                 score={result.score}
                 severityCount={result.findingsCount}
                 description={result.description}
+                href={scanId ? `/scan/findings?scanId=${encodeURIComponent(scanId)}&severity=${result.severity}` : undefined}
               />
             ))}
           </div>
