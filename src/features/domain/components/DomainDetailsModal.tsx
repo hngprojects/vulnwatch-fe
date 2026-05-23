@@ -198,7 +198,7 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="max-w-[522px] rounded-[12px] p-0 overflow-hidden"
+        className="max-w-[522px] rounded-[12px] p-0 overflow-y-auto max-h-[90vh]"
       >
         {/* Close button */}
         <DialogClose className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#F3F4F6] hover:bg-[#E5E7EB] flex items-center justify-center transition-colors z-10">

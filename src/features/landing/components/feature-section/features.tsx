@@ -10,13 +10,13 @@ export default function Features() {
           <span className='mb-3 rounded-md bg-[#FAFAFA] px-4 py-2.5 sm:mb-4 md:mb-5'>
             Features
           </span>
-          <p className='mb-4 text-center text-2xl font-medium sm:mb-6 md:mb-8 md:text-5xl md:leading-13.75'>
+          <h2 className='mb-4 text-center text-2xl font-medium sm:mb-6 md:mb-8 md:text-5xl md:leading-13.75'>
             Everything you need to{' '}
             <span className='text-[#072E28]'>
               {' '}
               stay <br /> protected{' '}
             </span>
-          </p>
+          </h2>
           <p className='px-5 text-center text-base font-normal text-[#666666] sm:mb-6 md:mb-10 md:text-xl'>
             One platform with everything. Every layer of your webstack{' '}
             <br className='hidden sm:block' /> backed up by real-time threat
