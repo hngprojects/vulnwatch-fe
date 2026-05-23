@@ -67,6 +67,19 @@
   --color-scan-yellow-900: #b27f06;
   --color-scan-primary-900: #072e28;
   --color-scan-dark-700: #2b2b2b;
+
+  /* How It Works Section Theme Tokens */
+  --color-brand-mint: #f1fcea;
+  --color-brand-border-gray: #e0e0e0;
+  --color-brand-bg-light: #fafafa;
+  --text-40px: 2.5rem;
+  --spacing-12.5: 50px;
+  --spacing-25: 100px;
+  --spacing-62.5: 250px;
+  --spacing-88.75: 355px;
+  --spacing-138.75: 555px;
+  --spacing-154.25: 617px;
+  --spacing-290: 1160px;
 }
 
 :root {
