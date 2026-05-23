@@ -89,20 +89,6 @@ export interface ApiResponse<T> {
   } | null;
 }
 
-export interface ScanSummaryDto {
-  criticalIssues: string[] | null;
-  highSeverityIssues: string[] | null;
-  goodNews: string | null;
-}
-
-export interface FindingGroupsDto {
-  criticalCount: number;
-  highCount: number;
-  mediumCount: number;
-  lowCount: number;
-  passCount: number;
-}
-
 export interface SubScoreItem {
   score: number;
   status: string | null;
@@ -130,14 +116,6 @@ export interface ScanReportDto {
   subScores: SubScoresDto | null;
 }
 
-function unwrap<T>(response: { data: ApiResponse<T> }): T {
-  if (!response.data.isSuccess || !response.data.value) {
-    throw new Error(response.data.error?.message ?? "Request failed");
-  }
-
-  return response.data.value;
-}
-
 function getApiErrorMessage(error: unknown): string {
   if (axios.isAxiosError<ApiResponse<unknown>>(error)) {
     const apiMessage = error.response?.data?.error?.message;
@@ -155,6 +133,35 @@ function getApiErrorMessage(error: unknown): string {
   }
 
   return "Request failed";
+}
+
+function normalizeSubScore(item: SubScoreItem | null | undefined): ScanSubScore {
+  return {
+    score: item?.score ?? 0,
+    status: item?.status ?? "Unknown",
+    detail: item?.detail ?? undefined,
+  };
+}
+
+function normalizeScanReport(dto: ScanReportDto): ScanReport {
+  return {
+    scanId: dto.scanId,
+    domainId: dto.domainId,
+    domainName: dto.domainName ?? "",
+    domainStatus: dto.domainStatus,
+    securityScore: dto.securityScore ?? 0,
+    status: dto.status,
+    coverage: dto.coverage,
+    riskLevel: dto.riskLevel,
+    completedAt: dto.completedAt ?? undefined,
+    summary: dto.summary ?? null,
+    findingGroups: dto.findingGroups ?? null,
+    subScores: {
+      exposure: normalizeSubScore(dto.subScores?.exposure),
+      ssl: normalizeSubScore(dto.subScores?.ssl),
+      dns: normalizeSubScore(dto.subScores?.dns),
+    },
+  };
 }
 
 // Helper function to extract only the pure domain name from any input URL/string
@@ -230,15 +237,37 @@ export const scanService = {
     return response.data;
   },
 
-  async getScanReport(scanId: string): Promise<ScanReportDto> {
+  async getScanReport(scanId: string): Promise<ApiResponse<ScanReport>> {
     try {
       const response = await privateApi.get<ApiResponse<ScanReportDto>>(
         `/api/Scans/${scanId}/report`,
       );
 
-      return unwrap(response);
+      if (!response.data.isSuccess || !response.data.value) {
+        return {
+          isSuccess: false,
+          value: null,
+          error: response.data.error ?? {
+            code: "SCAN_REPORT_ERROR",
+            message: "Unable to load scan report.",
+          },
+        };
+      }
+
+      return {
+        isSuccess: true,
+        value: normalizeScanReport(response.data.value),
+        error: null,
+      };
     } catch (error) {
-      throw new Error(getApiErrorMessage(error));
+      return {
+        isSuccess: false,
+        value: null,
+        error: {
+          code: "SCAN_REPORT_ERROR",
+          message: getApiErrorMessage(error),
+        },
+      };
     }
   },
 

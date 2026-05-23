@@ -6,7 +6,8 @@ import { ArrowLeft, Copy, Check, Loader2, RefreshCw, TriangleAlert } from "lucid
 import { Button } from "@/components/ui/button";
 import {
   scanService,
-  type ScanReportDto,
+  type FindingDto,
+  type ScanReport,
 } from "@/features/scans/services/scan.service";
 
 interface AISecuritySummaryProps {
@@ -101,17 +102,25 @@ function titleCase(value?: string | null) {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
 }
 
-function buildBasicSummary(report: ScanReportDto) {
+function getSummaryText(item: string | FindingDto) {
+  if (typeof item === "string") {
+    return item;
+  }
+
+  return item.explanation || item.title || "Security finding detected.";
+}
+
+function buildBasicSummary(report: ScanReport) {
   const criticalIssues = report.summary?.criticalIssues?.filter(Boolean) ?? [];
   const highIssues = report.summary?.highSeverityIssues?.filter(Boolean) ?? [];
   const items: SummaryItem[] = [
     ...criticalIssues.map((issue) => ({
       tone: "critical" as const,
-      text: issue,
+      text: getSummaryText(issue),
     })),
     ...highIssues.map((issue) => ({
       tone: "high" as const,
-      text: issue,
+      text: getSummaryText(issue),
     })),
   ];
 
@@ -139,7 +148,7 @@ function buildBasicSummary(report: ScanReportDto) {
   return items;
 }
 
-function buildTechnicalSummary(report: ScanReportDto) {
+function buildTechnicalSummary(report: ScanReport) {
   const sections: string[] = [];
 
   if (report.findingGroups) {
@@ -195,21 +204,19 @@ function getToneClasses(tone: SummaryTone) {
 }
 
 async function fetchReportOutcome(scanId: string) {
-  try {
-    const report = await scanService.getScanReport(scanId);
-    return {
-      type: "success" as const,
-      report,
-    };
-  } catch (loadError) {
+  const response = await scanService.getScanReport(scanId);
+
+  if (!response.isSuccess || !response.value) {
     return {
       type: "error" as const,
-      message:
-        loadError instanceof Error
-          ? loadError.message
-          : "Unable to load AI security summary.",
+      message: response.error?.message ?? "Unable to load AI security summary.",
     };
   }
+
+  return {
+    type: "success" as const,
+    report: response.value,
+  };
 }
 
 export function AISecuritySummary({
@@ -218,7 +225,7 @@ export function AISecuritySummary({
 }: AISecuritySummaryProps) {
   const [isTechnical, setIsTechnical] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [report, setReport] = useState<ScanReportDto | null>(null);
+  const [report, setReport] = useState<ScanReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFallbackSummary, setShowFallbackSummary] = useState(false);
@@ -567,7 +574,9 @@ export function AISecuritySummary({
               </span>
             </div>
             <p className="text-[13px] font-medium text-[#4B5563] leading-snug">
-              {report?.summary?.criticalIssues?.[0] ?? "Tackle the first critical issue from the report to reduce immediate risk."}
+              {report?.summary?.criticalIssues?.[0]
+                ? getSummaryText(report.summary.criticalIssues[0])
+                : "Tackle the first critical issue from the report to reduce immediate risk."}
             </p>
           </div>
 
@@ -579,7 +588,10 @@ export function AISecuritySummary({
               </span>
             </div>
             <p className="text-[13px] font-medium text-[#4B5563] leading-snug">
-              {report?.subScores?.exposure?.detail ?? report?.summary?.highSeverityIssues?.[0] ?? "Review externally exposed services and access controls next."}
+              {report?.subScores?.exposure?.detail ??
+                (report?.summary?.highSeverityIssues?.[0]
+                  ? getSummaryText(report.summary.highSeverityIssues[0])
+                  : "Review externally exposed services and access controls next.")}
             </p>
           </div>
         </div>
@@ -597,7 +609,10 @@ export function AISecuritySummary({
               1
             </span>
             <p className="text-[13px] text-[#4B5563] leading-relaxed">
-              <strong>Start with the first critical issue.</strong> {report?.summary?.criticalIssues?.[0] ?? "Use the scan findings page to address the most urgent item first."}
+              <strong>Start with the first critical issue.</strong>{" "}
+              {report?.summary?.criticalIssues?.[0]
+                ? getSummaryText(report.summary.criticalIssues[0])
+                : "Use the scan findings page to address the most urgent item first."}
             </p>
           </div>
 
@@ -607,7 +622,7 @@ export function AISecuritySummary({
               2
             </span>
             <p className="text-[13px] text-[#4B5563] leading-relaxed">
-              <strong>Then work through the high-severity items.</strong> {report?.summary?.highSeverityIssues?.[0] ?? "Review the remaining high-risk findings and sequence the fastest configuration fixes next."}
+              <strong>Then work through the high-severity items.</strong> {report?.summary?.highSeverityIssues?.[0] ? getSummaryText(report.summary.highSeverityIssues[0]) : "Review the remaining high-risk findings and sequence the fastest configuration fixes next."}
             </p>
           </div>
 
