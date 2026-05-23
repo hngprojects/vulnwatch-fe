@@ -3,13 +3,15 @@ on:
   pull_request:
     branches: [staging, main]
     types: [closed]
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     if: github.event.pull_request.merged == true && github.event.repository.fork == false
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     environment:
       name: ${{ github.event.pull_request.base.ref == 'main' && 'production' || 'staging' }}
     env:
@@ -49,94 +51,6 @@ jobs:
       - name: Type check
         run: pnpm typecheck
 
-      - name: Set environment variables for build
-        run: |
-          if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
-            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env.local
-            echo "NEXT_PUBLIC_APP_URL=https://vuln-watch.hng14.com" >> .env.local
-            echo "API_BASE_URL=https://api.vuln-watch.hng14.com" >> .env.local
-          else
-            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env.local
-            echo "NEXT_PUBLIC_APP_URL=https://staging.vuln-watch.hng14.com" >> .env.local
-            echo "API_BASE_URL=https://api.staging.vuln-watch.hng14.com" >> .env.local
-          fi
-
-      - name: Force Next standalone output for CI deploy
-        run: |
-          if [ -f next.config.mjs ]; then
-            mv next.config.mjs next.config.base.mjs
-            cat > next.config.mjs <<'EOF'
-          import baseConfig from "./next.config.base.mjs";
-
-          const withStandalone = (cfg) =>
-            typeof cfg === "function"
-              ? (...args) => ({ ...(cfg(...args) || {}), output: "standalone" })
-              : { ...(cfg || {}), output: "standalone" };
-
-          export default withStandalone(baseConfig);
-          EOF
-
-          elif [ -f next.config.js ]; then
-            mv next.config.js next.config.base.js
-            cat > next.config.js <<'EOF'
-          const baseConfig = require("./next.config.base.js");
-
-          const withStandalone = (cfg) =>
-            typeof cfg === "function"
-              ? (...args) => ({ ...(cfg(...args) || {}), output: "standalone" })
-              : { ...(cfg || {}), output: "standalone" };
-
-          module.exports = withStandalone(baseConfig);
-          EOF
-
-          elif [ -f next.config.ts ]; then
-            mv next.config.ts next.config.base.ts
-            cat > next.config.ts <<'EOF'
-          import type { NextConfig } from "next";
-          import baseConfig from "./next.config.base";
-
-          const withStandalone = (cfg: any): NextConfig | ((...args: any[]) => NextConfig) =>
-            typeof cfg === "function"
-              ? (...args: any[]) => ({ ...(cfg(...args) || {}), output: "standalone" })
-              : { ...(cfg || {}), output: "standalone" };
-
-          export default withStandalone(baseConfig as any) as any;
-          EOF
-
-          else
-            cat > next.config.js <<'EOF'
-          /** @type {import('next').NextConfig} */
-          const nextConfig = {
-            output: 'standalone',
-          };
-          module.exports = nextConfig;
-          EOF
-          fi
-
-      - name: Build Next.js application
-        run: pnpm build
-
-      - name: Prepare standalone build
-        run: |
-          cp -r public .next/standalone/
-          cp -r .next/static .next/standalone/.next/
-
-      - name: Verify standalone output
-        run: |
-          test -f .next/standalone/server.js || (echo "Missing .next/standalone/server.js"; exit 1)
-
-      - name: Package standalone build
-        run: tar -czf standalone.tar.gz -C .next/standalone .
-
-      - name: Copy tarball to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "standalone.tar.gz"
-          target: "/tmp"
-
       - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -147,55 +61,47 @@ jobs:
             if [ "${{ github.event.pull_request.base.ref }}" = "main" ]; then
               DEPLOY_DIR="/var/www/frontend-production"
               APP_NAME="frontend-production"
+              BRANCH="main"
               PORT=3001
               ENV_FILE="/etc/vulnwatch/production/frontend.env"
             else
               DEPLOY_DIR="/var/www/frontend-staging"
               APP_NAME="frontend-staging"
+              BRANCH="staging"
               PORT=3000
               ENV_FILE="/etc/vulnwatch/staging/frontend.env"
             fi
 
-            BACKUP_DIR="${DEPLOY_DIR}-backup"
+            cd "$DEPLOY_DIR"
 
-            # Backup current version if it exists
-            if [ -d "$DEPLOY_DIR" ] && [ "$(ls -A $DEPLOY_DIR)" ]; then
-              echo "Backing up current version..."
-              rm -rf "$BACKUP_DIR"
-              cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
+            # Pull latest code
+            echo "Pulling latest code from $BRANCH..."
+            git reset --hard HEAD
+            git pull origin "$BRANCH"
+
+            # Re-link persistent env file before building
+            if [ -f "$ENV_FILE" ]; then
+              echo "Linking .env.local from $ENV_FILE..."
+              ln -sf "$ENV_FILE" "$DEPLOY_DIR/.env.local"
             else
-              echo "No existing deployment found. Fresh deploy, no backup created."
+              echo "WARNING: $ENV_FILE not found. Build may not have correct env vars."
             fi
 
-            # Stop and delete existing PM2 process + flush its logs
+            # Install dependencies
+            echo "Installing dependencies..."
+            pnpm install
+
+            # Build the app with env vars in place
+            echo "Building application..."
+            pnpm build
+
+            # Stop and flush old PM2 process
             pm2 delete $APP_NAME || true
             pm2 flush $APP_NAME || true
 
-            # Wipe and recreate deploy directory
-            rm -rf "$DEPLOY_DIR"
-            mkdir -p "$DEPLOY_DIR"
-
-            # Extract tarball then immediately remove it to free disk space
-            tar -xzf /tmp/standalone.tar.gz -C "$DEPLOY_DIR"
-            rm -f /tmp/standalone.tar.gz
-
-            # Verify server.js exists after extraction
-            if [ ! -f "$DEPLOY_DIR/server.js" ]; then
-              echo "ERROR: server.js not found in $DEPLOY_DIR after extraction"
-              exit 1
-            fi
-
-            # Re-link the persistent .env.local from /etc/vulnwatch (survives every deploy)
-            if [ -f "$ENV_FILE" ]; then
-              echo "Linking env file from $ENV_FILE..."
-              ln -sf "$ENV_FILE" "$DEPLOY_DIR/.env.local"
-            else
-              echo "WARNING: $ENV_FILE not found. Skipping env symlink."
-            fi
-
             # Start app with PM2
-            cd "$DEPLOY_DIR"
-            PORT=$PORT pm2 start server.js --name "$APP_NAME"
+            echo "Starting $APP_NAME with PM2..."
+            pm2 start "pnpm start --port $PORT" --name "$APP_NAME" --cwd "$DEPLOY_DIR"
             pm2 save
 
             # Health check — retry 5 times, 3 seconds apart
@@ -215,38 +121,10 @@ jobs:
 
             if [ "$HEALTHY" = "false" ]; then
               echo "Health check failed after 5 attempts."
-
-              # Rollback if backup exists
-              if [ -d "$BACKUP_DIR" ] && [ "$(ls -A $BACKUP_DIR)" ]; then
-                echo "Rolling back to previous version..."
-                pm2 delete $APP_NAME || true
-                rm -rf "$DEPLOY_DIR"
-                cp -r "$BACKUP_DIR" "$DEPLOY_DIR"
-
-                # Re-link env file after rollback too
-                if [ -f "$ENV_FILE" ]; then
-                  ln -sf "$ENV_FILE" "$DEPLOY_DIR/.env.local"
-                fi
-
-                cd "$DEPLOY_DIR"
-                PORT=$PORT pm2 start server.js --name "$APP_NAME"
-                pm2 save
-
-                # Remove backup after rollback to free disk space
-                rm -rf "$BACKUP_DIR"
-                echo "Rollback successful. Site is running on previous version."
-              else
-                echo "No backup available. This was a fresh deploy — site is down."
-              fi
-
+              pm2 delete $APP_NAME || true
               exit 1
             fi
 
-            # Cleanup backup after successful deploy to free disk space
-            if [ -d "$BACKUP_DIR" ]; then
-              echo "Deploy successful. Cleaning up backup..."
-              rm -rf "$BACKUP_DIR"
-            fi
-
-            # Show final PM2 status
+            echo "Deploy successful!"
+            pm2 save
             pm2 list
