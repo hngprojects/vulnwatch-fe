@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Check, X, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FindingsSummaryRow } from './FindingsSummaryRow';
 import {
@@ -8,7 +9,9 @@ import {
   failedFindings,
   findingStats,
   type FindingModule,
+  type FindingSummary,
 } from './scan-findings-data';
+import { scanService, ScanReport, FindingDto } from '../../../../scans/services/scan.service';
 
 const moduleHref: Record<FindingModule, string> = {
   Exposure: '/scan/exposure',
@@ -25,27 +28,198 @@ const getSeverityFromLabel = (label: string) => {
   return "all";
 };
 
+const mapFindingDtoToSummary = (finding: FindingDto): FindingSummary => {
+  let findingModule: FindingModule = "Exposure";
+  const surface = finding.surface.toLowerCase();
+  if (surface === "dns") findingModule = "DNS";
+  if (surface === "ssl") findingModule = "SSL";
+  
+  // Normalize severity casing
+  let severity: "Critical" | "High" | "Medium" | "Low" | "Pass" = "Medium";
+  const sev = finding.severity.toLowerCase();
+  if (sev === "critical") severity = "Critical";
+  else if (sev === "high") severity = "High";
+  else if (sev === "medium") severity = "Medium";
+  else if (sev === "low") severity = "Low";
+
+  return {
+    id: finding.id,
+    severity,
+    title: finding.title,
+    module: findingModule,
+  };
+};
+
 export function AllFindingsTab() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const severityFilter = searchParams.get('severity') || 'all';
+  const scanId = searchParams.get('scanId');
+
+  const [report, setReport] = useState<ScanReport | null>(null);
+  const [loading, setLoading] = useState(!!scanId);
+
+  useEffect(() => {
+    if (!scanId) return;
+
+    let active = true;
+    scanService.getScanReport(scanId)
+      .then((res) => {
+        if (active && res.isSuccess && res.value) {
+          setReport(res.value);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load report", err);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [scanId]);
 
   const handleFilterToggle = (severity: string) => {
+    const base = `/scan/findings${scanId ? `?scanId=${encodeURIComponent(scanId)}` : ''}`;
     if (severityFilter === severity) {
-      router.push('/scan/findings'); // Clear filter if clicked again
+      router.push(base); // Clear filter if clicked again
     } else {
-      router.push(`/scan/findings?severity=${severity}`);
+      router.push(`${base}${scanId ? '&' : '?'}severity=${severity}`);
     }
   };
 
-  const filteredFailed = failedFindings.filter((finding) => {
+  const handleClearFilter = () => {
+    router.push(`/scan/findings${scanId ? `?scanId=${encodeURIComponent(scanId)}` : ''}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-[30vh] w-full flex-col items-center justify-center gap-2 p-5 bg-white rounded-xl md:border border-neutral-200 shadow-sm">
+        <Loader2 className="h-7 w-7 animate-spin text-[#072e28]" />
+        <p className="text-neutral-500 font-medium text-xs">Loading scan findings...</p>
+      </div>
+    );
+  }
+
+  // Determine active dataset: either backend report or mock fallback
+  let activeFailed = failedFindings;
+  let activePassed = allPassedFindings;
+  let activeStats = findingStats;
+
+  if (report) {
+    const dynamicFailed: FindingSummary[] = [];
+    if (report.summary) {
+      if (report.summary.criticalIssues) {
+        report.summary.criticalIssues.forEach(f => {
+          if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
+        });
+      }
+      if (report.summary.highSeverityIssues) {
+        report.summary.highSeverityIssues.forEach(f => {
+          if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
+        });
+      }
+      if (report.summary.mediumSeverityIssues) {
+        report.summary.mediumSeverityIssues.forEach(f => {
+          if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
+        });
+      }
+      if (report.summary.lowSeverityIssues) {
+        report.summary.lowSeverityIssues.forEach(f => {
+          if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
+        });
+      }
+    }
+    activeFailed = dynamicFailed;
+
+    const dynamicPassed: FindingSummary[] = [];
+    if (report.subScores.ssl.score >= 80 && !dynamicFailed.some(f => f.module === 'SSL')) {
+      dynamicPassed.push({
+        id: 'ssl-pass',
+        severity: 'Pass',
+        title: 'SSL/TLS Configuration Nominal',
+        module: 'SSL',
+      });
+    }
+    if (report.subScores.dns.score >= 80 && !dynamicFailed.some(f => f.module === 'DNS')) {
+      dynamicPassed.push({
+        id: 'dns-pass',
+        severity: 'Pass',
+        title: 'DNS Records & Delegation Nominal',
+        module: 'DNS',
+      });
+    }
+    if (report.subScores.exposure.score >= 80 && !dynamicFailed.some(f => f.module === 'Exposure')) {
+      dynamicPassed.push({
+        id: 'exposure-pass',
+        severity: 'Pass',
+        title: 'Exposure & Endpoints Safe',
+        module: 'Exposure',
+      });
+    }
+    activePassed = dynamicPassed;
+
+    const criticalCount = report.findingGroups?.criticalCount ?? 0;
+    const highCount = report.findingGroups?.highCount ?? 0;
+    const mediumCount = report.findingGroups?.mediumCount ?? 0;
+    const lowCount = report.findingGroups?.lowCount ?? 0;
+    const passCount = report.findingGroups?.passCount ?? activePassed.length;
+
+    activeStats = [
+      {
+        label: 'Critical fixes',
+        count: criticalCount,
+        description: 'Could cause serious harm if not fixed soon',
+        className: 'bg-[#FFE6EC] text-[#D92D50]',
+        countClassName: 'bg-[#D92D50] text-white',
+      },
+      {
+        label: 'High priority fixes',
+        count: highCount,
+        description: 'Important to fix within the next 2 weeks',
+        className: 'bg-[#FFF0E6] text-[#E46B16]',
+        countClassName: 'bg-[#E46B16] text-white',
+      },
+      {
+        label: 'Medium fixes',
+        count: mediumCount,
+        description: 'Could cause serious harm if not fixed soon',
+        className: 'bg-[#FFF8DB] text-[#B89412]',
+        countClassName: 'bg-[#B89412] text-white',
+      },
+      {
+        label: 'Low fixes',
+        count: lowCount,
+        description: 'Important to fix within the next 2 weeks',
+        className: 'bg-[#E8EDFF] text-[#2F5BC7]',
+        countClassName: 'bg-[#2F5BC7] text-white',
+      },
+      {
+        label: 'Pass',
+        count: passCount,
+        description: 'These areas passed our checks',
+        className: 'bg-[#DFF8EC] text-[#1FA870]',
+        countClassName: 'bg-[#1FA870] text-white',
+      },
+    ];
+  }
+
+  const filteredFailed = activeFailed.filter((finding) => {
     if (severityFilter === 'all') return true;
     return finding.severity.toLowerCase() === severityFilter;
   });
 
-  const filteredPassed = allPassedFindings.filter(() => {
+  const filteredPassed = activePassed.filter(() => {
     return severityFilter === 'all' || severityFilter === 'pass';
   });
+
+  // Helper to inject scanId into back/sub-page URLs dynamically
+  const getFindingHref = (basePath: string) => {
+    if (!scanId) return basePath;
+    return `${basePath}?scanId=${encodeURIComponent(scanId)}`;
+  };
 
   return (
     <div className='space-y-5'>
@@ -54,7 +228,7 @@ export function AllFindingsTab() {
           <h2 className='text-sm font-semibold text-[#111827]'>Our findings:</h2>
           {severityFilter !== 'all' && (
             <button
-              onClick={() => router.push('/scan/findings')}
+              onClick={handleClearFilter}
               className="text-xs font-semibold text-[#072E28] flex items-center gap-1 hover:underline cursor-pointer"
             >
               <X size={14} /> Clear Filter
@@ -63,7 +237,7 @@ export function AllFindingsTab() {
         </div>
 
         <div className='mt-5 grid gap-3 md:grid-cols-2'>
-          {findingStats.map((stat) => {
+          {activeStats.map((stat) => {
             const severity = getSeverityFromLabel(stat.label);
             const isActive = severityFilter === severity;
             return (
@@ -101,7 +275,7 @@ export function AllFindingsTab() {
             <FindingsSummaryRow
               key={finding.id}
               {...finding}
-              href={moduleHref[finding.module]}
+              href={getFindingHref(moduleHref[finding.module])}
             />
           ))}
         </div>
@@ -127,7 +301,7 @@ export function AllFindingsTab() {
               <FindingsSummaryRow
                 key={finding.id}
                 {...finding}
-                href={moduleHref[finding.module]}
+                href={getFindingHref(moduleHref[finding.module])}
               />
             ))}
           </div>
