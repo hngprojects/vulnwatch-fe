@@ -46,7 +46,7 @@ const HowItWorks = () => {
       </div>
 
       <div className="pb-0 bg-brand-mint">
-        <div className="mx-auto max-w-290 px-5 md:px-0">
+        <div className="mx-auto w-full max-w-[1200px] px-5 md:px-0">
           <div className="flex flex-col gap-y-6 md:gap-y-0">
             {steps.map((step, index) => {
               const isEven = index % 2 === 0;
