@@ -3,11 +3,11 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Vulnwatch raises $14 to make website security boring | TVC News",
+    title: "VulnWatch raises $14 to make website security boring | TVC News",
     description: "TVC News covers VulnWatch's funding round and its mission to make website security so routine it becomes boring.",
 };
 
-export default function NewsVulnwatchFundingPage() {
+export default function NewsVulnWatchFundingPage() {
     return (
         <main className="min-h-screen bg-white">
             <div className="mx-auto max-w-3xl px-6 py-24 md:py-32">
@@ -23,7 +23,7 @@ export default function NewsVulnwatchFundingPage() {
                     TVC News · May 6, 2026
                 </div>
                 <h1 className="text-3xl font-bold text-header md:text-4xl leading-snug">
-                    Vulnwatch raises $14 to make website security boring
+                    VulnWatch raises $14 to make website security boring
                 </h1>
                 <p className="mt-3 text-sm text-gray-500">As seen in TVC News · May 6, 2026 · 4 min read</p>
 

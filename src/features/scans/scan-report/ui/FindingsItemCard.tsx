@@ -58,10 +58,12 @@ export default function FindingsItemCard({
   score,
   severityCount,
   description,
+  href = "#",
 }: {
   score: number;
   severityCount: number;
   description: string;
+  href?: string;
 }) {
   const variant = getScoreResultVariant(score);
   
@@ -74,7 +76,7 @@ export default function FindingsItemCard({
   return (
     <div className={cn(containerVariants({ variant }))}>
       <div className="flex items-center gap-2">
-        <Link href="#" className={cn(linkVariants({ variant }))}>
+        <Link href={href} className={cn(linkVariants({ variant }))}>
           {getLabel(variant)}
         </Link>
         <div className={cn(badgeVariants({ variant }))}>{severityCount}</div>

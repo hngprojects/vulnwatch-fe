@@ -19,12 +19,6 @@ const GeneralSettings = () => {
     firstName: "",
     lastName: "",
     email: "",
-    organization: "",
-  });
-
-  const [preferences, setPreferences] = useState({
-    emailNotifications: true,
-    weeklySummaryReport: true,
   });
 
   useEffect(() => {
@@ -35,11 +29,6 @@ const GeneralSettings = () => {
           firstName: profile.firstName ?? "",
           lastName: profile.lastName ?? "",
           email: profile.email ?? "",
-          organization: "",
-        });
-        setPreferences({
-          emailNotifications: profile.notificationPreferences?.emailAlerts ?? true,
-          weeklySummaryReport: profile.notificationPreferences?.pushNotifications ?? false,
         });
       })
       .catch((err: unknown) => {
@@ -59,7 +48,6 @@ const GeneralSettings = () => {
       await profileService.updateProfile({
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
-        organization: form.organization.trim(),
       });
       toast.success("Profile updated successfully!");
     } catch (err) {
@@ -166,18 +154,7 @@ const GeneralSettings = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-[16px] font-normal text-[#2B2B2B] mb-1.5">
-              Organization
-            </label>
-            <input
-              type="text"
-              value={form.organization}
-              placeholder="Your organization name"
-              onChange={(e) => setForm({ ...form, organization: e.target.value })}
-              className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
+
         </div>
 
         {/* Actions */}
@@ -201,59 +178,7 @@ const GeneralSettings = () => {
         </div>
       </div>
 
-      {/* Preferences */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
-        <h2 className="text-xl font-semibold text-[#2B2B2B]">Preferences</h2>
-        <p className="text-[16px] text-[#666666] mt-0.5">Customize your experience.</p>
 
-        <div className="mt-5 space-y-3">
-          <div className="flex items-center justify-between border border-[#E5E7EB] rounded-lg px-4 py-3">
-            <span className="text-sm text-[#2B2B2B]">Email Notifications</span>
-            <button
-              role="switch"
-              aria-checked={preferences.emailNotifications}
-              onClick={() =>
-                setPreferences({ ...preferences, emailNotifications: !preferences.emailNotifications })
-              }
-              className={`relative w-10 h-6 rounded-full transition-colors cursor-pointer ${
-                preferences.emailNotifications ? "bg-primary" : "bg-[#D1D5DB]"
-              }`}
-            >
-              <span
-                className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                  preferences.emailNotifications ? "translate-x-5" : "translate-x-1"
-                }`}
-              />
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between border border-[#E5E7EB] rounded-lg px-4 py-3">
-            <span className="text-sm text-[#2B2B2B]">Weekly Summary Report</span>
-            <button
-              role="checkbox"
-              aria-checked={preferences.weeklySummaryReport}
-              onClick={() =>
-                setPreferences({ ...preferences, weeklySummaryReport: !preferences.weeklySummaryReport })
-              }
-              className={`w-5 h-5 rounded flex items-center justify-center border transition-colors cursor-pointer ${
-                preferences.weeklySummaryReport ? "bg-primary border-primary" : "bg-white border-[#D1D5DB]"
-              }`}
-            >
-              {preferences.weeklySummaryReport && (
-                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-
-        <div className="flex justify-end mt-6">
-          <button className="py-3 px-5 sm:px-10 text-sm sm:text-[16px] font-semibold text-white bg-primary rounded-lg hover:opacity-90 transition-opacity cursor-pointer">
-            Save changes
-          </button>
-        </div>
-      </div>
 
       {/* Danger Zone */}
       <div className="bg-white rounded-2xl border border-[#FECACA] p-6">
