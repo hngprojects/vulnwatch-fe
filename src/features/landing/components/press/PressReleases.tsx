@@ -1,9 +1,10 @@
+import Link from "next/link";
 import { pressReleases } from "../../constants/press";
 
 export default function PressRelease() {
     return (
         <section className="mx-auto max-w-6xl px-6 py-16">
-            <h2 className="mb-8 text-[20px] font-bold text-[#000000] md:text-[24px]">
+            <h2 className="mb-8 text-[20px] font-bold text-header md:text-[24px]">
                 Press release
             </h2>
 
@@ -19,12 +20,12 @@ export default function PressRelease() {
                             {release.title}
                         </h3>
 
-                        <a
+                        <Link
                             href={release.url}
                             className="mt-5 inline-block text-sm text-primary underline underline-offset-4 transition hover:text-primary/80"
                         >
                             Read release
-                        </a>
+                        </Link>
                     </article>
                 ))}
             </div>

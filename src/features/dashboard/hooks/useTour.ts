@@ -11,7 +11,6 @@ export function useTour() {
         return !localStorage.getItem(TOUR_KEY)
     })
 
-    // check local storage for tour completion
     useEffect(() => {
         if (isVisible) {
             document.body.style.overflow = 'hidden'

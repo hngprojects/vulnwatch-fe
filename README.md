@@ -1,10 +1,10 @@
 # Next.js Starter
 
-Next.js 16 + React 19 + Tailwind v4 + shadcn (radix-maia). Validated env, typed proxy, and the standard set of route conventions wired up.
+Next.js 16 + React 19 + Tailwind v4 + shadcn (radix-maia). Validated env and the standard set of route conventions wired up.
 
 ## Stack
 
-- **Next.js 16** App Router (`proxy.ts`, `forbidden.tsx`, `unauthorized.tsx`)
+- **Next.js 16** App Router (`forbidden.tsx`, `unauthorized.tsx`)
 - **React 19**, **TypeScript** (strict)
 - **Tailwind v4** with shadcn `radix-maia` style
 - **`@t3-oss/env-nextjs`** + **Zod 4** for build-time env validation
@@ -62,16 +62,6 @@ import { env } from "@/env/client";
 console.log(env.NEXT_PUBLIC_APP_URL);
 ```
 
-## Proxy (`src/proxy.ts`)
-
-Replaces the legacy `middleware.ts` (Next.js 16 renamed it). It runs before the cache and:
-
-- Generates an `x-request-id` and forwards it to the request headers + response
-- Sets baseline security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`)
-- Skips static assets via the matcher
-
-Add auth gating, rewrites, or redirects there as needed. Note: `runtime` config is **not** allowed in `proxy.ts` — it always runs on Node.js.
-
 ## Route conventions wired up
 
 | File                              | Purpose                                  |
@@ -98,5 +88,4 @@ src/
 ├── env/
 │   ├── server.ts       # Server-only env schema
 │   └── client.ts       # NEXT_PUBLIC_* env schema
-└── proxy.ts            # Next.js 16 proxy (formerly middleware)
 ```

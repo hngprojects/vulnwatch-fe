@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Globe, RefreshCcw } from "lucide-react";
+import { ArrowLeft, Globe, RefreshCcw, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { scanService } from "@/features/scans/services/scan.service";
 
-type ScanStatus = "verified" | "unverified" | "";
+type ScanStatus = "verified" | "unverified" | "pending" | "queued" | "";
 
 const ViewFindingsIcon = ({ className }: { className?: string }) => (
   <svg className={className} width="20" height="20" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -13,13 +16,54 @@ const ViewFindingsIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export default function ScanReportPageHeader() {
-  const router = useRouter();
-  const status = "verified" as ScanStatus;
+interface ScanReportPageHeaderProps {
+  domain: string;
+  scanId?: string;
+  domainStatus?: string;
+}
 
-  const handleRescan = () => {
-    router.push("/scan");
+export default function ScanReportPageHeader({
+  domain,
+  domainStatus = "verified",
+}: ScanReportPageHeaderProps) {
+  const router = useRouter();
+  const [isRescanning, setIsRescanning] = useState(false);
+  const status = domainStatus.toLowerCase() as ScanStatus;
+
+  const handleRescan = async () => {
+    if (isRescanning) return;
+    try {
+      setIsRescanning(true);
+      const response = await scanService.createScan({
+        domain: domain,
+        scanType: "QUICK_SCAN",
+      });
+
+      if (response.isSuccess && response.value) {
+        if (
+          response.value.message === "A scan is already in progress for this domain." ||
+          response.value.message === "Scan already initiated."
+        ) {
+          toast.info(response.value.message);
+        }
+        
+        const { scanId: newScanId, initiatedAt } = response.value;
+        const activeInitiatedAt = initiatedAt || new Date().toISOString();
+
+        router.push(
+          `/scan/progress?scanId=${encodeURIComponent(newScanId)}&domain=${encodeURIComponent(domain)}&initiatedAt=${encodeURIComponent(activeInitiatedAt)}`
+        );
+      } else {
+        toast.error(response.error?.message || "Failed to start scan. Please try again.");
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
+      toast.error(msg);
+    } finally {
+      setIsRescanning(false);
+    }
   };
+
   const handleViewAllFindings = () => {
     router.push("/scan/findings");
   };
@@ -31,14 +75,19 @@ export default function ScanReportPageHeader() {
         <Button variant="ghost" className="text-[#667085] p-0 hover:bg-transparent h-auto w-auto" onClick={() => router.back()}>
           <ArrowLeft size={24} />
         </Button>
-        <span className="font-medium text-[#667085]">mycompany.com</span>
+        <span className="font-medium text-[#667085]">{domain}</span>
         <Button 
           variant="ghost" 
-          className="p-0 flex items-center gap-1.5 text-primary hover:bg-transparent h-auto font-medium text-[16px]"
+          disabled={isRescanning}
+          className="p-0 flex items-center gap-1.5 text-primary hover:bg-transparent h-auto font-medium text-[16px] disabled:opacity-60"
           onClick={handleRescan}
         >
-          <RefreshCcw size={18} strokeWidth={2.2} />
-          <span>Rescan</span>
+          {isRescanning ? (
+            <Loader2 size={18} className="animate-spin text-primary" />
+          ) : (
+            <RefreshCcw size={18} strokeWidth={2.2} />
+          )}
+          <span>{isRescanning ? "Starting..." : "Rescan"}</span>
         </Button>
       </div>
 
@@ -46,16 +95,15 @@ export default function ScanReportPageHeader() {
         <div className="flex items-center gap-4 gap-y-2 flex-wrap">
           <div className="flex items-center gap-2">
             <Globe size={18} />
-            <span>mycompany.com</span>
+            <span>{domain}</span>
           </div>
           <div
             className={cn(
               "px-3 py-1 leading-none text-sm font-medium rounded-lg capitalize",
               {
                 "bg-[#E8F7EF] text-[#1DAF61]": status === "verified",
-              },
-              {
                 "bg-[#FDEBEC] text-[#D00416]": status === "unverified",
+                "bg-[#FFFBF0] text-[#B27F06]": status === "pending" || status === "queued",
               },
             )}
           >
@@ -65,11 +113,16 @@ export default function ScanReportPageHeader() {
         <div className="items-center gap-4 hidden lg:flex">
           <Button
             variant="outline"
-            className="border-[1.5px] border-primary text-primary flex items-center gap-2"
+            disabled={isRescanning}
+            className="border-[1.5px] border-primary text-primary flex items-center gap-2 disabled:opacity-60"
             onClick={handleRescan}
           >
-            <RefreshCcw strokeWidth={2.2} size={20} />
-            <span>Rescan</span>
+            {isRescanning ? (
+              <Loader2 size={20} className="animate-spin text-primary" />
+            ) : (
+              <RefreshCcw strokeWidth={2.2} size={20} />
+            )}
+            <span>{isRescanning ? "Rescanning..." : "Rescan"}</span>
           </Button>
           <Button 
             className="flex items-center gap-2 text-[#FFFFFF] font-inter font-semibold text-[16px]"

@@ -6,7 +6,7 @@ const variants = cva(
     variants: {
       variant: {
         neutral: "border border-border",
-        critical: "bg-scan-red-400/10 text-scan-red-400",
+        critical: "bg-scan-red-bg text-scan-red-400",
         warning: "bg-yellow-100 text-scan-yellow-900",
         pass: "bg-scan-green-400/10 text-scan-green-400",
       },
