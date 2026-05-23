@@ -110,15 +110,49 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
   const handleCheck = useCallback(async () => {
     if (!liveDomain) return;
     setChecking(true);
+    const toastId = toast.loading("Checking verification...", {
+      description: `Verifying ${liveDomain.domain}`,
+    });
     try {
-      const updated = await domainService.getDomain(liveDomain.id);
+      const updated = await domainService.verifyDomain(liveDomain.id);
       setCheckedDomain(updated);
-    } catch {
-      // silently fail — domain data stays as-is
+      
+      if (updated.status === "Verified") {
+        toast.success("Domain verified successfully!", {
+          id: toastId,
+          description: `${liveDomain.domain} is now verified.`,
+        });
+        if (onDeleted) onDeleted();
+      } else {
+        toast.info("Verification in progress", {
+          id: toastId,
+          description: "Check your DNS if the record is correct. The changes might still be propagating.",
+        });
+      }
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
+      const backendMessage = axiosError.response?.data?.error?.message;
+      const errMsg = backendMessage || (err instanceof Error ? err.message : "Failed to verify domain.");
+      toast.error(errMsg, {
+        id: toastId,
+      });
     } finally {
       setChecking(false);
     }
-  }, [liveDomain]);
+  }, [liveDomain, onDeleted]);
+
+  const handleSilentCheck = useCallback(async () => {
+    if (!liveDomain || liveDomain.status !== "Pending") return;
+    try {
+      const updated = await domainService.getDomain(liveDomain.id);
+      setCheckedDomain(updated);
+      if (updated.status === "Verified" && onDeleted) {
+        onDeleted();
+      }
+    } catch {
+      // silently ignore background failures
+    }
+  }, [liveDomain, onDeleted]);
 
   // fetch full domain details on open or domain change
   useEffect(() => {
@@ -139,9 +173,9 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
   // auto-refresh every 5 minutes for pending domains
   useEffect(() => {
     if (!open || liveDomain?.status !== "Pending") return;
-    const id = setInterval(handleCheck, 5 * 60 * 1000);
+    const id = setInterval(handleSilentCheck, 5 * 60 * 1000);
     return () => clearInterval(id);
-  }, [open, liveDomain?.status, handleCheck]);
+  }, [open, liveDomain?.status, handleSilentCheck]);
 
   if (!liveDomain) return null;
 
