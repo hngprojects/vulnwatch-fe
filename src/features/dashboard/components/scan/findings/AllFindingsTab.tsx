@@ -14,9 +14,9 @@ import {
 import { scanService, ScanReport, FindingDto } from '../../../../scans/services/scan.service';
 
 const moduleHref: Record<FindingModule, string> = {
-  Exposure: '/scan/exposure',
-  SSL: '/scan/ssl',
-  DNS: '/scan/dns',
+  Exposure: '/scan/report/findings/exposure',
+  SSL: '/scan/report/findings/ssl',
+  DNS: '/scan/report/findings/dns',
 };
 
 const getSeverityFromLabel = (label: string) => {

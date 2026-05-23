@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { SecurityScoreCard } from '../SecurityScoreCard';
 import { SecuritySummaryCard } from '../SecuritySummaryCard';
@@ -95,10 +96,10 @@ function ExposureFindingCard({ finding }: { finding: ExposureFinding }) {
 
           <div className='space-y-3'>
             {checks.map((check) => (
-              <button
+              <Link
                 key={check.path}
-                type='button'
-                className='flex w-full items-center gap-4 rounded-lg bg-white px-4 py-4 text-left md:px-5'
+                href={detailsHref}
+                className='flex w-full items-center gap-4 rounded-lg bg-white px-4 py-4 text-left md:px-5 hover:border-neutral-300 transition-colors border'
               >
                 <span className='flex-1 text-base font-medium text-[#303030]'>
                   {check.path}
@@ -115,7 +116,7 @@ function ExposureFindingCard({ finding }: { finding: ExposureFinding }) {
                   <SeverityBadge severity={check.severity} />
                 </span>
                 <ChevronRight className='h-5 w-5 text-[#111827]' />
-              </button>
+              </Link>
             ))}
           </div>
         </div>

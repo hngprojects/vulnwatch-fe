@@ -28,7 +28,11 @@ export function DnsTab() {
 
       <div className='space-y-4'>
         {dnsFindings.map((finding) => (
-          <FindingsSummaryRow key={finding.id} {...finding} />
+          <FindingsSummaryRow 
+            key={finding.id} 
+            {...finding} 
+            href={detailsHref}
+          />
         ))}
       </div>
 

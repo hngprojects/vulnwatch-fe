@@ -23,7 +23,11 @@ export function SslTab() {
 
       <div className='space-y-4'>
         {sslFindings.map((finding) => (
-          <FindingsSummaryRow key={finding.id} {...finding} />
+          <FindingsSummaryRow 
+            key={finding.id} 
+            {...finding} 
+            href={detailsHref}
+          />
         ))}
       </div>
     </div>
