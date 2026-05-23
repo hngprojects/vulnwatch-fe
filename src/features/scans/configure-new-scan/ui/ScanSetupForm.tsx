@@ -297,9 +297,13 @@ export default function ScanSetupForm() {
         {/* Helper text or Errors */}
         {errors.domain ? (
           <p className="text-xs text-red-500 font-medium mt-1">{errors.domain.message}</p>
+        ) : selectedDomain ? (
+          <p className="text-xs text-[#6B7280] mt-1">
+            We will scan through <span className="font-semibold">{selectedDomain}</span> and all associated assets.
+          </p>
         ) : (
           <p className="text-xs text-[#6B7280] mt-1">
-            We will scan your selected verified domain and all associated assets.
+            We will scan through your selected verified domain and all associated assets.
           </p>
         )}
 
@@ -356,9 +360,10 @@ export default function ScanSetupForm() {
       {/* Green security banner */}
       <div className="bg-[#A0E870] rounded-lg px-5 py-4 flex items-center gap-3">
         <ShieldCheck className="text-[#072E28] shrink-0" size={22} />
-        <p className="text-sm font-medium text-[#072E28]">
-          We only access publicly available data.{" "}
-          <span className="font-normal">No intrusive testing is performed</span>
+        <p className="text-sm font-medium text-[#666666]">
+          We only access publicly available data.
+          <br />
+          <span className="font-normal text-[#666666]">No intrusive testing is performed</span>
         </p>
       </div>
 
