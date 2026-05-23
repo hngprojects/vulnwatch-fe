@@ -33,10 +33,10 @@ const WhyChoose: React.FC = () => {
     <section className="w-full py-16 md:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col items-center justify-center text-center md:mb-10">
-          <p className="mb-6 w-fit rounded-xl border-2 bg-[#fafafa] p-2 text-[0.9rem] font-medium tracking-wide text-[#2b2b2b] sm:text-[1.1rem]">
+          <span className="mb-6 w-fit rounded-xl border border-[#E0E0E0] bg-[#FAFAFA] px-4 py-2 text-[0.9rem] font-geist font-medium tracking-wide text-[#2B2B2B] sm:text-[1.1rem]">
             Why Choose VulnWatch AI
-          </p>
-          <h2 className="mb-4 w-[95%] text-2xl leading-relaxed font-bold text-[#072e28] sm:w-full sm:text-3xl md:text-4xl lg:text-5xl">
+          </span>
+          <h2 className="mb-4 w-[95%] text-2xl leading-snug font-bold text-[#072e28] sm:w-full sm:text-3xl md:text-4xl lg:text-5xl">
             See risks clearly, fix them faster,
             <br className="hidden sm:block" />
             and stay ahead of threats

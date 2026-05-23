@@ -5,7 +5,7 @@ export function HeroDashboardPreview() {
                 <div className='relative mx-auto mt-12 w-full overflow-hidden md:mt-20'>
                         {/* Desktop Image */}
                         <Image
-                                src='/images/hero-image-desktop.jpg'
+                                src='/images/hero-section-desktop.png'
                                 alt='VulnWatch AI Dashboard Preview'
                                 width={1440}
                                 height={760}
@@ -15,7 +15,7 @@ export function HeroDashboardPreview() {
 
                         {/* Mobile Image */}
                         <Image
-                                src='/images/hero-image-mobile.jpg'
+                                src='/images/hero-section-mobile.png'
                                 alt='VulnWatch AI Mobile Dashboard Preview'
                                 width={390}
                                 height={340}
