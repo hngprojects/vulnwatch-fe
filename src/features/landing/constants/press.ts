@@ -24,7 +24,7 @@ export const newsItems: NewsItem[] = [
     {
         source: "TVC News",
         date: "May 6, 2026",
-        headline: "Vulnwatch raises $14 to make website security boring",
+        headline: "VulnWatch raises $14 to make website security boring",
         url: "/press/news/vulnwatch-raises-funding",
         slug: "vulnwatch-raises-funding",
     },
@@ -60,7 +60,7 @@ export const pressReleases: PressReleaseItem[] = [
     },
     {
         date: "April 28, 2026",
-        title: "Vulnwatch exits beta with 50,000 sites scanned weekly",
+        title: "VulnWatch exits beta with 50,000 sites scanned weekly",
         url: "/press/exits-beta-50k-sites",
         slug: "exits-beta-50k-sites",
     },

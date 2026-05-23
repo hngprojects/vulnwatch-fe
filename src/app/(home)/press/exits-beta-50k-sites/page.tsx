@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-    title: "Vulnwatch exits beta with 50,000 sites scanned weekly | Press",
+    title: "VulnWatch exits beta with 50,000 sites scanned weekly | Press",
     description: "VulnWatch AI graduates from beta, with over 50,000 websites scanned every week across its growing user base.",
 };
 
@@ -21,7 +21,7 @@ export default function PressReleaseExitsBetaPage() {
 
                 <p className="text-sm font-medium text-primary uppercase tracking-widest">Press Release</p>
                 <h1 className="mt-4 text-3xl font-bold text-header md:text-4xl leading-snug">
-                    Vulnwatch exits beta with 50,000 sites scanned weekly
+                    VulnWatch exits beta with 50,000 sites scanned weekly
                 </h1>
                 <p className="mt-3 text-sm text-gray-500">April 28, 2026 · 3 min read</p>
 

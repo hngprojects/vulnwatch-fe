@@ -1,5 +1,8 @@
+"use client";
+
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { AllFindingsTab } from './findings/AllFindingsTab';
 import { DnsTab } from './findings/dns/DnsTab';
 import { ExposureTab } from './findings/exposure/ExposureTab';
@@ -12,10 +15,10 @@ import { scanOverview } from './findings/scan-findings-data';
 import { SslTab } from './findings/ssl/SslTab';
 
 const tabs: FindingTab[] = [
-  { id: 'all', label: 'All Findings', href: '/scan/findings' },
-  { id: 'exposure', label: 'Exposure', href: '/scan/exposure' },
-  { id: 'ssl', label: 'SSL', href: '/scan/ssl' },
-  { id: 'dns', label: 'DNS', href: '/scan/dns' },
+  { id: 'all', label: 'All Findings', href: '/scan/report/findings' },
+  { id: 'exposure', label: 'Exposure', href: '/scan/report/findings/exposure' },
+  { id: 'ssl', label: 'SSL', href: '/scan/report/findings/ssl' },
+  { id: 'dns', label: 'DNS', href: '/scan/report/findings/dns' },
 ];
 
 type ScanFindingsProps = {
@@ -23,6 +26,24 @@ type ScanFindingsProps = {
 };
 
 export function ScanFindings({ activeTab }: ScanFindingsProps) {
+  const searchParams = useSearchParams();
+  const scanId = searchParams.get('scanId');
+  
+  // Keep the scanId and severity filters in sub-tabs
+  const getTabHref = (href: string) => {
+    if (!scanId) return href;
+    return `${href}?scanId=${encodeURIComponent(scanId)}`;
+  };
+
+  const dynamicTabs = tabs.map(tab => ({
+    ...tab,
+    href: getTabHref(tab.href)
+  }));
+
+  const backHref = scanId
+    ? `/scan/report?scanId=${encodeURIComponent(scanId)}`
+    : '/scan/report';
+
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'all':
@@ -41,7 +62,7 @@ export function ScanFindings({ activeTab }: ScanFindingsProps) {
   return (
     <section className='mx-auto w-full max-w-6xl bg-white px-4 py-4 md:bg-transparent md:px-6 md:py-6'>
       <Link
-        href='/scan/report'
+        href={backHref}
         className={[
           'mb-5 inline-flex items-center gap-2 text-sm font-medium',
           'text-[#6B7280] transition-colors hover:text-[#111827] md:mb-6',
@@ -61,7 +82,7 @@ export function ScanFindings({ activeTab }: ScanFindingsProps) {
         </p>
       </div>
 
-      <FindingsTabs tabs={tabs} activeTab={activeTab} />
+      <FindingsTabs tabs={dynamicTabs} activeTab={activeTab} />
 
       <div className='mt-5'>{renderActiveTab()}</div>
     </section>

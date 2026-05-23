@@ -26,7 +26,7 @@ interface ApiResponse<T> {
 export interface UpdateProfilePayload {
   firstName: string;
   lastName: string;
-  organization: string;
+  organization?: string;
 }
 
 function unwrap<T>(res: { data: ApiResponse<T>; status: number }): T {

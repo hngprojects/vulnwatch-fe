@@ -24,13 +24,31 @@ export interface ScanResponse {
 export interface ScanSubScore {
   status: string; // e.g. "Pass"
   score: number;
-  detail: string;
+  detail?: string;
+  title?: string;
+  explanation?: string;
+}
+
+export interface FindingDto {
+  id: string;
+  surface: string;
+  severity: string;
+  title: string;
+  cveId: string | null;
+  explanation: string;
+  remediationSteps: string[];
+  technicalDetail: unknown;
+  status: string;
 }
 
 export interface ScanSummaryDto {
-  criticalIssues: string[] | null;
-  highSeverityIssues: string[] | null;
+  criticalIssues: (string | FindingDto)[] | null;
+  highSeverityIssues: (string | FindingDto)[] | null;
+  mediumSeverityIssues?: (string | FindingDto)[] | null;
+  lowSeverityIssues?: (string | FindingDto)[] | null;
   goodNews: string | null;
+  topRecommendation?: string | null;
+  headline?: string | null;
 }
 
 export interface FindingGroupsDto {
@@ -46,12 +64,12 @@ export interface ScanReport {
   domainId: string;
   domainName: string;
   domainStatus?: string;
-  requestedBy: string;
+  requestedBy?: string;
   securityScore: number;
   status: string; // e.g. "Completed"
   coverage?: string;
   riskLevel?: string | null;
-  initiatedAt: string;
+  initiatedAt?: string;
   completedAt?: string;
   summary?: ScanSummaryDto | null;
   findingGroups?: FindingGroupsDto | null;
@@ -167,6 +185,25 @@ export function cleanDomain(input: string): string | null {
   }
 }
 
+export interface ScanHistoryItem {
+  scanId: string;
+  domainId: string;
+  domainName: string;
+  status: string;
+  riskLevel: string | null;
+  coverage: string;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+export interface ScanHistoryResponse {
+  data: ScanHistoryItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export const scanService = {
   async createScan(
     payload: CreateScanPayload,
@@ -203,6 +240,13 @@ export const scanService = {
     } catch (error) {
       throw new Error(getApiErrorMessage(error));
     }
+  },
+
+  async getScanHistory(domainId: string): Promise<ApiResponse<ScanHistoryResponse>> {
+    const response = await privateApi.get<ApiResponse<ScanHistoryResponse>>(
+      `/api/Scans/${domainId}/history`
+    );
+    return response.data;
   },
 };
 
