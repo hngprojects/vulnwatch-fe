@@ -221,6 +221,12 @@ export function AllFindingsTab() {
     return `${basePath}?scanId=${encodeURIComponent(scanId)}`;
   };
 
+  const getFindingDetailsHref = (finding: FindingSummary) => {
+    const base = moduleHref[finding.module];
+    if (!scanId) return `${base}/details?findingId=${encodeURIComponent(finding.id)}`;
+    return `${base}/details?scanId=${encodeURIComponent(scanId)}&findingId=${encodeURIComponent(finding.id)}`;
+  };
+
   return (
     <div className='space-y-5'>
       <section className='rounded-xl bg-white md:border md:border-[#E5E7EB] md:p-6 p-4'>
@@ -275,7 +281,7 @@ export function AllFindingsTab() {
             <FindingsSummaryRow
               key={finding.id}
               {...finding}
-              href={getFindingHref(moduleHref[finding.module])}
+              href={getFindingDetailsHref(finding)}
             />
           ))}
         </div>

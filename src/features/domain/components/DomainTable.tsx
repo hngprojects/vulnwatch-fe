@@ -13,6 +13,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DomainEmptyState from "./DomainEmptyState";
 import DomainDetailsModal from "./DomainDetailsModal";
+import DeleteDomainModal from "./DeleteDomainModal";
 import type { Domain, DomainStatus, VerificationMethod } from "../types/domain.types";
 import { toast } from "sonner";
 import { domainService } from "../services/domain.service";
@@ -91,6 +92,8 @@ export default function DomainTable({ domains, loading = false, error = null, on
   const [sortDropOpen, setSortDropOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [detailsDomain, setDetailsDomain] = useState<Domain | null>(null);
+  const [deleteDomain, setDeleteDomain] = useState<Domain | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const statusDropRef = useRef<HTMLDivElement>(null);
@@ -403,7 +406,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
 
       {/* ── Desktop Table (hidden on mobile) ── */}
       <div className="hidden sm:block bg-white rounded-[12px] border border-brand-border overflow-hidden">
-        <div className="overflow-x-auto min-h-[240px]">
+        <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-brand-border bg-gray-50">
@@ -617,26 +620,9 @@ export default function DomainTable({ domains, loading = false, error = null, on
                                 </button>
                               )}
                               <button
-                                onClick={async () => {
+                                onClick={() => {
                                   setOpenMenuId(null);
-                                  const toastId = toast.loading("Removing domain...", {
-                                    description: `Deleting ${domain.domain}`,
-                                  });
-                                  try {
-                                    const res = await domainService.deleteDomain(domain.id);
-                                    toast.success(res.message || "Domain removed successfully!", {
-                                      id: toastId,
-                                    });
-                                    if (onRetry) onRetry();
-                                  } catch (err: unknown) {
-                                    const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
-                                    const backendMessage = axiosError.response?.data?.error?.message;
-                                    const errMsg = backendMessage || (err instanceof Error ? err.message : "Failed to remove domain.");
-                                    toast.error(errMsg, {
-                                      id: toastId,
-                                    });
-                                    if (onRetry) onRetry();
-                                  }
+                                  setDeleteDomain(domain);
                                 }}
                                 className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
                               >
@@ -660,6 +646,33 @@ export default function DomainTable({ domains, loading = false, error = null, on
         open={detailsDomain !== null}
         onOpenChange={(open) => { if (!open) setDetailsDomain(null); }}
         onDeleted={onRetry}
+      />
+
+      <DeleteDomainModal
+        domain={deleteDomain}
+        open={deleteDomain !== null}
+        deleting={deleting}
+        onCancel={() => setDeleteDomain(null)}
+        onConfirm={async () => {
+          if (!deleteDomain) return;
+          setDeleting(true);
+          const toastId = toast.loading("Removing domain...", {
+            description: `Deleting ${deleteDomain.domain}`,
+          });
+          try {
+            const res = await domainService.deleteDomain(deleteDomain.id);
+            toast.success(res.message || "Domain removed successfully!", { id: toastId });
+            setDeleteDomain(null);
+            if (onRetry) onRetry();
+          } catch (err: unknown) {
+            const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
+            const backendMessage = axiosError.response?.data?.error?.message;
+            const errMsg = backendMessage || (err instanceof Error ? err.message : "Failed to remove domain.");
+            toast.error(errMsg, { id: toastId });
+          } finally {
+            setDeleting(false);
+          }
+        }}
       />
     </div>
   );

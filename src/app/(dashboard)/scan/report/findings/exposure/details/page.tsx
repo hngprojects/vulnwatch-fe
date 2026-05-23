@@ -8,11 +8,12 @@ import { Loader2 } from 'lucide-react';
 function ExposureDetailsContent() {
   const searchParams = useSearchParams();
   const scanId = searchParams.get('scanId');
+  const findingId = searchParams.get('findingId');
   const backHref = scanId
     ? `/scan/report/findings/exposure?scanId=${encodeURIComponent(scanId)}`
     : '/scan/report/findings/exposure';
 
-  return <ExposureDetails backHref={backHref} />;
+  return <ExposureDetails backHref={backHref} scanId={scanId} findingId={findingId} />;
 }
 
 export default function ExposureDetailsPage() {

@@ -8,11 +8,12 @@ import { Loader2 } from 'lucide-react';
 function SslDetailsContent() {
   const searchParams = useSearchParams();
   const scanId = searchParams.get('scanId');
+  const findingId = searchParams.get('findingId');
   const backHref = scanId
     ? `/scan/report/findings/ssl?scanId=${encodeURIComponent(scanId)}`
     : '/scan/report/findings/ssl';
 
-  return <SslDetails backHref={backHref} />;
+  return <SslDetails backHref={backHref} scanId={scanId} findingId={findingId} />;
 }
 
 export default function SslDetailsPage() {

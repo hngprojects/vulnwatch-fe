@@ -1,29 +1,129 @@
-'use client';
-
-import Link from 'next/link';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Check, Loader2 } from 'lucide-react';
 import { SecurityScoreCard } from '../SecurityScoreCard';
 import { SecuritySummaryCard } from '../SecuritySummaryCard';
-import { SeverityBadge } from '../SeverityBadge';
+import { FindingsSummaryRow } from '../FindingsSummaryRow';
 import { useSearchParams } from 'next/navigation';
-import {
-  exposureFindings,
-  scanOverview,
-  type ExposureFinding,
-} from '../scan-findings-data';
+import { type FindingSummary } from '../scan-findings-data';
+import { scanService, ScanReport, FindingDto } from '../../../../../scans/services/scan.service';
+
+const mapFindingDtoToSummary = (finding: FindingDto): FindingSummary => {
+  let findingModule: 'Exposure' | 'SSL' | 'DNS' = "Exposure";
+  const surface = finding.surface.toLowerCase();
+  if (surface === "dns") findingModule = "DNS";
+  if (surface === "ssl") findingModule = "SSL";
+  
+  let severity: "Critical" | "High" | "Medium" | "Low" | "Pass" = "Medium";
+  const sev = finding.severity.toLowerCase();
+  if (sev === "critical") severity = "Critical";
+  else if (sev === "high") severity = "High";
+  else if (sev === "medium") severity = "Medium";
+  else if (sev === "low") severity = "Low";
+
+  return {
+    id: finding.id,
+    severity,
+    title: finding.title,
+    module: findingModule,
+  };
+};
 
 export function ExposureTab() {
   const searchParams = useSearchParams();
   const scanId = searchParams.get('scanId');
-  const detailsHref = scanId
-    ? `/scan/report/findings/exposure/details?scanId=${encodeURIComponent(scanId)}`
-    : '/scan/report/findings/exposure/details';
+
+  const [report, setReport] = useState<ScanReport | null>(null);
+  const [loading, setLoading] = useState(!!scanId);
+
+  useEffect(() => {
+    if (!scanId) return;
+
+    let active = true;
+    scanService.getScanReport(scanId)
+      .then((res) => {
+        if (active && res.isSuccess && res.value) {
+          setReport(res.value);
+        }
+      })
+      .catch((err: unknown) => {
+        console.error("Failed to load report", err);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [scanId]);
+
+  if (loading) {
+    return (
+      <div className="flex h-[30vh] w-full flex-col items-center justify-center gap-2 p-5 bg-white rounded-xl md:border border-neutral-200 shadow-sm">
+        <Loader2 className="h-7 w-7 animate-spin text-[#072e28]" />
+        <p className="text-neutral-500 font-medium text-xs">Loading Exposure findings...</p>
+      </div>
+    );
+  }
+
+  if (!scanId) {
+    return (
+      <div className="rounded-xl border border-dashed border-neutral-300 p-8 text-center text-neutral-500 text-sm bg-white">
+        No active scan. Please select or run a scan to see Exposure details.
+      </div>
+    );
+  }
+
+  if (!report) {
+    return (
+      <div className="rounded-xl border border-dashed border-neutral-300 p-8 text-center text-neutral-500 text-sm bg-white">
+        Failed to load scan report. The scan may still be in progress or does not exist.
+      </div>
+    );
+  }
+
+  const activeScore = report.subScores.exposure.score;
+  
+  const activeFailed: FindingSummary[] = [];
+  if (report.summary) {
+    const allIssues = [
+      ...(report.summary.criticalIssues || []),
+      ...(report.summary.highSeverityIssues || []),
+      ...(report.summary.mediumSeverityIssues || []),
+      ...(report.summary.lowSeverityIssues || []),
+    ];
+    allIssues.forEach(f => {
+      if (typeof f !== "string" && (f.surface.toLowerCase() === "exposure" || f.surface.toLowerCase() === "httpheaders")) {
+        activeFailed.push(mapFindingDtoToSummary(f));
+      }
+    });
+  }
+
+  const activePassed: FindingSummary[] = [];
+  if (report.subScores.exposure.score >= 80 && activeFailed.length === 0) {
+    activePassed.push({
+      id: 'exposure-pass',
+      severity: 'Pass',
+      title: 'Exposure & Endpoints Safe',
+      module: 'Exposure',
+    });
+  }
+
+  const getDetailsHref = (findingId: string) => {
+    return `/scan/report/findings/exposure/details?scanId=${encodeURIComponent(scanId)}&findingId=${encodeURIComponent(findingId)}`;
+  };
+
+  const detailsHref = `/scan/report/findings/exposure/details?scanId=${encodeURIComponent(scanId)}`;
+
+  const mainDetailsHref = activeFailed.length > 0
+    ? getDetailsHref(activeFailed[0].id)
+    : detailsHref;
 
   return (
     <div className='space-y-5 md:space-y-6'>
       <div className='grid gap-4 lg:grid-cols-[18rem_1fr]'>
-        <SecurityScoreCard score={scanOverview.score} />
-        <SecuritySummaryCard detailsHref={detailsHref} />
+        <SecurityScoreCard score={activeScore} />
+        <SecuritySummaryCard detailsHref={mainDetailsHref} module="exposure" />
       </div>
 
       <section>
@@ -32,95 +132,43 @@ export function ExposureTab() {
             Exposed Files and Pages
           </h2>
           <p className='mt-2 text-sm text-[#6B7280]'>
-            4 things needs attention on {scanOverview.domain}
+            {activeFailed.length} {activeFailed.length === 1 ? 'thing needs' : 'things need'} attention on {report.domainName}
           </p>
         </div>
 
-        <div className='rounded-xl bg-white md:border md:border-[#E5E7EB] md:p-5'>
+        <div className='rounded-xl bg-white md:border md:border-[#E5E7EB] md:p-5 p-0 border-0'>
           <div className='space-y-4 md:space-y-2'>
-            {exposureFindings.map((finding) => (
-              <ExposureFindingCard key={finding.id} finding={finding} />
+            {activeFailed.map((finding) => (
+              <FindingsSummaryRow 
+                key={finding.id} 
+                {...finding} 
+                href={getDetailsHref(finding.id)}
+              />
             ))}
+            
+            {activeFailed.length === 0 && (
+              <div className="rounded-xl border border-dashed border-neutral-300 p-8 text-center text-neutral-500 text-sm bg-white">
+                No exposure or endpoints vulnerabilities detected.
+              </div>
+            )}
           </div>
         </div>
       </section>
-    </div>
-  );
-}
 
-function ExposureFindingCard({ finding }: { finding: ExposureFinding }) {
-  const Icon = finding.icon;
-  const checks = finding.checks;
-
-  return (
-    <article>
-      <button
-        type='button'
-        className={[
-          'grid w-full grid-cols-[auto_1fr_auto] items-start gap-x-3 gap-y-3',
-          'rounded-xl border border-[#E5E7EB] bg-white px-4 py-4 text-left',
-          'transition-colors hover:border-[#D1D5DB]',
-          'md:flex md:gap-4 md:border-0 md:px-3 md:py-3',
-          'md:hover:bg-[#F9FAFB]',
-        ].join(' ')}
-      >
-        <span className='grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[#FFF0E6] text-[#E46B16]'>
-          <Icon className='h-5 w-5' />
-        </span>
-
-        <span className='min-w-0 flex-1'>
-          <span className='block text-base font-medium text-[#303030]'>
-            {finding.title}
-          </span>
-          <span className='mt-1 block text-sm text-[#6B7280]'>
-            {finding.description}
-          </span>
-        </span>
-
-        <span className='col-start-2 flex shrink-0 items-center justify-end gap-4 md:col-start-auto'>
-          <SeverityBadge severity={finding.severity} />
-          {finding.isOpen ? (
-            <ChevronDown className='h-5 w-5 text-[#111827]' />
-          ) : (
-            <ChevronRight className='h-5 w-5 text-[#111827]' />
-          )}
-        </span>
-      </button>
-
-      {finding.isOpen && checks ? (
-        <div className='mt-1 space-y-4 bg-[#EFEFEF] px-4 py-5 md:px-8'>
-          <p className='text-sm font-semibold leading-6 text-[#303030] md:text-base md:leading-7'>
-            Directory listing allows anyone to browse your server&apos;s file
-            system. Checked 3 common directories
+      {activePassed.length > 0 && (
+        <div className='pt-1'>
+          <p className='mb-3 text-xs font-medium text-[#6B7280]'>
+            <Check className='mr-2 inline h-3.5 w-3.5 text-[#1FA870]' />
+            Passed Checked ({activePassed.length})
           </p>
 
-          <div className='space-y-3'>
-            {checks.map((check) => (
-              <Link
-                key={check.path}
-                href={detailsHref}
-                className='flex w-full items-center gap-4 rounded-lg bg-white px-4 py-4 text-left md:px-5 hover:border-neutral-300 transition-colors border'
-              >
-                <span className='flex-1 text-base font-medium text-[#303030]'>
-                  {check.path}
-                </span>
-                <span className='hidden text-xs font-semibold text-[#303030] md:inline'>
-                  {check.status}
-                </span>
-                {check.note ? (
-                  <span className='hidden rounded-md bg-[#FFE6EC] px-3 py-1 text-xs font-semibold text-[#D92D50] md:inline'>
-                    {check.note}
-                  </span>
-                ) : null}
-                <span className='hidden md:inline-flex'>
-                  <SeverityBadge severity={check.severity} />
-                </span>
-                <ChevronRight className='h-5 w-5 text-[#111827]' />
-              </Link>
+          <div className='space-y-4'>
+            {activePassed.map((finding) => (
+              <FindingsSummaryRow key={finding.id} {...finding} />
             ))}
           </div>
         </div>
-      ) : null}
-    </article>
+      )}
+    </div>
   );
 }

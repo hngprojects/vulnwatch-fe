@@ -116,6 +116,25 @@ export function cleanDomain(input: string): string | null {
   }
 }
 
+export interface ScanHistoryItem {
+  scanId: string;
+  domainId: string;
+  domainName: string;
+  status: string;
+  riskLevel: string | null;
+  coverage: string;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+export interface ScanHistoryResponse {
+  data: ScanHistoryItem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export const scanService = {
   async createScan(
     payload: CreateScanPayload,
@@ -145,6 +164,13 @@ export const scanService = {
   async getScanReport(scanId: string): Promise<ApiResponse<ScanReport>> {
     const response = await privateApi.get<ApiResponse<ScanReport>>(
       `/api/Scans/${scanId}/report`
+    );
+    return response.data;
+  },
+
+  async getScanHistory(domainId: string): Promise<ApiResponse<ScanHistoryResponse>> {
+    const response = await privateApi.get<ApiResponse<ScanHistoryResponse>>(
+      `/api/Scans/${domainId}/history`
     );
     return response.data;
   },
