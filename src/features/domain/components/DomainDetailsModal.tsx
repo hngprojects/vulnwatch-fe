@@ -156,18 +156,28 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
 
   // fetch full domain details on open or domain change
   useEffect(() => {
-    if (open && domain) {
-      setCheckedDomain(null);
+    if (!open || !domain) return;
+
+    let cancelled = false;
+
+    async function fetchDomainDetails() {
       setChecking(true);
-      domainService.getDomain(domain.id)
-        .then((updated) => {
-          setCheckedDomain(updated);
-        })
-        .catch(() => {})
-        .finally(() => setChecking(false));
-    } else if (!open) {
-      setCheckedDomain(null);
+      try {
+        const updated = await domainService.getDomain(domain!.id);
+        if (!cancelled) setCheckedDomain(updated);
+      } catch {
+        // silently ignore
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
     }
+
+    void fetchDomainDetails();
+
+    return () => {
+      cancelled = true;
+      setCheckedDomain(null);
+    };
   }, [open, domain]);
 
   // auto-refresh every 5 minutes for pending domains

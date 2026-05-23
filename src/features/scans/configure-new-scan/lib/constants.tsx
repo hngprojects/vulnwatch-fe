@@ -45,7 +45,7 @@ export const SCAN_TYPES = [
   },
 ];
 
-import { Search, Settings2, FileText, ShieldAlert } from "lucide-react";
+import { Search, FileText, ShieldAlert } from "lucide-react";
 
 export const WHAT_HAPPENS_NEXT = [
   {
@@ -58,7 +58,12 @@ export const WHAT_HAPPENS_NEXT = [
     title: "Check Security Configuration",
     description:
       "We will analyze your SSL/TLS, headers, DNS, and other security configurations",
-    icon: <Settings2 size={18} className="text-[#2B2B2B]" />,
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fillRule="evenodd" clipRule="evenodd" d="M14.64 13.5771L15.38 12.1486H18.91L20 10L17.82 5.71429H14.75L13.69 3.58857H12.5V2.14857H14.44L15.5 4.28571H17.09L14.9 0H10.63V5.71429H12.36L13.09 7.14286H10.63V10H12.89L13.94 7.86286H16.75L17.47 9.29143H14.67L13.62 11.4286H10.63V16.4343H14.03L13.31 17.8629H10.63V20H14.9L18.18 13.5771H16.09L15.36 15.0057H12.5V13.5771H14.64Z" fill="#2B2B2B"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M5.36 13.5771L4.62 12.1486H1.09L0 10L2.18 5.71429H5.25L6.31 3.58857H7.5V2.14857H5.56L4.5 4.28571H2.91L5.1 0H9.38V5.71429H7.64L6.91 7.14286H9.38V10H7.11L6.06 7.86286H3.25L2.53 9.29143H5.33L6.38 11.4286H9.38V16.4343H5.97L6.69 17.8629H9.38V20H5.1L1.82 13.5771H3.91L4.64 15.0057H7.5V13.5771H5.36Z" fill="#2B2B2B"/>
+      </svg>
+    ),
   },
   {
     title: "Deliver Clear Report",
