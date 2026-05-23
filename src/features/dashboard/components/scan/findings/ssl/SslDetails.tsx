@@ -12,7 +12,7 @@ const fixSteps = [
   'Verify auto-renewal is working: certbot renew --dry-run',
 ];
 
-export function SslDetails({ backHref = '/scan/ssl' }: SslDetailsProps) {
+export function SslDetails({ backHref = '/scan/report/findings/ssl' }: SslDetailsProps) {
   return (
     <section className='mx-auto w-full max-w-6xl px-4 py-6 md:px-6'>
       <Link

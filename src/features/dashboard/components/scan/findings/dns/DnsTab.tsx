@@ -10,12 +10,20 @@ import {
   scanOverview,
 } from '../scan-findings-data';
 
+import { useSearchParams } from 'next/navigation';
+
 export function DnsTab() {
+  const searchParams = useSearchParams();
+  const scanId = searchParams.get('scanId');
+  const detailsHref = scanId
+    ? `/scan/report/findings/dns/details?scanId=${encodeURIComponent(scanId)}`
+    : '/scan/report/findings/dns/details';
+
   return (
     <div className='space-y-6'>
       <div className='grid gap-4 lg:grid-cols-[18rem_1fr]'>
         <SecurityScoreCard score={scanOverview.score} />
-        <SecuritySummaryCard detailsHref='/scan/dns/details' />
+        <SecuritySummaryCard detailsHref={detailsHref} />
       </div>
 
       <div className='space-y-4'>

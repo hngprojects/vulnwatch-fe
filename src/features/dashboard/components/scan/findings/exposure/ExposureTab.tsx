@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { SecurityScoreCard } from '../SecurityScoreCard';
 import { SecuritySummaryCard } from '../SecuritySummaryCard';
 import { SeverityBadge } from '../SeverityBadge';
+import { useSearchParams } from 'next/navigation';
 import {
   exposureFindings,
   scanOverview,
@@ -11,11 +12,17 @@ import {
 } from '../scan-findings-data';
 
 export function ExposureTab() {
+  const searchParams = useSearchParams();
+  const scanId = searchParams.get('scanId');
+  const detailsHref = scanId
+    ? `/scan/report/findings/exposure/details?scanId=${encodeURIComponent(scanId)}`
+    : '/scan/report/findings/exposure/details';
+
   return (
     <div className='space-y-5 md:space-y-6'>
       <div className='grid gap-4 lg:grid-cols-[18rem_1fr]'>
         <SecurityScoreCard score={scanOverview.score} />
-        <SecuritySummaryCard detailsHref='/scan/exposure/details' />
+        <SecuritySummaryCard detailsHref={detailsHref} />
       </div>
 
       <section>

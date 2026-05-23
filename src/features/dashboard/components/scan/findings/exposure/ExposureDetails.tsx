@@ -14,7 +14,7 @@ const fixSteps = [
 ];
 
 export function ExposureDetails({
-  backHref = '/scan/exposure',
+  backHref = '/scan/report/findings/exposure',
 }: ExposureDetailsProps) {
   const finding = exposureFindings[0];
   const exposedPath = finding.checks?.[0]?.path ?? '/assets/';

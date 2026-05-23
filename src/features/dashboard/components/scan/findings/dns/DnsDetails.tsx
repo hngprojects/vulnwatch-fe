@@ -12,7 +12,7 @@ const fixSteps = [
   'Use a DMARC reporting tool (Postmark, Dmarcian) to analyse reports',
 ];
 
-export function DnsDetails({ backHref = '/scan/dns' }: DnsDetailsProps) {
+export function DnsDetails({ backHref = '/scan/report/findings/dns' }: DnsDetailsProps) {
   return (
     <section className='mx-auto w-full max-w-6xl px-4 py-6 md:px-6'>
       <Link
