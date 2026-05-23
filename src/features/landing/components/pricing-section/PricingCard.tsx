@@ -42,7 +42,7 @@ const PricingCard = ({ plan, index }: PricingCardProps) => {
           >
             ${plan.price}
           </span>
-          <span className="text-body text-[13px]">/mo (billed annually)</span>
+          <span className="text-body text-[13px]">/monthly</span>
         </div>
 
         {/* Features */}

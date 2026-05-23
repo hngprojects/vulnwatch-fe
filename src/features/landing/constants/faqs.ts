@@ -4,9 +4,10 @@ export const FAQS_DATA: FAQType[] = [
   {
     question: "What is Vulnwatch, how does it work?",
     answer:
-      "VulnWatch continuously monitors your domain infrastructure, DNS records, " +
+      "Aegis continuously monitors your domain infrastructure, DNS records, " +
       "SSL certificates, subdomains, and email security, and uses AI to detect " +
-      "misconfigurations, exposure risks, and active threats.",
+      "misconfigurations, exposure risks, and active threats. You get clear, " +
+      "prioritized alerts with AI-generated remediation steps.",
   },
   {
     question: "Do I need technical expertise to use Vulnwatch?",
