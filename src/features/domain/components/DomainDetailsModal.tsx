@@ -204,9 +204,9 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
             const details = [
               { label: "Domain", value: liveDomain.domain },
               { label: "Method", value: method },
-              { label: "Submitted", value: timeAgo(liveDomain.createdAt) },
               ...(showVerificationDetails && host ? [{ label: "TXT Host / Name", value: host, copyable: true }] : []),
               ...(showVerificationDetails && token ? [{ label: "TXT Value", value: token, copyable: true }] : []),
+              { label: "Submitted", value: timeAgo(liveDomain.createdAt) },
               { label: "Status", value: cfg.statusRowValue },
             ];
 
