@@ -2,6 +2,7 @@ import { privateApi } from "@/lib/axios";
 import axios from "axios";
 
 const SCAN_REPORT_CACHE_PREFIX = "scan-report-cache:";
+const SCAN_REPORT_CACHE_SPINNER_DELAY_MS = 180;
 const completedScanReportCache = new Map<string, ApiResponse<ScanReport>>();
 const inFlightScanReportRequests = new Map<string, Promise<ApiResponse<ScanReport>>>();
 
@@ -236,6 +237,10 @@ function cacheCompletedScanReport(scanId: string, response: ApiResponse<ScanRepo
   writeCompletedScanReportToSession(scanId, response);
 }
 
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 // Helper function to extract only the pure domain name from any input URL/string
 export function cleanDomain(input: string): string | null {
   if (!input) return null;
@@ -312,6 +317,9 @@ export const scanService = {
   async getScanReport(scanId: string): Promise<ApiResponse<ScanReport>> {
     const cachedReport = readCompletedScanReportFromCache(scanId);
     if (cachedReport) {
+      if (typeof window !== "undefined") {
+        await delay(SCAN_REPORT_CACHE_SPINNER_DELAY_MS);
+      }
       return cachedReport;
     }
 
