@@ -237,6 +237,21 @@ function cacheCompletedScanReport(scanId: string, response: ApiResponse<ScanRepo
   writeCompletedScanReportToSession(scanId, response);
 }
 
+/**
+ * Clears all cached scan reports from memory and sessionStorage.
+ * Must be called on user logout to prevent leaking scan data between sessions.
+ */
+export function clearScanReportCache() {
+  completedScanReportCache.clear();
+  inFlightScanReportRequests.clear();
+
+  if (typeof window !== "undefined") {
+    Object.keys(sessionStorage)
+      .filter((key) => key.startsWith(SCAN_REPORT_CACHE_PREFIX))
+      .forEach((key) => sessionStorage.removeItem(key));
+  }
+}
+
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -330,38 +345,38 @@ export const scanService = {
 
     const request = (async () => {
       try {
-      const response = await privateApi.get<ApiResponse<ScanReportDto>>(
-        `/api/Scans/${scanId}/report`,
-      );
+        const response = await privateApi.get<ApiResponse<ScanReportDto>>(
+          `/api/Scans/${scanId}/report`,
+        );
 
-      if (!response.data.isSuccess || !response.data.value) {
+        if (!response.data.isSuccess || !response.data.value) {
+          return {
+            isSuccess: false,
+            value: null,
+            error: response.data.error ?? {
+              code: "SCAN_REPORT_ERROR",
+              message: "Unable to load scan report.",
+            },
+          };
+        }
+
+        const normalizedResponse: ApiResponse<ScanReport> = {
+          isSuccess: true,
+          value: normalizeScanReport(response.data.value),
+          error: null,
+        };
+
+        cacheCompletedScanReport(scanId, normalizedResponse);
+        return normalizedResponse;
+      } catch (error) {
         return {
           isSuccess: false,
           value: null,
-          error: response.data.error ?? {
+          error: {
             code: "SCAN_REPORT_ERROR",
-            message: "Unable to load scan report.",
+            message: getApiErrorMessage(error),
           },
         };
-      }
-
-      const normalizedResponse: ApiResponse<ScanReport> = {
-        isSuccess: true,
-        value: normalizeScanReport(response.data.value),
-        error: null,
-      };
-
-      cacheCompletedScanReport(scanId, normalizedResponse);
-      return normalizedResponse;
-    } catch (error) {
-      return {
-        isSuccess: false,
-        value: null,
-        error: {
-          code: "SCAN_REPORT_ERROR",
-          message: getApiErrorMessage(error),
-        },
-      };
       } finally {
         inFlightScanReportRequests.delete(scanId);
       }

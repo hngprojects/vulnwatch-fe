@@ -1,3 +1,5 @@
+import { clearScanReportCache } from "@/features/scans/services/scan.service";
+
 type AuthState = {
   token: string | null;
   email: string | null;
@@ -67,6 +69,7 @@ const getInitialState = (): AuthState => {
       }
     },
     logout: () => {
+      clearScanReportCache();
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_email");
       localStorage.removeItem("auth_picture");
