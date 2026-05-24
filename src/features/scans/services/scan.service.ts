@@ -5,6 +5,9 @@ const SCAN_REPORT_CACHE_PREFIX = "scan-report-cache:";
 const SCAN_REPORT_CACHE_SPINNER_DELAY_MS = 180;
 const completedScanReportCache = new Map<string, ApiResponse<ScanReport>>();
 const inFlightScanReportRequests = new Map<string, Promise<ApiResponse<ScanReport>>>();
+// Incremented on every clearScanReportCache() call so in-flight requests
+// that resolve after a logout cannot re-populate the cache.
+let scanReportCacheGeneration = 0;
 
 // Maps our internal UI enum values to what the API expects
 const COVERAGE_MAP: Record<string, "Quick" | "Full"> = {
@@ -242,6 +245,9 @@ function cacheCompletedScanReport(scanId: string, response: ApiResponse<ScanRepo
  * Must be called on user logout to prevent leaking scan data between sessions.
  */
 export function clearScanReportCache() {
+  // Increment first so any in-flight promise that checks the generation
+  // after this point will see a mismatch and skip writing to the cache.
+  scanReportCacheGeneration++;
   completedScanReportCache.clear();
   inFlightScanReportRequests.clear();
 
@@ -343,6 +349,11 @@ export const scanService = {
       return inFlightRequest;
     }
 
+    // Capture the generation synchronously before any await so that if
+    // clearScanReportCache() is called while this request is in-flight,
+    // the resolved value is discarded instead of re-populating the cache.
+    const requestGeneration = scanReportCacheGeneration;
+
     const request = (async () => {
       try {
         const response = await privateApi.get<ApiResponse<ScanReportDto>>(
@@ -366,7 +377,10 @@ export const scanService = {
           error: null,
         };
 
-        cacheCompletedScanReport(scanId, normalizedResponse);
+        // Only write to cache if no logout happened while we were awaiting.
+        if (scanReportCacheGeneration === requestGeneration) {
+          cacheCompletedScanReport(scanId, normalizedResponse);
+        }
         return normalizedResponse;
       } catch (error) {
         return {
@@ -378,7 +392,10 @@ export const scanService = {
           },
         };
       } finally {
-        inFlightScanReportRequests.delete(scanId);
+        // Only clean up the in-flight entry if it still belongs to this generation.
+        if (scanReportCacheGeneration === requestGeneration) {
+          inFlightScanReportRequests.delete(scanId);
+        }
       }
     })();
 
