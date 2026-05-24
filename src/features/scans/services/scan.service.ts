@@ -1,6 +1,10 @@
 import { privateApi } from "@/lib/axios";
 import axios from "axios";
 
+const SCAN_REPORT_CACHE_PREFIX = "scan-report-cache:";
+const completedScanReportCache = new Map<string, ApiResponse<ScanReport>>();
+const inFlightScanReportRequests = new Map<string, Promise<ApiResponse<ScanReport>>>();
+
 // Maps our internal UI enum values to what the API expects
 const COVERAGE_MAP: Record<string, "Quick" | "Full"> = {
   QUICK_SCAN: "Quick",
@@ -164,6 +168,74 @@ function normalizeScanReport(dto: ScanReportDto): ScanReport {
   };
 }
 
+function getCompletedScanReportCacheKey(scanId: string) {
+  return `${SCAN_REPORT_CACHE_PREFIX}${scanId}`;
+}
+
+function readCompletedScanReportFromSession(scanId: string): ApiResponse<ScanReport> | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(getCompletedScanReportCacheKey(scanId));
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw) as ApiResponse<ScanReport>;
+    if (parsed.isSuccess && parsed.value?.status === "Completed") {
+      return parsed;
+    }
+  } catch {
+    // Ignore malformed session cache and fall through to a fresh request.
+  }
+
+  return null;
+}
+
+function writeCompletedScanReportToSession(
+  scanId: string,
+  response: ApiResponse<ScanReport>,
+) {
+  if (typeof window === "undefined" || !response.isSuccess || response.value?.status !== "Completed") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(
+      getCompletedScanReportCacheKey(scanId),
+      JSON.stringify(response),
+    );
+  } catch {
+    // Ignore storage quota/unavailability and keep the in-memory cache only.
+  }
+}
+
+function readCompletedScanReportFromCache(scanId: string): ApiResponse<ScanReport> | null {
+  const memoryCache = completedScanReportCache.get(scanId);
+  if (memoryCache?.isSuccess && memoryCache.value?.status === "Completed") {
+    return memoryCache;
+  }
+
+  const sessionCache = readCompletedScanReportFromSession(scanId);
+  if (sessionCache) {
+    completedScanReportCache.set(scanId, sessionCache);
+    return sessionCache;
+  }
+
+  return null;
+}
+
+function cacheCompletedScanReport(scanId: string, response: ApiResponse<ScanReport>) {
+  if (!response.isSuccess || response.value?.status !== "Completed") {
+    return;
+  }
+
+  completedScanReportCache.set(scanId, response);
+  writeCompletedScanReportToSession(scanId, response);
+}
+
 // Helper function to extract only the pure domain name from any input URL/string
 export function cleanDomain(input: string): string | null {
   if (!input) return null;
@@ -238,7 +310,18 @@ export const scanService = {
   },
 
   async getScanReport(scanId: string): Promise<ApiResponse<ScanReport>> {
-    try {
+    const cachedReport = readCompletedScanReportFromCache(scanId);
+    if (cachedReport) {
+      return cachedReport;
+    }
+
+    const inFlightRequest = inFlightScanReportRequests.get(scanId);
+    if (inFlightRequest) {
+      return inFlightRequest;
+    }
+
+    const request = (async () => {
+      try {
       const response = await privateApi.get<ApiResponse<ScanReportDto>>(
         `/api/Scans/${scanId}/report`,
       );
@@ -254,11 +337,14 @@ export const scanService = {
         };
       }
 
-      return {
+      const normalizedResponse: ApiResponse<ScanReport> = {
         isSuccess: true,
         value: normalizeScanReport(response.data.value),
         error: null,
       };
+
+      cacheCompletedScanReport(scanId, normalizedResponse);
+      return normalizedResponse;
     } catch (error) {
       return {
         isSuccess: false,
@@ -268,7 +354,13 @@ export const scanService = {
           message: getApiErrorMessage(error),
         },
       };
-    }
+      } finally {
+        inFlightScanReportRequests.delete(scanId);
+      }
+    })();
+
+    inFlightScanReportRequests.set(scanId, request);
+    return request;
   },
 
   async getScanHistory(domainId: string): Promise<ApiResponse<ScanHistoryResponse>> {
