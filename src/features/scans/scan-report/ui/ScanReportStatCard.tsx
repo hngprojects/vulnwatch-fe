@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cva } from "class-variance-authority";
 import { ArrowRight } from "lucide-react";
@@ -17,12 +18,14 @@ interface Props {
   score: number;
   type: string;
   description: string;
+  href?: string;
 }
 
 export default function ScanReportScoreStatCard({
   score,
   type,
   description,
+  href,
 }: Props) {
   let badgeSeverity: "critical" | "pass" | "warning";
 
@@ -53,12 +56,25 @@ export default function ScanReportScoreStatCard({
         </div>
         <p className="text-sm text-neutral-500">{description}</p>
         <div className="flex justify-end">
-          <Button
-            variant="link"
-            className="p-0 flex items-center gap-2 h-auto! text-[#3C574F] font-medium"
-          >
-            View details <ArrowRight size={16} />
-          </Button>
+          {href ? (
+            <Button
+              asChild
+              variant="link"
+              className="p-0 flex items-center gap-2 h-auto! text-[#3C574F] font-medium"
+            >
+              <Link href={href}>
+                View details <ArrowRight size={16} />
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              variant="link"
+              disabled
+              className="p-0 flex items-center gap-2 h-auto! text-[#3C574F] font-medium"
+            >
+              View details <ArrowRight size={16} />
+            </Button>
+          )}
         </div>
       </div>
     </Card>

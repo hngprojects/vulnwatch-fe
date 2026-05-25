@@ -30,14 +30,14 @@ const HowItWorks = () => {
       <div className="bg-brand-mint md:py-14">
         <div className="mx-auto max-w-[1440px] px-5 md:px-20">
           <div className="mx-auto max-w-2xl px-8 py-10 text-center md:border-0 md:bg-transparent md:px-0 md:py-0">
-            <span className="mb-6 inline-block rounded-lg border border-brand-border-gray bg-brand-bg-light px-5 py-2 text-sm font-bold text-header">
+            <span className="mb-6 inline-block rounded-lg border border-brand-border-gray bg-brand-bg-light px-5 py-2 text-sm text-header">
               How It Works
             </span>
-            <h2 className="font-geist font-semibold text-brand-dark text-center mt-4 max-w-154.25 text-3xl sm:text-4xl md:text-5xl">
+            <h2 className="font-geist font-semibold text-brand-dark text-center mt-4 text-3xl sm:text-4xl md:text-5xl">
               Three (3) steps
               <br className="hidden md:block" /> from Curious to Confident
             </h2>
-            <p className="font-geist font-normal text-brand-gray text-center mt-4 max-w-138.75 text-lg md:text-xl">
+            <p className="font-geist font-normal text-brand-gray text-center mt-4 text-lg md:text-xl">
               No installs, no agents, no access to your hosting account.
               <br className="hidden md:block" /> Just a domain and a minute of your time.
             </p>
@@ -46,7 +46,7 @@ const HowItWorks = () => {
       </div>
 
       <div className="pb-0 bg-brand-mint">
-        <div className="mx-auto max-w-290 px-5 md:px-0">
+        <div className="mx-auto w-full max-w-[1200px] px-5 md:px-0">
           <div className="flex flex-col gap-y-6 md:gap-y-0">
             {steps.map((step, index) => {
               const isEven = index % 2 === 0;

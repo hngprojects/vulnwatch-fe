@@ -284,6 +284,7 @@ function ScanReportContent() {
             report.subScores.exposure.detail ||
             "Exposed assets and public endpoints check."
           }
+          href={scanId ? `/scan/report/findings/exposure?scanId=${encodeURIComponent(scanId)}` : undefined}
         />
         <ScanReportScoreStatCard
           score={report.subScores.ssl.score}
@@ -293,6 +294,7 @@ function ScanReportContent() {
             report.subScores.ssl.detail ||
             "TLS/SSL configuration and cipher suite safety."
           }
+          href={scanId ? `/scan/report/findings/ssl?scanId=${encodeURIComponent(scanId)}` : undefined}
         />
         <ScanReportScoreStatCard
           score={report.subScores.dns.score}
@@ -302,6 +304,7 @@ function ScanReportContent() {
             report.subScores.dns.detail ||
             "MX, SPF, DMARC, and DNS record delegation."
           }
+          href={scanId ? `/scan/report/findings/dns?scanId=${encodeURIComponent(scanId)}` : undefined}
         />
       </div>
     </div>
