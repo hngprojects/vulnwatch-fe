@@ -309,6 +309,15 @@ export interface ScanHistoryResponse {
   totalPages: number;
 }
 
+export interface ScanHistoryParams {
+  status?: "Queued" | "Running" | "Completed" | "Failed";
+  coverage?: "Quick" | "Full";
+  sort_by?: string;
+  order?: string;
+  page?: number;
+  page_size?: number;
+}
+
 export const scanService = {
   async createScan(
     payload: CreateScanPayload,
@@ -403,9 +412,10 @@ export const scanService = {
     return request;
   },
 
-  async getScanHistory(domainId: string): Promise<ApiResponse<ScanHistoryResponse>> {
+  async getScanHistory(domainId: string, params?: ScanHistoryParams): Promise<ApiResponse<ScanHistoryResponse>> {
     const response = await privateApi.get<ApiResponse<ScanHistoryResponse>>(
-      `/api/Scans/${domainId}/history`
+      `/api/Scans/${domainId}/history`,
+      { params }
     );
     return response.data;
   },
