@@ -1,3 +1,5 @@
+"use client"
+
 import { privateApi } from "@/lib/axios";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
