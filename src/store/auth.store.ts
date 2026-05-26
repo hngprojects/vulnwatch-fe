@@ -8,6 +8,8 @@ type AuthState = {
   logout: () => void;
 };
 
+type AuthListener = () => void;
+
 declare global {
   interface Window {
     __AUTH_STATE?: AuthState;
@@ -17,6 +19,11 @@ declare global {
 const isBrowser = typeof window !== "undefined";
 const COOKIE_NAME = "auth_token";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const authListeners = new Set<AuthListener>();
+
+const notifyAuthListeners = () => {
+  authListeners.forEach((listener) => listener());
+};
 
 const setAuthCookie = (token: string) => {
   if (!isBrowser) return;
@@ -67,6 +74,7 @@ const getInitialState = (): AuthState => {
         window.__AUTH_STATE.email = safeEmail;
         window.__AUTH_STATE.picture = safePicture;
       }
+      notifyAuthListeners();
     },
     logout: () => {
       clearScanReportCache();
@@ -79,6 +87,7 @@ const getInitialState = (): AuthState => {
         window.__AUTH_STATE.email = null;
         window.__AUTH_STATE.picture = null;
       }
+      notifyAuthListeners();
     },
   };
 };
@@ -92,5 +101,11 @@ export const useAuthStore = {
   getState: (): AuthState => {
     if (!isBrowser) return getInitialState();
     return window.__AUTH_STATE || getInitialState();
+  },
+  subscribe: (listener: AuthListener) => {
+    authListeners.add(listener);
+    return () => {
+      authListeners.delete(listener);
+    };
   },
 };
