@@ -70,13 +70,10 @@ const SecurityPrivacySettings = () => {
   const authEmail = useAuthStore.getState().email ?? "";
   const [email, setEmail] = useState(authEmail);
   const [hasGoogleLinked, setHasGoogleLinked] = useState(false);
-  const [browserLabel, setBrowserLabel] = useState("Current browser");
-  const [isChrome, setIsChrome] = useState(false);
+  const browserLabel = useMemo(() => getBrowserLabel(), []);
+  const isChrome = useMemo(() => isChromeBrowser(), []);
 
   useEffect(() => {
-    setBrowserLabel(getBrowserLabel());
-    setIsChrome(isChromeBrowser());
-
     profileService
       .getProfile()
       .then((profile) => {
