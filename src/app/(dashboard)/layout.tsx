@@ -1,11 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/features/dashboard/components/Sidebar";
 import { DashboardHeader } from "@/features/dashboard/components/Header";
 import { useAuthStore } from "@/store/auth.store";
 import { domainService } from "@/features/domain/services/domain.service";
+
+function subscribeAuthStore(listener: () => void) {
+  return useAuthStore.subscribe(listener);
+}
+
+function getAuthSnapshot() {
+  return useAuthStore.getState().token;
+}
+
+function getServerAuthSnapshot() {
+  return null;
+}
 
 export default function DashboardLayout({
   children,
@@ -13,7 +25,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { token } = useAuthStore.getState();
+  const token = useSyncExternalStore(
+    subscribeAuthStore,
+    getAuthSnapshot,
+    getServerAuthSnapshot,
+  );
 
   useEffect(() => {
     if (!token) {
@@ -63,7 +79,7 @@ export default function DashboardLayout({
     return () => {
       mounted = false;
     };
-  }, [token, router]);
+  }, [router, token]);
 
   if (!token) return null;
 
