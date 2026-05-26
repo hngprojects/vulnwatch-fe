@@ -7,8 +7,8 @@ import { DashboardHeader } from "@/features/dashboard/components/Header";
 import { useAuthStore } from "@/store/auth.store";
 import { domainService } from "@/features/domain/services/domain.service";
 
-function subscribeAuthStore() {
-  return () => {};
+function subscribeAuthStore(listener: () => void) {
+  return useAuthStore.subscribe(listener);
 }
 
 function getAuthSnapshot() {

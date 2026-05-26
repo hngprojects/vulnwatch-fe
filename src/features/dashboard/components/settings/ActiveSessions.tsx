@@ -37,39 +37,6 @@ const sessions: ActiveSession[] = [
   },
 ];
 
-const mobileSessions: ActiveSession[] = [
-  {
-    id: "mobile-1",
-    deviceName: "Windows Laptop, HP Spectre x360",
-    browser: "Chrome",
-    browserIcon: "/images/google.jpg",
-    lastActive: "Yesterday, 1:20PM",
-    ipAddress: "10.10.xxx.xxx",
-    location: "Victoria Island, Lagos, Nigeria",
-    isCurrent: true,
-  },
-  {
-    id: "mobile-2",
-    deviceName: "Techno Spark 10",
-    browser: "Firefox",
-    browserIcon: "/images/google.jpg",
-    lastActive: "Yesterday, 1:20PM",
-    ipAddress: "10.10.xxx.xxx",
-    location: "Victoria Island, Lagos, Nigeria",
-    isCurrent: false,
-  },
-  {
-    id: "mobile-3",
-    deviceName: "Samsung Galaxy S21",
-    browser: "Firefox",
-    browserIcon: "/images/google.jpg",
-    lastActive: "Today, 8:45AM",
-    ipAddress: "172.16.xxx.xxx",
-    location: "Central, London, UK",
-    isCurrent: false,
-  },
-];
-
 function BrowserBadge({
   icon,
   browser,
@@ -231,7 +198,7 @@ const ActiveSessions = () => {
           </div>
 
           <div className="space-y-8 md:hidden">
-            {mobileSessions.map((session) => (
+            {sessions.map((session) => (
               <MobileSessionCard key={session.id} session={session} />
             ))}
           </div>

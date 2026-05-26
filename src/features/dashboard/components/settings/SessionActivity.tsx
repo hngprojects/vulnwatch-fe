@@ -196,9 +196,9 @@ function ActivityTable() {
 
 function ActivityCards() {
   return (
-    <section className="space-y-10 md:hidden">
-      {checks.slice(0, 4).map((check) => (
-        <article key={check.id} className="px-1 text-[#2B2B2B]">
+    <section className="space-y-10 bg-white px-4 py-5 sm:px-6 md:hidden">
+      {checks.map((check) => (
+        <article key={check.id} className="text-[#2B2B2B]">
           <p className="text-base font-medium">{check.title}</p>
           <p className="mt-7 text-sm">{check.date}</p>
           <div className="mt-5">
