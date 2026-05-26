@@ -312,8 +312,8 @@ export interface ScanHistoryResponse {
 export interface ScanHistoryParams {
   status?: "Queued" | "Running" | "Completed" | "Failed";
   coverage?: "Quick" | "Full";
-  sort_by?: string;
-  order?: string;
+  sort_by?: "createdAt" | "startedAt" | "finishedAt" | "coverage" | "status";
+  order?: "asc" | "desc";
   page?: number;
   page_size?: number;
 }

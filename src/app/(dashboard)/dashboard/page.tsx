@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { ScanLine, Loader2 } from 'lucide-react';
 import { EmptyDashboard } from '@/features/dashboard/components/EmptyDashboard';
 import { DomainEmptyState } from '@/features/dashboard/components/DomainEmptyState';
@@ -36,9 +36,12 @@ type DashboardState =
 
 export default function DashboardPage() {
   const [state, setState] = useState<DashboardState>({ phase: 'loading' });
+  const latestFetchTokenRef = useRef<number>(0);
 
   // Fetch scan history for a given domain and update state accordingly
   const fetchScansForDomain = useCallback(async (domain: Domain, allDomains: Domain[], page: number = 1) => {
+    const fetchToken = ++latestFetchTokenRef.current;
+    
     setState({ phase: 'loading' });
     try {
       const historyRes = await scanService.getScanHistory(domain.id, { 
@@ -47,6 +50,9 @@ export default function DashboardPage() {
         sort_by: "createdAt",
         order: "desc"
       });
+      
+      if (fetchToken !== latestFetchTokenRef.current) return;
+
       if (historyRes.isSuccess && historyRes.value && historyRes.value.totalCount > 0) {
         setState({
           phase: 'has-scans',
@@ -66,6 +72,7 @@ export default function DashboardPage() {
         });
       }
     } catch {
+      if (fetchToken !== latestFetchTokenRef.current) return;
       // On error, treat as no scans — user can retry or run a scan
       setState({
         phase: 'no-scans',
