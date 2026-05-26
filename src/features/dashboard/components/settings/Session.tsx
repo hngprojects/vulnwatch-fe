@@ -131,19 +131,19 @@ const Session = () => {
 
         <div className="space-y-5">
           <Field label="Name">
-            <input className={inputClass} defaultValue="Aisha Agboola" />
+            <input className={inputClass} placeholder="Full name" />
           </Field>
           <Field label="Email Address">
             <input
               className={inputClass}
               type="email"
-              defaultValue="mycompany31@gmail.com"
+              placeholder="Email address"
             />
           </Field>
           <Field label="Organization">
             <input
               className={inputClass}
-              defaultValue="Aishathenewbie Enterprises"
+              placeholder="Organization name"
             />
           </Field>
         </div>
