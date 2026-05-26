@@ -32,22 +32,31 @@ type DashboardState =
   | { phase: 'loading' }
   | { phase: 'no-domains' }
   | { phase: 'no-scans'; domains: Domain[]; selectedDomain: Domain }
-  | { phase: 'has-scans'; domains: Domain[]; selectedDomain: Domain; scans: ScanHistoryItem[] };
+  | { phase: 'has-scans'; domains: Domain[]; selectedDomain: Domain; scans: ScanHistoryItem[]; pagination: { currentPage: number; totalPages: number } };
 
 export default function DashboardPage() {
   const [state, setState] = useState<DashboardState>({ phase: 'loading' });
 
   // Fetch scan history for a given domain and update state accordingly
-  const fetchScansForDomain = useCallback(async (domain: Domain, allDomains: Domain[]) => {
+  const fetchScansForDomain = useCallback(async (domain: Domain, allDomains: Domain[], page: number = 1) => {
     setState({ phase: 'loading' });
     try {
-      const historyRes = await scanService.getScanHistory(domain.id, { page_size: 10 });
+      const historyRes = await scanService.getScanHistory(domain.id, { 
+        page_size: 10,
+        page,
+        sort_by: "createdAt",
+        order: "desc"
+      });
       if (historyRes.isSuccess && historyRes.value && historyRes.value.totalCount > 0) {
         setState({
           phase: 'has-scans',
           domains: allDomains,
           selectedDomain: domain,
           scans: historyRes.value.data,
+          pagination: {
+            currentPage: historyRes.value.page,
+            totalPages: historyRes.value.totalPages,
+          }
         });
       } else {
         setState({
@@ -84,7 +93,7 @@ export default function DashboardPage() {
         const storedId = getStoredDomainId();
         const selectedDomain = domains.find((d) => d.id === storedId) ?? domains[0];
 
-        await fetchScansForDomain(selectedDomain, domains);
+        await fetchScansForDomain(selectedDomain, domains, 1);
       } catch {
         if (!mounted) return;
         setState({ phase: 'no-domains' });
@@ -103,7 +112,16 @@ export default function DashboardPage() {
     (domain: Domain) => {
       storeSelectedDomainId(domain.id);
       if (state.phase === 'has-scans' || state.phase === 'no-scans') {
-        fetchScansForDomain(domain, state.domains);
+        fetchScansForDomain(domain, state.domains, 1);
+      }
+    },
+    [state, fetchScansForDomain],
+  );
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (state.phase === 'has-scans') {
+        fetchScansForDomain(state.selectedDomain, state.domains, page);
       }
     },
     [state, fetchScansForDomain],
@@ -211,7 +229,12 @@ export default function DashboardPage() {
       <AISecurityAssistant actions={mockDashboardData.aiActions} />
 
       {/* Row 3: Recent Scans — real data */}
-      <RecentScans scans={state.scans} domainName={state.selectedDomain.domain} />
+      <RecentScans 
+        scans={state.scans} 
+        domainName={state.selectedDomain.domain} 
+        pagination={state.pagination}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 }

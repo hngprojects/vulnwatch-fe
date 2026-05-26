@@ -42,7 +42,9 @@ export function DomainSelector({ domains, selected, onChange }: DomainSelectorPr
             onClick={() => setOpen(false)}
           />
           <div className="absolute left-0 top-full mt-1 w-full bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-20 py-1">
-            {domains.map((domain) => (
+            {domains
+              .filter((domain) => domain.status === "Verified")
+              .map((domain) => (
               <button
                 key={domain.id}
                 type="button"

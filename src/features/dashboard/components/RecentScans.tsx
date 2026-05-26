@@ -45,9 +45,14 @@ function formatTime(iso: string) {
 interface RecentScansProps {
   scans: ScanHistoryItem[];
   domainName?: string;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+  };
+  onPageChange?: (page: number) => void;
 }
 
-export function RecentScans({ scans, domainName }: RecentScansProps) {
+export function RecentScans({ scans, domainName, pagination, onPageChange }: RecentScansProps) {
   return (
     <div className="flex flex-col gap-3">
       {/* Header — plain text above the table, no background */}
@@ -204,6 +209,31 @@ export function RecentScans({ scans, domainName }: RecentScansProps) {
         </div>
       </div>
       </div>
+
+      {/* Pagination Controls */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between p-4 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={() => onPageChange?.(pagination.currentPage - 1)}
+            disabled={pagination.currentPage <= 1}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Previous
+          </button>
+          <span className="text-sm font-medium text-gray-700">
+            Page {pagination.currentPage} of {pagination.totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => onPageChange?.(pagination.currentPage + 1)}
+            disabled={pagination.currentPage >= pagination.totalPages}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
