@@ -32,6 +32,15 @@ function ChatBubble({ msg }: { msg: Message }) {
         onClick={() => {
           if (isLong && !isExpanded) setIsExpanded(true);
         }}
+        onKeyDown={(e) => {
+          if (isLong && !isExpanded && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            setIsExpanded(true);
+          }
+        }}
+        tabIndex={isLong && !isExpanded ? 0 : undefined}
+        role={isLong && !isExpanded ? "button" : undefined}
+        aria-expanded={isLong ? isExpanded : undefined}
       >
         {msg.text}
         

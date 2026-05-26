@@ -30,6 +30,7 @@ export function ChatInputRow({
           onChange={onChange}
           onKeyDown={onKeyDown}
           placeholder="Ask about your security..."
+          aria-label="Chat message input"
           disabled={disabled}
           style={{
             height: "auto",

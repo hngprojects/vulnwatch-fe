@@ -90,8 +90,17 @@ export default function DashboardPage() {
         }
 
         const domains = domainsResult.data;
+        const verifiedDomains = domains.filter((d) => d.status === "Verified");
+        
+        if (verifiedDomains.length === 0) {
+          // If there are domains but none are verified, treat as onboarding for now
+          // (or handle explicitly if desired)
+          setState({ phase: 'no-domains' });
+          return;
+        }
+
         const storedId = getStoredDomainId();
-        const selectedDomain = domains.find((d) => d.id === storedId) ?? domains[0];
+        const selectedDomain = verifiedDomains.find((d) => d.id === storedId) ?? verifiedDomains[0];
 
         await fetchScansForDomain(selectedDomain, domains, 1);
       } catch {
