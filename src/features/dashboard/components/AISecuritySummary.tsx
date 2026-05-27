@@ -9,6 +9,8 @@ import {
   type FindingDto,
   type ScanReport,
 } from "@/features/scans/services/scan.service";
+import { AskAiButton } from "@/features/ai-chat/components/AskAiButton";
+import { AIChatbot } from "@/features/ai-chat/components/AIChatbot";
 
 interface AISecuritySummaryProps {
   scanId: string;
@@ -229,6 +231,7 @@ export function AISecuritySummary({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFallbackSummary, setShowFallbackSummary] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const isReportPendingMessage = (message: string) =>
     /scan is not complete|current status:\s*(queued|running)/i.test(message);
@@ -638,6 +641,18 @@ export function AISecuritySummary({
         </div>
       </div>
       </>
+      )}
+
+      {/* Floating Ask AI button */}
+      {!isChatOpen && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <AskAiButton onClick={() => setIsChatOpen(true)} />
+        </div>
+      )}
+
+      {/* AI Chatbot overlay */}
+      {isChatOpen && (
+        <AIChatbot onClose={() => setIsChatOpen(false)} />
       )}
     </div>
   );

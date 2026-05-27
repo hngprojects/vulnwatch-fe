@@ -36,13 +36,14 @@ type DashboardState =
 
 export default function DashboardPage() {
   const [state, setState] = useState<DashboardState>({ phase: 'loading' });
-  const latestFetchTokenRef = useRef<number>(0);
+  const latestFetchIdRef = useRef(0);
 
   // Fetch scan history for a given domain and update state accordingly
   const fetchScansForDomain = useCallback(async (domain: Domain, allDomains: Domain[], page: number = 1) => {
-    const fetchToken = ++latestFetchTokenRef.current;
     
     setState({ phase: 'loading' });
+    const currentFetchId = ++latestFetchIdRef.current;
+    
     try {
       const historyRes = await scanService.getScanHistory(domain.id, { 
         page_size: 10,
@@ -50,9 +51,7 @@ export default function DashboardPage() {
         sort_by: "createdAt",
         order: "desc"
       });
-      
-      if (fetchToken !== latestFetchTokenRef.current) return;
-
+      if (currentFetchId !== latestFetchIdRef.current) return;
       if (historyRes.isSuccess && historyRes.value && historyRes.value.totalCount > 0) {
         setState({
           phase: 'has-scans',
@@ -72,7 +71,7 @@ export default function DashboardPage() {
         });
       }
     } catch {
-      if (fetchToken !== latestFetchTokenRef.current) return;
+      if (currentFetchId !== latestFetchIdRef.current) return;
       // On error, treat as no scans — user can retry or run a scan
       setState({
         phase: 'no-scans',
@@ -97,8 +96,17 @@ export default function DashboardPage() {
         }
 
         const domains = domainsResult.data;
+        const verifiedDomains = domains.filter((d) => d.status === "Verified");
+        
+        if (verifiedDomains.length === 0) {
+          // If there are domains but none are verified, treat as onboarding for now
+          // (or handle explicitly if desired)
+          setState({ phase: 'no-domains' });
+          return;
+        }
+
         const storedId = getStoredDomainId();
-        const selectedDomain = domains.find((d) => d.id === storedId) ?? domains[0];
+        const selectedDomain = verifiedDomains.find((d) => d.id === storedId) ?? verifiedDomains[0];
 
         await fetchScansForDomain(selectedDomain, domains, 1);
       } catch {
