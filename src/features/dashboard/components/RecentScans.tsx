@@ -14,7 +14,8 @@ const RISK_DOTS: Record<RiskLevel, string> = {
 
 function getRiskDotClass(riskLevel: string | null): string {
   if (!riskLevel) return RISK_DOTS.Low;
-  const key = riskLevel as RiskLevel;
+  const normalized = riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1).toLowerCase();
+  const key = normalized as RiskLevel;
   return RISK_DOTS[key] ?? RISK_DOTS.Low;
 }
 

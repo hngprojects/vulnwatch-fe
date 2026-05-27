@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { ChatHeader } from "./ChatHeader";
 import { ChatEmptyState } from "./ChatEmptyState";
@@ -20,20 +20,21 @@ export function AIChatbot({ onClose }: AIChatbotProps) {
   const [isTyping, setIsTyping] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const email = useAuthStore.getState().email;
+  const email = useSyncExternalStore(useAuthStore.subscribe, () => useAuthStore.getState().email, () => null);
   const firstName = getFirstName(email);
   const hasMessages = messages.length > 0;
 
   // Focus on open
   useEffect(() => {
-    setTimeout(() => textareaRef.current?.focus(), 100);
+    const timer = setTimeout(() => textareaRef.current?.focus(), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   const sendMessage = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || isTyping) return;
 
-    setMessages((prev) => [...prev, { id: `u-${Date.now()}`, role: "user", text: trimmed }]);
+    setMessages((prev) => [...prev, { id: `u-${crypto.randomUUID()}`, role: "user", text: trimmed }]);
     setInputValue("");
     resetTextarea();
     setIsTyping(true);
@@ -41,7 +42,7 @@ export function AIChatbot({ onClose }: AIChatbotProps) {
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
-        { id: `a-${Date.now()}`, role: "ai", text: getMockAiResponse(trimmed) },
+        { id: `a-${crypto.randomUUID()}`, role: "ai", text: getMockAiResponse(trimmed) },
       ]);
       setIsTyping(false);
     }, 900);
