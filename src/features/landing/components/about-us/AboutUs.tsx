@@ -31,7 +31,7 @@ const AboutUs = () => {
         }}
       >
         <div className="mx-auto max-w-360">
-          <h1 className="font-geist text-header/90 text-4xl leading-tight font-bold tracking-[-0.125rem] md:text-[64px] md:leading-18">
+          <h1 tabIndex={0} className="font-geist text-header/90 text-4xl leading-tight font-bold tracking-[-0.125rem] md:text-[64px] md:leading-18 outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
             About us
           </h1>
           <p className="font-inter text-body mx-auto mt-6 max-w-195 text-base leading-7 font-normal tracking-[-0.0625rem] md:text-xl md:leading-8">
@@ -66,7 +66,7 @@ const AboutUs = () => {
                   />
                 </div>
                 <div className="max-w-full md:max-w-157.5">
-                  <h2 className="font-geist text-header/90 text-3xl leading-tight font-semibold tracking-[0.01em] md:text-[40px] md:leading-17.5">
+                  <h2 tabIndex={0} className="font-geist text-header/90 text-3xl leading-tight font-semibold tracking-[0.01em] md:text-[40px] md:leading-17.5 outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
                     {section.heading}
                   </h2>
                   <p className="text-body mt-4 text-base leading-relaxed font-normal">
