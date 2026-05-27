@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { ScanLine, Loader2 } from 'lucide-react';
 import { DomainSelector } from '@/features/dashboard/components/DomainSelector';
 import { DomainEmptyState } from '@/features/dashboard/components/DomainEmptyState';
@@ -32,10 +33,12 @@ type PageState =
   | { phase: 'has-scans'; domains: Domain[]; selectedDomain: Domain; scans: ScanHistoryItem[]; pagination: { currentPage: number; totalPages: number } };
 
 export default function ScanDashboardPage() {
+  const router = useRouter();
   const [state, setState] = useState<PageState>({ phase: 'loading' });
   const latestFetchIdRef = useRef(0);
 
   const fetchScansForDomain = useCallback(async (domain: Domain, allDomains: Domain[], page: number = 1) => {
+    
     setState({ phase: 'loading' });
     const currentFetchId = ++latestFetchIdRef.current;
     
@@ -68,7 +71,6 @@ export default function ScanDashboardPage() {
       }
     } catch {
       if (currentFetchId !== latestFetchIdRef.current) return;
-
       setState({
         phase: 'no-scans',
         domains: allDomains,
@@ -87,9 +89,7 @@ export default function ScanDashboardPage() {
 
         if (!domainsResult.data || domainsResult.data.length === 0) {
           // If no domains, redirect to main dashboard which handles the onboarding state
-          if (typeof window !== 'undefined') {
-            window.location.href = '/dashboard';
-          }
+          router.replace('/dashboard');
           return;
         }
 
@@ -109,9 +109,7 @@ export default function ScanDashboardPage() {
         await fetchScansForDomain(selectedDomain, domains, 1);
       } catch {
         if (!mounted) return;
-        if (typeof window !== 'undefined') {
-          window.location.href = '/dashboard';
-        }
+        router.replace('/dashboard');
       }
     };
 
@@ -120,7 +118,7 @@ export default function ScanDashboardPage() {
     return () => {
       mounted = false;
     };
-  }, [fetchScansForDomain]);
+  }, [fetchScansForDomain, router]);
 
   const handleDomainChange = useCallback(
     (domain: Domain) => {

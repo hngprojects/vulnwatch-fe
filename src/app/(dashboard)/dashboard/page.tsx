@@ -40,6 +40,7 @@ export default function DashboardPage() {
 
   // Fetch scan history for a given domain and update state accordingly
   const fetchScansForDomain = useCallback(async (domain: Domain, allDomains: Domain[], page: number = 1) => {
+    
     setState({ phase: 'loading' });
     const currentFetchId = ++latestFetchIdRef.current;
     
@@ -51,7 +52,6 @@ export default function DashboardPage() {
         order: "desc"
       });
       if (currentFetchId !== latestFetchIdRef.current) return;
-      
       if (historyRes.isSuccess && historyRes.value && historyRes.value.totalCount > 0) {
         setState({
           phase: 'has-scans',
@@ -72,7 +72,6 @@ export default function DashboardPage() {
       }
     } catch {
       if (currentFetchId !== latestFetchIdRef.current) return;
-      
       // On error, treat as no scans — user can retry or run a scan
       setState({
         phase: 'no-scans',
