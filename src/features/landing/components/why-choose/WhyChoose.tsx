@@ -30,7 +30,7 @@ const WhyChoose: React.FC = () => {
   ];
 
   return (
-    <section className="w-full py-16 md:py-20 lg:py-24">
+    <section className="relative z-[2] bg-white w-full py-16 md:py-20 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col items-center justify-center text-center md:mb-10">
           <span className="mb-6 w-fit rounded-xl border border-[#E0E0E0] bg-[#FAFAFA] px-4 py-2 text-[0.9rem] font-geist font-medium tracking-wide text-[#2B2B2B] sm:text-[1.1rem]">
