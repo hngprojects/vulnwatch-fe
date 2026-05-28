@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+
 import {
   Globe,
   Search,
@@ -11,6 +12,12 @@ import {
 } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import DomainEmptyState from "./DomainEmptyState";
 import DomainDetailsModal from "./DomainDetailsModal";
 import DeleteDomainModal from "./DeleteDomainModal";
@@ -81,6 +88,7 @@ type AllDropdowns = {
 };
 
 export default function DomainTable({ domains, loading = false, error = null, onAddDomain, onRetry }: Props) {
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<DomainStatus | "ALL">("ALL");
   const [methodFilter, setMethodFilter] = useState<MethodFilter>("ALL");
@@ -90,12 +98,14 @@ export default function DomainTable({ domains, loading = false, error = null, on
   const [methodMobileOpen, setMethodMobileOpen] = useState(false);
   const [filterDropOpen, setFilterDropOpen] = useState(false);
   const [sortDropOpen, setSortDropOpen] = useState(false);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [detailsDomain, setDetailsDomain] = useState<Domain | null>(null);
   const [deleteDomain, setDeleteDomain] = useState<Domain | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const menuRef = useRef<HTMLDivElement>(null);
+  const handleViewDetails = (domain: Domain) => {
+    setDetailsDomain(domain);
+  };
+
   const statusDropRef = useRef<HTMLDivElement>(null);
   const methodMobileRef = useRef<HTMLDivElement>(null);
   const filterDropRef = useRef<HTMLDivElement>(null);
@@ -108,16 +118,6 @@ export default function DomainTable({ domains, loading = false, error = null, on
     setFilterDropOpen(which === "filter");
     setSortDropOpen(which === "sort");
   };
-
-  // Click-outside: row action menu
-  useEffect(() => {
-    if (!openMenuId) return;
-    const handle = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpenMenuId(null);
-    };
-    document.addEventListener("mousedown", handle);
-    return () => document.removeEventListener("mousedown", handle);
-  }, [openMenuId]);
 
   // Click-outside: All Status dropdown
   useEffect(() => {
@@ -394,7 +394,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
                   {formatDate(domain.createdAt)}
                 </p>
                 <button
-                  onClick={() => setDetailsDomain(domain)}
+                  onClick={() => handleViewDetails(domain)}
                   className="text-[14px] font-bold text-brand-dark font-geist hover:underline cursor-pointer bg-transparent border-0 p-0"
                 >
                   View Details
@@ -480,7 +480,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
                   </td>
                 </tr>
               ) : (
-                filtered.map((domain, index) => (
+                filtered.map((domain) => (
                   <tr
                     key={domain.id}
                     className="border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
@@ -569,70 +569,66 @@ export default function DomainTable({ domains, loading = false, error = null, on
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setDetailsDomain(domain)}
+                          onClick={() => handleViewDetails(domain)}
                           className="text-xs h-8 px-3 rounded-lg border border-brand-border text-brand-dark font-medium bg-white hover:bg-gray-50"
                         >
                           View Details
                         </Button>
-                        <div className="relative" ref={openMenuId === domain.id ? menuRef : undefined}>
-                          <button
-                            onClick={() =>
-                              setOpenMenuId(openMenuId === domain.id ? null : domain.id)
-                            }
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-brand-dark bg-transparent hover:bg-gray-50/50 border-0"
-                          >
-                            <MoreVertical size={14} />
-                          </button>
-                          {openMenuId === domain.id && (
-                            <div className={`absolute right-0 z-50 w-32 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden ${index === filtered.length - 1 && filtered.length > 1 ? "bottom-9" : "top-9"}`}>
-                              {domain.status !== "Verified" && (
-                                <button
-                                  onClick={async () => {
-                                    setOpenMenuId(null);
-                                    const toastId = toast.loading("Checking DNS verification...", {
-                                      description: `Verifying ${domain.domain}`,
-                                    });
-                                    try {
-                                      const updatedDomain = await domainService.verifyDomain(domain.id);
-                                      if (updatedDomain.status === "Verified") {
-                                        toast.success("Domain verified successfully!", {
-                                          id: toastId,
-                                          description: `${domain.domain} is now verified.`,
-                                        });
-                                      } else {
-                                        toast.error("Verification failed. DNS records might still be propagating.", {
-                                          id: toastId,
-                                          description: `${domain.domain} remains pending.`,
-                                        });
-                                      }
-                                      if (onRetry) onRetry();
-                                    } catch (err: unknown) {
-                                      const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
-                                      const backendMessage = axiosError.response?.data?.error?.message;
-                                      const errMsg = backendMessage || (err instanceof Error ? err.message : "Verification failed. DNS records might still be propagating.");
-                                      toast.error(errMsg, {
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              aria-label="Row actions"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-brand-dark bg-transparent hover:bg-gray-50/50 border-0 outline-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
+                            >
+                              <MoreVertical size={14} />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-32 min-w-32 bg-white rounded-xl border border-gray-200 shadow-lg p-0 overflow-hidden">
+                            {domain.status !== "Verified" && (
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  const toastId = toast.loading("Checking DNS verification...", {
+                                    description: `Verifying ${domain.domain}`,
+                                  });
+                                  try {
+                                    const updatedDomain = await domainService.verifyDomain(domain.id);
+                                    if (updatedDomain.status === "Verified") {
+                                      toast.success("Domain verified successfully!", {
                                         id: toastId,
+                                        description: `${domain.domain} is now verified.`,
                                       });
-                                      if (onRetry) onRetry();
+                                    } else {
+                                      toast.error("Verification failed. DNS records might still be propagating.", {
+                                        id: toastId,
+                                        description: `${domain.domain} remains pending.`,
+                                      });
                                     }
-                                  }}
-                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                >
-                                  Re-verify
-                                </button>
-                              )}
-                              <button
-                                onClick={() => {
-                                  setOpenMenuId(null);
-                                  setDeleteDomain(domain);
+                                    if (onRetry) onRetry();
+                                  } catch (err: unknown) {
+                                    const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
+                                    const backendMessage = axiosError.response?.data?.error?.message;
+                                    const errMsg = backendMessage || (err instanceof Error ? err.message : "Verification failed. DNS records might still be propagating.");
+                                    toast.error(errMsg, {
+                                      id: toastId,
+                                    });
+                                    if (onRetry) onRetry();
+                                  }
                                 }}
-                                className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:bg-gray-50 focus:text-gray-700 rounded-none cursor-pointer"
                               >
-                                Remove
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                                Re-verify
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setDeleteDomain(domain);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 focus:bg-red-50 focus:text-red-500 rounded-none cursor-pointer"
+                            >
+                              Remove
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </td>
                   </tr>
