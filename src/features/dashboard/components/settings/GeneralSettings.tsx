@@ -113,13 +113,13 @@ const GeneralSettingsContent = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(
-    profile.notificationPreferences.emailAlerts,
+    profile.notificationPreferences?.emailAlerts ?? false
   );
   const [slackNotifications, setSlackNotifications] = useState(
-    profile.notificationPreferences.slackAlerts,
+    profile.notificationPreferences?.slackAlerts ?? false
   );
   const [pushNotifications, setPushNotifications] = useState(
-    profile.notificationPreferences.pushNotifications,
+    profile.notificationPreferences?.pushNotifications ?? false
   );
 
   const initialForm = {
