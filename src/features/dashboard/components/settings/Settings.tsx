@@ -39,9 +39,7 @@ const Settings = ({ initialTab = "general", securityDetail = false }: SettingsPr
 
   return (
     <div>
-      <p className="text-[#2B2B2B] text-4xl font-semibold">Settings</p>
-
-      <div className="mt-6 flex sm:gap-[30px]">
+      <div className="flex sm:gap-[30px]">
         {TABS.map((tab) => (
           <button
             key={tab.value}

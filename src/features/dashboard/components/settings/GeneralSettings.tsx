@@ -45,10 +45,18 @@ const GeneralSettings = () => {
     }
     setSaving(true);
     try {
-      await profileService.updateProfile({
+      const updatedProfile = await profileService.updateProfile({
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
       });
+      
+      const currentPicture = useAuthStore.getState().picture;
+      useAuthStore.getState().updateProfile(
+        updatedProfile.firstName,
+        updatedProfile.lastName,
+        updatedProfile.profilePictureUrl || currentPicture
+      );
+      
       toast.success("Profile updated successfully!");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update profile.");

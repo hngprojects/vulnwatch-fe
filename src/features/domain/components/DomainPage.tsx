@@ -57,13 +57,7 @@ export default function DomainPage() {
 
   return (
     <div className="px-4 md:px-6 py-6 space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-[#111827]">Domain</h1>
-          <p className="text-sm text-[#6B7280] mt-0.5">
-            Manage and verify your monitor domains
-          </p>
-        </div>
+      <div className="flex items-start justify-end">
         <Button
           onClick={() => setModalOpen(true)}
           className="bg-[#072E28] text-white hover:bg-[#072E28]/90 rounded-lg h-10 px-4"
