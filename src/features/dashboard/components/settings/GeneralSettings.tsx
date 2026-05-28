@@ -1,55 +1,176 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Loader2, AlertTriangle } from "lucide-react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { profileService } from "../../services/profile.service";
+import { Check } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
+import { useProfile } from "../../hooks/useProfile";
+import { profileService } from "../../services/profile.service";
+import DeleteAccountSection from "./DeleteAccountSection";
+import EditProfileModal from "./EditProfileModal";
+import PersonalInfoCard from "./PersonalInfoCard";
+import SettingsErrorState from "./SettingsErrorState";
+import SettingsSectionSkeleton from "./SettingsSectionSkeleton";
+import { type ProfileForm } from "./types";
+
+function Section({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
+      <h2 className="text-xl font-semibold text-[#2B2B2B]">{title}</h2>
+      <p className="text-[14px] leading-6 text-[#666666] sm:text-[16px]">{subtitle}</p>
+      <div className="mt-5">{children}</div>
+    </div>
+  );
+}
+
+function Toggle({
+  label,
+  checked,
+  onChange,
+  checkmark = false,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+  checkmark?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      className="flex h-10 w-full items-center justify-between gap-3 rounded-lg border border-[#CCCCCC] bg-white px-3 text-left text-sm text-[#2B2B2B] transition hover:border-primary"
+      aria-pressed={checked}
+    >
+      <span>{label}</span>
+      <span
+        className={`flex h-6 w-10 shrink-0 items-center rounded-full p-0.5 transition ${checked ? "bg-primary" : "bg-[#E5E7EB]"
+          }`}
+      >
+        {checkmark ? (
+          <span
+            className={`grid h-5 w-5 place-items-center rounded-md transition ${checked
+              ? "translate-x-4 bg-primary text-white"
+              : "translate-x-0 bg-white text-transparent"
+              }`}
+          >
+            <Check className="h-3.5 w-3.5" />
+          </span>
+        ) : (
+          <span
+            className={`h-5 w-5 rounded-full bg-white transition ${checked ? "translate-x-4" : "translate-x-0"
+              }`}
+          />
+        )}
+      </span>
+    </button>
+  );
+}
 
 const GeneralSettings = () => {
   const router = useRouter();
+  const { profile, loading, error, refetch, update } = useProfile();
 
-  const [loadingProfile, setLoadingProfile] = useState(true);
+  if (loading) return <SettingsSectionSkeleton label="Loading profile..." />;
+
+  if (error) {
+    return <SettingsErrorState message={error} onRetry={() => void refetch()} />;
+  }
+
+  if (!profile) {
+    return <SettingsErrorState message="Profile data is unavailable." onRetry={() => void refetch()} />;
+  }
+
+  return (
+    <GeneralSettingsContent
+      key={profile.updatedAt}
+      profile={profile}
+      router={router}
+      update={update}
+    />
+  );
+};
+
+const GeneralSettingsContent = ({
+  profile,
+  router,
+  update,
+}: {
+  profile: NonNullable<ReturnType<typeof useProfile>["profile"]>;
+  router: ReturnType<typeof useRouter>;
+  update: ReturnType<typeof useProfile>["update"];
+}) => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(
+    profile.notificationPreferences.emailAlerts,
+  );
+  const [slackNotifications, setSlackNotifications] = useState(
+    profile.notificationPreferences.slackAlerts,
+  );
+  const [pushNotifications, setPushNotifications] = useState(
+    profile.notificationPreferences.pushNotifications,
+  );
 
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-  });
+  const initialForm = {
+    firstName: profile.firstName ?? "",
+    lastName: profile.lastName ?? "",
+    email: profile.email ?? "",
+  };
 
-  useEffect(() => {
-    profileService
-      .getProfile()
-      .then((profile) => {
-        setForm({
-          firstName: profile.firstName ?? "",
-          lastName: profile.lastName ?? "",
-          email: profile.email ?? "",
-        });
-      })
-      .catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : "Failed to load profile.";
-        toast.error(msg);
-      })
-      .finally(() => setLoadingProfile(false));
-  }, []);
+  const [form, setForm] = useState<ProfileForm>(initialForm);
+
+  const isDirty = useMemo(() => {
+    return (
+      form.firstName !== initialForm.firstName ||
+      form.lastName !== initialForm.lastName ||
+      form.email !== initialForm.email
+    );
+  }, [form, initialForm.email, initialForm.firstName, initialForm.lastName]);
+
+  const handleOpenEditModal = () => {
+    setForm(initialForm);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCancelEdit = () => {
+    if (saving) return;
+
+    setForm(initialForm);
+    setIsEditModalOpen(false);
+  };
 
   const handleSave = async () => {
     if (!form.firstName.trim() || !form.lastName.trim()) {
       toast.error("First name and last name are required.");
       return;
     }
+
     setSaving(true);
+
     try {
-      await profileService.updateProfile({
+      const updated = await update({
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
       });
+
+      setForm({
+        firstName: updated.firstName ?? "",
+        lastName: updated.lastName ?? "",
+        email: updated.email ?? "",
+      });
       toast.success("Profile updated successfully!");
+      setIsEditModalOpen(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update profile.");
     } finally {
@@ -59,6 +180,7 @@ const GeneralSettings = () => {
 
   const handleDelete = async () => {
     setDeleting(true);
+
     try {
       await profileService.deleteProfile();
       toast.success("Account deleted.");
@@ -71,161 +193,50 @@ const GeneralSettings = () => {
     }
   };
 
-  if (loadingProfile) {
-    return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <Loader2 size={24} className="animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {/* Personal Information */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
-        <h2 className="text-xl font-semibold text-[#2B2B2B]">Personal Information</h2>
-        <p className="text-[16px] text-[#666666] mt-0.5">
-          Update your personal details visible across the workspace.
-        </p>
+      <PersonalInfoCard profile={initialForm} onEdit={handleOpenEditModal} />
 
-        {/* Avatar */}
-        <div className="flex items-center gap-4 mt-5">
-          <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#E5E7EB] flex items-center justify-center shrink-0 overflow-hidden">
-            {form.firstName || form.lastName ? (
-              <span className="text-2xl font-semibold text-[#6B7280]">
-                {form.firstName.charAt(0).toUpperCase()}
-                {form.lastName.charAt(0).toUpperCase()}
-              </span>
-            ) : (
-              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                <circle cx="40" cy="40" r="40" fill="#E5E7EB" />
-                <circle cx="40" cy="30" r="13" fill="#9CA3AF" />
-                <ellipse cx="40" cy="68" rx="22" ry="16" fill="#9CA3AF" />
-              </svg>
-            )}
-          </div>
-          <button
-            onClick={() => toast.info("Profile picture upload coming soon.")}
-            className="flex items-center gap-1.5 border border-[#E5E7EB] rounded-lg px-4 py-2 text-sm sm:text-[16px] font-semibold text-white transition-colors bg-primary cursor-pointer"
-          >
-            <Plus className="w-5 h-5 text-white" />
-            Edit profile
-          </button>
+      <Section
+        title="Preferences"
+        subtitle="Customize how VulnWatch works for you"
+      >
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <Toggle
+            label="Email Notifications"
+            checked={emailNotifications}
+            onChange={() => setEmailNotifications((value) => !value)}
+          />
+          <Toggle
+            label="Slack Notifications"
+            checked={slackNotifications}
+            onChange={() => setSlackNotifications((value) => !value)}
+          />
+          <Toggle
+            label="Push Notifications"
+            checked={pushNotifications}
+            onChange={() => setPushNotifications((value) => !value)}
+          />
         </div>
+      </Section>
 
-        {/* Fields */}
-        <div className="mt-5 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[16px] font-normal text-[#2B2B2B] mb-1.5">
-                First Name
-              </label>
-              <input
-                type="text"
-                value={form.firstName}
-                placeholder="First name"
-                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-            <div>
-              <label className="block text-[16px] font-normal text-[#2B2B2B] mb-1.5">
-                Last Name
-              </label>
-              <input
-                type="text"
-                value={form.lastName}
-                placeholder="Last name"
-                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-              />
-            </div>
-          </div>
+      <EditProfileModal
+        open={isEditModalOpen}
+        form={form}
+        saving={saving}
+        isDirty={isDirty}
+        onOpenChange={setIsEditModalOpen}
+        onFormChange={setForm}
+        onCancel={handleCancelEdit}
+        onSave={handleSave}
+      />
 
-          <div>
-            <label className="block text-[16px] font-normal text-[#2B2B2B] mb-1.5">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={form.email}
-              readOnly
-              className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm text-[#2B2B2B] bg-[#F9FAFB] outline-none cursor-not-allowed"
-            />
-          </div>
-
-
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={() =>
-              setForm((prev) => ({ ...prev, firstName: prev.firstName, lastName: prev.lastName }))
-            }
-            className="py-3 px-5 sm:px-10 text-sm sm:text-[16px] font-semibold text-[#666666] border border-[#EDEDED] rounded-lg transition-colors cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="py-3 px-5 sm:px-10 text-sm sm:text-[16px] font-semibold text-white bg-primary rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
-          >
-            {saving && <Loader2 size={15} className="animate-spin" />}
-            {saving ? "Saving..." : "Save changes"}
-          </button>
-        </div>
-      </div>
-
-
-
-      {/* Danger Zone */}
-      <div className="bg-white rounded-2xl border border-[#FECACA] p-6">
-        <div className="flex items-start gap-3">
-          <AlertTriangle size={20} className="text-[#EF4444] shrink-0 mt-0.5" />
-          <div>
-            <h2 className="text-xl font-semibold text-[#2B2B2B]">Delete Account</h2>
-            <p className="text-[16px] text-[#666666] mt-0.5">
-              Permanently delete your account and all associated data. This action cannot be undone.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-5">
-          {!showDeleteConfirm ? (
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="py-2.5 px-6 text-sm font-semibold text-[#EF4444] border border-[#FECACA] rounded-lg hover:bg-[#FEF2F2] transition-colors cursor-pointer"
-            >
-              Delete my account
-            </button>
-          ) : (
-            <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-lg p-4 space-y-3">
-              <p className="text-sm font-medium text-[#EF4444]">
-                Are you sure? This will permanently delete your account and cannot be reversed.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="py-2.5 px-6 text-sm font-semibold text-white bg-[#EF4444] rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
-                >
-                  {deleting && <Loader2 size={14} className="animate-spin" />}
-                  {deleting ? "Deleting..." : "Yes, delete account"}
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={deleting}
-                  className="py-2.5 px-6 text-sm font-semibold text-[#666666] border border-[#EDEDED] rounded-lg transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      <DeleteAccountSection
+        deleting={deleting}
+        showDeleteConfirm={showDeleteConfirm}
+        onShowDeleteConfirm={setShowDeleteConfirm}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };
