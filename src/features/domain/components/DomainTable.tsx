@@ -577,7 +577,8 @@ export default function DomainTable({ domains, loading = false, error = null, on
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
-                              className="w-8 h-8 rounded-lg flex items-center justify-center text-brand-dark bg-transparent hover:bg-gray-50/50 border-0 outline-hidden cursor-pointer"
+                              aria-label="Row actions"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-brand-dark bg-transparent hover:bg-gray-50/50 border-0 outline-hidden cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
                             >
                               <MoreVertical size={14} />
                             </button>

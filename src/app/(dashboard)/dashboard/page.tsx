@@ -37,6 +37,8 @@ export default function DashboardController() {
   const {
     data: allDomainsRes,
     isLoading: isDomainsLoading,
+    isError,
+    error,
   } = useQuery({
     queryKey: ['domains'],
     queryFn: () => domainService.getDomains(),
@@ -78,6 +80,16 @@ export default function DashboardController() {
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#072E28]" />
         <p className="text-sm text-[#6B7280] font-medium">Loading your dashboard...</p>
+      </div>
+    );
+  }
+
+  // State 0: Error fetching domains
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] gap-3 text-center px-4">
+        <p className="text-sm text-red-500 font-medium">Failed to load domains.</p>
+        <p className="text-xs text-[#6B7280]">{error instanceof Error ? error.message : 'Please try again later.'}</p>
       </div>
     );
   }

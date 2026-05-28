@@ -10,7 +10,7 @@ import { DashboardStatCards } from '@/features/dashboard/components/monitoring/D
 import { SecurityScoreTrend } from '@/features/dashboard/components/monitoring/SecurityScoreTrend';
 import { RiskSeverityBreakdown } from '@/features/dashboard/components/monitoring/RiskSeverityBreakdown';
 import { SslCertificatesList, SslCertItem } from '@/features/dashboard/components/monitoring/SslCertificatesList';
-import { DashboardRecentAlerts, DashboardAlertItem } from '@/features/dashboard/components/monitoring/DashboardRecentAlerts';
+import { DashboardRecentAlerts, DashboardAlertItem, isValidAlertType } from '@/features/dashboard/components/monitoring/DashboardRecentAlerts';
 import { MonitoredDomains, MonitoredDomainCard } from '@/features/dashboard/components/monitoring/MonitoredDomains';
 import { RecentActivity } from '@/features/dashboard/components/monitoring/RecentActivity';
 
@@ -73,11 +73,12 @@ function apiAlertToItem(alert: DashboardAlert): DashboardAlertItem {
     SslExpiry: 'SSL',
     SecurityFinding: 'Security',
     DnsChange: 'DNS',
-    VerificationFailed: 'Verification',
+    VerificationFailed: 'Security',
   };
+  const mappedType = typeMap[alert.type] ?? alert.type;
   return {
     id: alert.alertId,
-    type: typeMap[alert.type] ?? alert.type,
+    type: isValidAlertType(mappedType) ? mappedType : 'Security',
     timeAgo: formatTimeAgo(alert.createdAt),
     title: alert.subject,
     domain: alert.domainName,
@@ -113,7 +114,7 @@ export function FilledDashboard({
   const domainCards: MonitoredDomainCard[] = domainRows.map(domainRowToCard);
 
   const sslExpiringSoon = domainRows.filter(
-    (d) => d.sslDaysRemaining !== null && d.sslDaysRemaining <= 30,
+    (d) => d.sslDaysRemaining !== null && d.sslDaysRemaining > 0 && d.sslDaysRemaining <= 30,
   ).length;
 
   const allVerified =

@@ -92,6 +92,7 @@ privateApi.interceptors.response.use(
         failedQueue.push({ resolve, reject });
       }).then((newToken) => {
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        originalRequest._retry = true;
         return privateApi(originalRequest);
       });
     }

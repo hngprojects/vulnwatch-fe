@@ -64,7 +64,14 @@ function DomainCard({ card, onClick }: { card: MonitoredDomainCard; onClick: () 
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col text-left cursor-pointer hover:shadow-md transition-shadow duration-200 flex-1"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      aria-label={`View details for ${card.domainName}`}
+      className="flex flex-col text-left cursor-pointer hover:shadow-md transition-shadow duration-200 flex-1 focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
       style={{
         background: '#F6F6F6',
         border: '1px solid #EDEDED',
@@ -191,7 +198,7 @@ export function MonitoredDomains({
           <DomainCard
             key={card.domainId}
             card={card}
-            onClick={() => router.push(`/domain`)}
+            onClick={() => router.push(`/domain?domainId=${card.domainId}`)}
           />
         ))}
       </div>

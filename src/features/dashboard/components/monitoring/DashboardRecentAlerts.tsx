@@ -4,7 +4,11 @@ import { TriangleAlert } from 'lucide-react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type AlertType = 'SSL' | 'Security' | 'DNS' | string;
+export type AlertType = 'SSL' | 'Security' | 'DNS';
+
+export function isValidAlertType(type: string): type is AlertType {
+  return ['SSL', 'Security', 'DNS'].includes(type);
+}
 
 export interface DashboardAlertItem {
   id: string;
