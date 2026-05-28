@@ -24,6 +24,7 @@ const steps = [
   },
 ];
 
+/** Renders the How It Works section showing the three-step domain verification and scanning process. */
 const HowItWorks = () => {
   return (
     <section className="overflow-hidden bg-brand-mint">
@@ -33,7 +34,7 @@ const HowItWorks = () => {
             <span className="mb-6 inline-block rounded-lg border border-brand-border-gray bg-brand-bg-light px-5 py-2 text-sm text-header">
               How It Works
             </span>
-            <h2 className="font-geist font-semibold text-brand-dark text-center mt-4 text-3xl sm:text-4xl md:text-5xl">
+            <h2 tabIndex={0} className="font-geist font-semibold text-brand-dark text-center mt-4 text-3xl sm:text-4xl md:text-5xl outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
               Three (3) steps
               <br className="hidden md:block" /> from Curious to Confident
             </h2>
@@ -87,7 +88,7 @@ const HowItWorks = () => {
                   <div className={`relative z-[2] bg-secondary flex flex-col justify-center gap-6 p-12 w-full md:w-1/2 md:h-88.75 text-left items-start ${radiusClass}`}>
                     <div className={`flex flex-col gap-6 ${index === 1 ? "md:pl-15" : ""}`}>
                       <div>
-                        <h3 className="text-black/90 font-inter mb-2 text-2xl font-semibold">
+                        <h3 tabIndex={0} className="text-black/90 font-inter mb-2 text-2xl font-semibold outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
                           {step.title}
                         </h3>
                         <p className="text-black font-geist max-w-95 text-base leading-relaxed font-normal">
