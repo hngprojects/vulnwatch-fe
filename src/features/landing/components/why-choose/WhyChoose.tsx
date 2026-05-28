@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 
 interface BenefitCard {
   title: string;
@@ -68,8 +68,8 @@ const WhyChoose: React.FC = () => {
               key={index}
               variants={{
                 hidden: { opacity: 0, x: index % 2 === 0 ? -30 : 30 },
-                visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
-              }}
+                visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
+              } as Variants}
               className={`mt-4 border-l-[6px] border-t-transparent border-r-transparent border-b-transparent px-6 py-2 shadow-sm md:mt-8 md:px-8 md:py-2 ${
                 index === 0 || index === 3
                   ? "border-[#a0e870]"
