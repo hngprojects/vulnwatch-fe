@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "motion/react";
 import Image from "next/image";
 
 const steps = [
@@ -29,8 +32,14 @@ const HowItWorks = () => {
   return (
     <section className="overflow-hidden bg-brand-mint">
       <div className="bg-brand-mint md:py-14">
-        <div className="mx-auto max-w-[1440px] px-5 md:px-20">
-          <div className="mx-auto max-w-2xl px-8 py-10 text-center md:border-0 md:bg-transparent md:px-0 md:py-0">
+        <div className="mx-auto max-w-360 px-5 md:px-20">
+          <motion.div
+            className="mx-auto max-w-2xl px-8 py-10 text-center md:border-0 md:bg-transparent md:px-0 md:py-0"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
             <span className="mb-6 inline-block rounded-lg border border-brand-border-gray bg-brand-bg-light px-5 py-2 text-sm text-header">
               How It Works
             </span>
@@ -42,17 +51,16 @@ const HowItWorks = () => {
               No installs, no agents, no access to your hosting account.
               <br className="hidden md:block" /> Just a domain and a minute of your time.
             </p>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       <div className="pb-0 bg-brand-mint">
-        <div className="mx-auto w-full max-w-[1200px] px-5 md:px-0">
+        <div className="mx-auto w-full max-w-300 px-5 md:px-0">
           <div className="flex flex-col gap-y-6 md:gap-y-0">
             {steps.map((step, index) => {
               const isEven = index % 2 === 0;
 
-              // Mobile: all boxes get left-side radius. Desktop: alternates left/right.
               const mobileRadius = "rounded-tl-[20px] rounded-bl-[20px] rounded-tr-none rounded-br-none";
               const desktopRadius = isEven
                 ? "md:rounded-tl-none md:rounded-bl-none md:rounded-tr-[40px] md:rounded-br-[40px]"
@@ -68,24 +76,38 @@ const HowItWorks = () => {
                 translateClass = "translate-x-12.5 translate-y-5 md:translate-x-25 md:translate-y-16";
               }
 
+              const imageSlideX = isEven ? -20 : 20;
+
               return (
                 <div
                   key={step.id}
                   className={`flex w-full flex-col ${isEven ? "md:flex-row" : "md:flex-row-reverse"} items-center md:items-end overflow-hidden`}
                 >
                   {/* Image container */}
-                  <div className={`w-full md:w-1/2 h-62.5 md:h-88.75 relative z-[1] ${translateClass}`}>
+                  <motion.div
+                    className={`w-full md:w-1/2 h-62.5 md:h-88.75 relative z-1 ${translateClass}`}
+                    initial={{ opacity: 0, x: imageSlideX }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.6, delay: index * 0.1, ease: "easeOut" }}
+                  >
                     <Image
                       src={step.image}
                       alt={step.title}
                       fill
-                      className="object-contain object-right-bottom md:object-bottom"
+                      className="object-contain object-bottom-right md:object-bottom"
                       sizes="(max-width: 768px) 100vw, 580px"
                     />
-                  </div>
+                  </motion.div>
 
                   {/* Text card */}
-                  <div className={`relative z-[2] bg-secondary flex flex-col justify-center gap-6 p-12 w-full md:w-1/2 md:h-88.75 text-left items-start ${radiusClass}`}>
+                  <motion.div
+                    className={`relative z-2 bg-secondary flex flex-col justify-center gap-6 p-12 w-full md:w-1/2 md:h-88.75 text-left items-start ${radiusClass}`}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.5, delay: index * 0.1 + 0.1, ease: "easeOut" }}
+                  >
                     <div className={`flex flex-col gap-6 ${index === 1 ? "md:pl-15" : ""}`}>
                       <div>
                         <h3 tabIndex={0} className="text-black/90 font-inter mb-2 text-2xl font-semibold outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
@@ -99,7 +121,7 @@ const HowItWorks = () => {
                         {step.id}
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               );
             })}
