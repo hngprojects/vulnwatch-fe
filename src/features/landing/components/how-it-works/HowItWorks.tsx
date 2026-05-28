@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+/** Renders the How It Works page with a three-step walkthrough: Add Domain, Scan Website, Generate Report. */
 export default function HowItWorks() {
   return (
     <main className="bg-white text-[#111]">
@@ -7,7 +8,7 @@ export default function HowItWorks() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#f9f9f9] via-[#f5ffe8] to-[#eefad9]" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 sm:py-14 md:py-24">
-          <h1 className="mx-auto text-[36px] font-semibold leading-[24px] tracking-[-0.02em] text-[#2B2B2BE5] max-w-[350px] md:max-w-none md:text-[64px] md:font-bold md:leading-[72px] md:tracking-[-2px]">
+          <h1 tabIndex={0} className="mx-auto text-[36px] font-semibold leading-[24px] tracking-[-0.02em] text-[#2B2B2BE5] max-w-[350px] md:max-w-none md:text-[64px] md:font-bold md:leading-[72px] md:tracking-[-2px] outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
             How It Works
           </h1>
 
@@ -36,7 +37,7 @@ export default function HowItWorks() {
               01
             </h3>
 
-            <h4 className="mt-2 text-[24px] font-semibold leading-tight text-black/90 md:mt-3 md:text-[32px] md:leading-none">
+            <h4 tabIndex={0} className="mt-2 text-[24px] font-semibold leading-tight text-black/90 md:mt-3 md:text-[32px] md:leading-none outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
               Add Your Domain
             </h4>
 
@@ -83,7 +84,7 @@ export default function HowItWorks() {
               02
             </h3>
 
-            <h4 className="mt-2 text-[24px] font-semibold leading-tight text-black/90 md:mt-3 md:text-[32px] md:leading-none">
+            <h4 tabIndex={0} className="mt-2 text-[24px] font-semibold leading-tight text-black/90 md:mt-3 md:text-[32px] md:leading-none outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
               Scan Your Website
             </h4>
 
@@ -106,7 +107,7 @@ export default function HowItWorks() {
               03
             </h3>
 
-            <h4 className="mt-2 text-[24px] font-semibold leading-tight text-black/90 md:mt-3 md:text-[32px] md:leading-none">
+            <h4 tabIndex={0} className="mt-2 text-[24px] font-semibold leading-tight text-black/90 md:mt-3 md:text-[32px] md:leading-none outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2 rounded">
               Generate Report
             </h4>
 

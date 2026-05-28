@@ -2,6 +2,9 @@
 
 import { Check, Globe2, Plus } from "lucide-react";
 import { useState } from "react";
+import { useProfile } from "../../hooks/useProfile";
+import SettingsErrorState from "./SettingsErrorState";
+import SettingsSectionSkeleton from "./SettingsSectionSkeleton";
 
 const inputClass =
   "h-10 w-full rounded-lg border border-[#CCCCCC] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition focus:border-primary focus:ring-1 focus:ring-primary";
@@ -110,8 +113,40 @@ function IconSelect({
 }
 
 const Session = () => {
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [weeklySummary, setWeeklySummary] = useState(true);
+  const { profile, loading, error, refetch } = useProfile();
+
+  if (loading) return <SettingsSectionSkeleton label="Loading preferences..." />;
+
+  if (error) {
+    return <SettingsErrorState message={error} onRetry={() => void refetch()} />;
+  }
+
+  if (!profile) {
+    return <SettingsErrorState message="Preferences data is unavailable." onRetry={() => void refetch()} />;
+  }
+
+  return (
+    <SessionContent
+      key={profile.updatedAt}
+      initialEmailNotifications={profile.notificationPreferences.emailAlerts}
+      initialSlackNotifications={profile.notificationPreferences.slackAlerts}
+      initialPushNotifications={profile.notificationPreferences.pushNotifications}
+    />
+  );
+};
+
+const SessionContent = ({
+  initialEmailNotifications,
+  initialSlackNotifications,
+  initialPushNotifications,
+}: {
+  initialEmailNotifications: boolean;
+  initialSlackNotifications: boolean;
+  initialPushNotifications: boolean;
+}) => {
+  const [emailNotifications, setEmailNotifications] = useState(initialEmailNotifications);
+  const [slackNotifications, setSlackNotifications] = useState(initialSlackNotifications);
+  const [pushNotifications, setPushNotifications] = useState(initialPushNotifications);
   const [riskBadges, setRiskBadges] = useState(false);
   const [theme, setTheme] = useState<"Light" | "Dark">("Light");
 
@@ -186,10 +221,14 @@ const Session = () => {
             onChange={() => setEmailNotifications((value) => !value)}
           />
           <Toggle
-            label="Weekly Summary Report"
-            checked={weeklySummary}
-            onChange={() => setWeeklySummary((value) => !value)}
-            checkmark
+            label="Slack Notifications"
+            checked={slackNotifications}
+            onChange={() => setSlackNotifications((value) => !value)}
+          />
+          <Toggle
+            label="Push Notifications"
+            checked={pushNotifications}
+            onChange={() => setPushNotifications((value) => !value)}
           />
         </div>
       </Section>
