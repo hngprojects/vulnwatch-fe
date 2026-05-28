@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/features/dashboard/components/Sidebar";
 import { DashboardHeader } from "@/features/dashboard/components/Header";
 import { useAuthStore } from "@/store/auth.store";
@@ -12,7 +12,11 @@ function subscribeAuthStore(listener: () => void) {
 }
 
 function getAuthSnapshot() {
-  return useAuthStore.getState().token;
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return useAuthStore.getState().token ?? localStorage.getItem("auth_token");
 }
 
 function getServerAuthSnapshot() {
@@ -25,6 +29,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isRolesPermissionsPage =
+    pathname === "/settings/roles-permissions" ||
+    pathname === "/settings/roles-permission";
   const token = useSyncExternalStore(
     subscribeAuthStore,
     getAuthSnapshot,
@@ -32,6 +40,10 @@ export default function DashboardLayout({
   );
 
   useEffect(() => {
+    if (isRolesPermissionsPage) {
+      return;
+    }
+
     if (!token) {
       router.replace("/login");
       return;
@@ -79,9 +91,9 @@ export default function DashboardLayout({
     return () => {
       mounted = false;
     };
-  }, [router, token]);
+  }, [isRolesPermissionsPage, router, token]);
 
-  if (!token) return null;
+  if (!token && !isRolesPermissionsPage) return null;
 
   return (
     <div className="flex h-screen bg-brand-dashboard-bg overflow-hidden">
