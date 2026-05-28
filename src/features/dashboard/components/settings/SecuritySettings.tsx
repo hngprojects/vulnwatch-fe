@@ -48,6 +48,11 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
       newPassword: "",
       confirmPassword: "",
     });
+    setShowPasswords({
+      currentPassword: false,
+      newPassword: false,
+      confirmPassword: false,
+    });
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -129,6 +134,7 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
                     id="currentPassword"
                     type={showPasswords.currentPassword ? "text" : "password"}
                     name="currentPassword"
+                    autoComplete="current-password"
                     placeholder="Current password"
                     value={form.currentPassword}
                     onChange={handleChange}
@@ -154,6 +160,7 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
                     id="newPassword"
                     type={showPasswords.newPassword ? "text" : "password"}
                     name="newPassword"
+                    autoComplete="new-password"
                     placeholder="New password"
                     value={form.newPassword}
                     onChange={handleChange}
@@ -179,6 +186,7 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
                     id="confirmPassword"
                     type={showPasswords.confirmPassword ? "text" : "password"}
                     name="confirmPassword"
+                    autoComplete="new-password"
                     placeholder="Confirm new password"
                     value={form.confirmPassword}
                     onChange={handleChange}
