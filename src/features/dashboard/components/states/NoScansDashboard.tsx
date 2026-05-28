@@ -18,24 +18,14 @@ export function NoScansDashboard({
     <div className='px-4 md:px-6 py-6 space-y-5 max-w-7xl mx-auto'>
       <TourProvider />
       
-      {/* Page header */}
-      <div className='flex flex-col gap-5'>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h1 className='text-xl font-bold text-[#111827]'>Dashboard</h1>
-            <p className='text-sm text-[#6B7280] mt-0.5'>
-              Overview of your security posture
-            </p>
-          </div>
-        </div>
+      {/* Page header text removed (now in global layout header) */}
 
-        <div className='flex w-full md:w-80'>
-          <DomainSelector
-            domains={domainsForSelector}
-            selected={selectedDomain}
-            onChange={onDomainChange}
-          />
-        </div>
+      <div className='flex w-full md:w-[369px]'>
+        <DomainSelector
+          domains={domainsForSelector}
+          selected={selectedDomain}
+          onChange={onDomainChange}
+        />
       </div>
 
       <DomainEmptyState

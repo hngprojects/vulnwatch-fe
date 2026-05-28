@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 
@@ -16,6 +17,8 @@ import { FilledDashboard } from '@/features/dashboard/components/states/FilledDa
 const SELECTED_DOMAIN_KEY = 'selected_dashboard_domain';
 
 export default function DashboardController() {
+  const router = useRouter();
+
   // ── State ───────────────────────────────────────────────────────────────
   const [selectedDomainId, setSelectedDomainId] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
@@ -98,12 +101,6 @@ export default function DashboardController() {
   if (verifiedDomains.length === 0) {
     return (
       <div className="px-4 md:px-6 py-6">
-        <div className="mb-6">
-          <h1 className="font-geist text-[40px] font-bold text-[#111827]">Your dashboard</h1>
-          <p className="font-inter text-[20px] font-normal text-[#6B7280] mt-1">
-            Your security overview will be displayed here
-          </p>
-        </div>
         <EmptyDashboard />
       </div>
     );
@@ -140,6 +137,7 @@ export default function DashboardController() {
         currentPage: scanHistoryRes?.value?.page ?? 1,
         totalPages: scanHistoryRes?.value?.totalPages ?? 1,
       }}
+      onAddDomain={() => router.push('/domain?add=true')}
       onPageChange={setCurrentPage}
     />
   );

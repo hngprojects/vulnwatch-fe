@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+
 import {
   Globe,
   Search,
@@ -88,7 +88,7 @@ type AllDropdowns = {
 };
 
 export default function DomainTable({ domains, loading = false, error = null, onAddDomain, onRetry }: Props) {
-  const router = useRouter();
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<DomainStatus | "ALL">("ALL");
   const [methodFilter, setMethodFilter] = useState<MethodFilter>("ALL");
@@ -103,11 +103,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
   const [deleting, setDeleting] = useState(false);
 
   const handleViewDetails = (domain: Domain) => {
-    if (domain.status === "Verified") {
-      router.push(`/domain/${domain.id}`);
-    } else {
-      setDetailsDomain(domain);
-    }
+    setDetailsDomain(domain);
   };
 
   const statusDropRef = useRef<HTMLDivElement>(null);

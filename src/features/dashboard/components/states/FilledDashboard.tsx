@@ -103,6 +103,7 @@ interface FilledDashboardProps {
   onDomainChange: (domain: Domain) => void;
   scans: ScanHistoryItem[];
   pagination: { currentPage: number; totalPages: number };
+  onAddDomain: () => void;
   onPageChange: (page: number) => void;
 }
 
@@ -116,6 +117,7 @@ export function FilledDashboard({
   onDomainChange,
   scans,
   pagination,
+  onAddDomain,
   onPageChange,
 }: FilledDashboardProps) {
   const router = useRouter();
@@ -172,7 +174,7 @@ export function FilledDashboard({
 
       <MonitoredDomains
         domains={domainCards}
-        onAddDomain={() => router.push('/domain')}
+        onAddDomain={onAddDomain}
       />
 
       <div className="flex flex-row gap-6 items-stretch">

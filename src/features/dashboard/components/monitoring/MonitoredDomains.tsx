@@ -191,7 +191,7 @@ export function MonitoredDomains({
           <DomainCard
             key={card.domainId}
             card={card}
-            onClick={() => router.push(`/domain/${card.domainId}`)}
+            onClick={() => router.push(`/domain`)}
           />
         ))}
       </div>
