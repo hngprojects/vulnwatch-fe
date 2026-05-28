@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
@@ -12,7 +12,7 @@ import EditProfileModal from "./EditProfileModal";
 import PersonalInfoCard from "./PersonalInfoCard";
 import SettingsErrorState from "./SettingsErrorState";
 import SettingsSectionSkeleton from "./SettingsSectionSkeleton";
-import { EMPTY_PROFILE_FORM, type ProfileForm } from "./types";
+import { type ProfileForm } from "./types";
 
 function Section({
   title,
@@ -77,34 +77,58 @@ function Toggle({
 
 const GeneralSettings = () => {
   const router = useRouter();
+  const { profile, loading, error, refetch, update } = useProfile();
 
+  if (loading) return <SettingsSectionSkeleton label="Loading profile..." />;
+
+  if (error) {
+    return <SettingsErrorState message={error} onRetry={() => void refetch()} />;
+  }
+
+  if (!profile) {
+    return <SettingsErrorState message="Profile data is unavailable." onRetry={() => void refetch()} />;
+  }
+
+  return (
+    <GeneralSettingsContent
+      key={profile.updatedAt}
+      profile={profile}
+      router={router}
+      update={update}
+    />
+  );
+};
+
+const GeneralSettingsContent = ({
+  profile,
+  router,
+  update,
+}: {
+  profile: NonNullable<ReturnType<typeof useProfile>["profile"]>;
+  router: ReturnType<typeof useRouter>;
+  update: ReturnType<typeof useProfile>["update"];
+}) => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [emailNotifications, setEmailNotifications] = useState(false);
-  const [slackNotifications, setSlackNotifications] = useState(false);
-  const [pushNotifications, setPushNotifications] = useState(false);
-  const { profile, loading, error, refetch, update } = useProfile();
+  const [emailNotifications, setEmailNotifications] = useState(
+    profile.notificationPreferences.emailAlerts,
+  );
+  const [slackNotifications, setSlackNotifications] = useState(
+    profile.notificationPreferences.slackAlerts,
+  );
+  const [pushNotifications, setPushNotifications] = useState(
+    profile.notificationPreferences.pushNotifications,
+  );
 
-  const [form, setForm] = useState<ProfileForm>(EMPTY_PROFILE_FORM);
-  const [initialForm, setInitialForm] = useState<ProfileForm>(EMPTY_PROFILE_FORM);
+  const initialForm = {
+    firstName: profile.firstName ?? "",
+    lastName: profile.lastName ?? "",
+    email: profile.email ?? "",
+  };
 
-  useEffect(() => {
-    if (!profile) return;
-
-    const nextForm = {
-      firstName: profile.firstName ?? "",
-      lastName: profile.lastName ?? "",
-      email: profile.email ?? "",
-    };
-
-    setForm(nextForm);
-    setInitialForm(nextForm);
-    setEmailNotifications(profile.notificationPreferences.emailAlerts);
-    setSlackNotifications(profile.notificationPreferences.slackAlerts);
-    setPushNotifications(profile.notificationPreferences.pushNotifications);
-  }, [profile]);
+  const [form, setForm] = useState<ProfileForm>(initialForm);
 
   const isDirty = useMemo(() => {
     return (
@@ -112,7 +136,7 @@ const GeneralSettings = () => {
       form.lastName !== initialForm.lastName ||
       form.email !== initialForm.email
     );
-  }, [form, initialForm]);
+  }, [form, initialForm.email, initialForm.firstName, initialForm.lastName]);
 
   const handleOpenEditModal = () => {
     setForm(initialForm);
@@ -140,14 +164,11 @@ const GeneralSettings = () => {
         lastName: form.lastName.trim(),
       });
 
-      const nextForm = {
+      setForm({
         firstName: updated.firstName ?? "",
         lastName: updated.lastName ?? "",
         email: updated.email ?? "",
-      };
-
-      setForm(nextForm);
-      setInitialForm(nextForm);
+      });
       toast.success("Profile updated successfully!");
       setIsEditModalOpen(false);
     } catch (err) {
@@ -171,12 +192,6 @@ const GeneralSettings = () => {
       setShowDeleteConfirm(false);
     }
   };
-
-  if (loading) return <SettingsSectionSkeleton label="Loading profile..." />;
-
-  if (error) {
-    return <SettingsErrorState message={error} onRetry={() => void refetch()} />;
-  }
 
   return (
     <div className="space-y-6">

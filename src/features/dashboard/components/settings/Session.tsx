@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Globe2, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useProfile } from "../../hooks/useProfile";
 import SettingsErrorState from "./SettingsErrorState";
 import SettingsSectionSkeleton from "./SettingsSectionSkeleton";
@@ -114,25 +114,41 @@ function IconSelect({
 
 const Session = () => {
   const { profile, loading, error, refetch } = useProfile();
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [slackNotifications, setSlackNotifications] = useState(false);
-  const [pushNotifications, setPushNotifications] = useState(false);
-  const [riskBadges, setRiskBadges] = useState(false);
-  const [theme, setTheme] = useState<"Light" | "Dark">("Light");
-
-  useEffect(() => {
-    if (!profile) return;
-
-    setEmailNotifications(profile.notificationPreferences.emailAlerts);
-    setSlackNotifications(profile.notificationPreferences.slackAlerts);
-    setPushNotifications(profile.notificationPreferences.pushNotifications);
-  }, [profile]);
 
   if (loading) return <SettingsSectionSkeleton label="Loading preferences..." />;
 
   if (error) {
     return <SettingsErrorState message={error} onRetry={() => void refetch()} />;
   }
+
+  if (!profile) {
+    return <SettingsErrorState message="Preferences data is unavailable." onRetry={() => void refetch()} />;
+  }
+
+  return (
+    <SessionContent
+      key={profile.updatedAt}
+      initialEmailNotifications={profile.notificationPreferences.emailAlerts}
+      initialSlackNotifications={profile.notificationPreferences.slackAlerts}
+      initialPushNotifications={profile.notificationPreferences.pushNotifications}
+    />
+  );
+};
+
+const SessionContent = ({
+  initialEmailNotifications,
+  initialSlackNotifications,
+  initialPushNotifications,
+}: {
+  initialEmailNotifications: boolean;
+  initialSlackNotifications: boolean;
+  initialPushNotifications: boolean;
+}) => {
+  const [emailNotifications, setEmailNotifications] = useState(initialEmailNotifications);
+  const [slackNotifications, setSlackNotifications] = useState(initialSlackNotifications);
+  const [pushNotifications, setPushNotifications] = useState(initialPushNotifications);
+  const [riskBadges, setRiskBadges] = useState(false);
+  const [theme, setTheme] = useState<"Light" | "Dark">("Light");
 
   return (
     <div className="space-y-4 lg:space-y-3">
