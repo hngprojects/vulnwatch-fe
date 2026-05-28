@@ -6,6 +6,7 @@ interface FooterColumnProps {
   links: FooterLink[];
 }
 
+/** Renders a footer navigation column with a heading and list of links. */
 export function FooterColumn({ title, links }: FooterColumnProps) {
   return (
     <div className="flex flex-col gap-4">

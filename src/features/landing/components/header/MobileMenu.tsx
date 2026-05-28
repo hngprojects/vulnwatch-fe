@@ -14,6 +14,7 @@ interface MobileMenuProps {
   toggleButtonId?: string;
 }
 
+/** Renders the mobile navigation drawer with focus-trap and keyboard (Escape/Tab) handling. */
 export function MobileMenu({ isOpen, onClose, toggleButtonId }: MobileMenuProps) {
   const pathname = usePathname();
   const menuRef = useRef<HTMLElement>(null);

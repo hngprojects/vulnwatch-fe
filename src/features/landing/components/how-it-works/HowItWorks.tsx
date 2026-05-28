@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+/** Renders the How It Works page with a three-step walkthrough: Add Domain, Scan Website, Generate Report. */
 export default function HowItWorks() {
   return (
     <main className="bg-white text-[#111]">

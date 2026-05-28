@@ -24,6 +24,7 @@ const steps = [
   },
 ];
 
+/** Renders the How It Works section showing the three-step domain verification and scanning process. */
 const HowItWorks = () => {
   return (
     <section className="overflow-hidden bg-brand-mint">

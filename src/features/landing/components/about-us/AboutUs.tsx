@@ -20,6 +20,7 @@ const sections = [
   },
 ];
 
+/** Renders the About Us page with hero section, Who We Are, Our Mission, and What Makes Us Different. */
 const AboutUs = () => {
   return (
     <main>

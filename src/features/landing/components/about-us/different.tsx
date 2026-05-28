@@ -15,6 +15,7 @@ const items = [
   },
 ];
 
+/** Renders the "What makes us different?" section highlighting VulnWatch AI's key differentiators. */
 const Different = () => {
   return (
     <section className="bg-white px-5 py-16 md:px-20 md:py-24">

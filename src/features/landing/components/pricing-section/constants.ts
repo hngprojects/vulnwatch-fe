@@ -1,5 +1,7 @@
 import { Plan } from "./types";
 
+/** Pricing plan definitions for the VulnWatch AI landing page. Tiers scale Essential → Professional → Premium. */
+
 export const plans: Plan[] = [
   {
     name: "Essential",

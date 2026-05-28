@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "../../constants/nav-links";
 
+/** Renders the desktop navigation links with active state highlighting. */
 export function NavLinks() {
   const pathname = usePathname();
 
