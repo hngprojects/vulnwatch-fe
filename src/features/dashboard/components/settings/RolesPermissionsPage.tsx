@@ -1,5 +1,6 @@
 "use client";
 
+import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -212,12 +213,19 @@ function AccessIcon({ allowed }: { allowed: boolean }) {
 }
 
 export default function RolesPermissionsPage() {
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [isManageAccessOpen, setIsManageAccessOpen] = useState(false);
   const [isRemoveUserOpen, setIsRemoveUserOpen] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<DomainRow>(domainRows[0]);
   const [members, setMembers] = useState<Member[]>(initialMembers);
   const [roleMenuOpenFor, setRoleMenuOpenFor] = useState<string | null>(null);
   const [memberPendingRemoval, setMemberPendingRemoval] = useState<Member | null>(null);
+  const [newUserForm, setNewUserForm] = useState({
+    name: "",
+    email: "",
+    domain: domainRows[0].domain,
+    role: "Viewer" as Exclude<Role, "Owner">,
+  });
 
   const openManageAccess = (row: DomainRow) => {
     setSelectedDomain(row);
@@ -231,6 +239,16 @@ export default function RolesPermissionsPage() {
     setIsRemoveUserOpen(false);
     setRoleMenuOpenFor(null);
     setMemberPendingRemoval(null);
+  };
+
+  const closeAddUser = () => {
+    setIsAddUserOpen(false);
+    setNewUserForm({
+      name: "",
+      email: "",
+      domain: domainRows[0].domain,
+      role: "Viewer",
+    });
   };
 
   const promptRemoveMember = (member: Member) => {
@@ -258,6 +276,28 @@ export default function RolesPermissionsPage() {
     setRoleMenuOpenFor(null);
   };
 
+  const addAuthorizedUser = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const trimmedName = newUserForm.name.trim();
+    const trimmedEmail = newUserForm.email.trim();
+    if (!trimmedName || !trimmedEmail) return;
+
+    setMembers((currentMembers) => [
+      ...currentMembers,
+      {
+        id: `member-${Date.now()}`,
+        name: trimmedName,
+        email: trimmedEmail,
+        role: newUserForm.role,
+      },
+    ]);
+    setSelectedDomain(
+      domainRows.find((row) => row.domain === newUserForm.domain) ?? domainRows[0],
+    );
+    closeAddUser();
+  };
+
   return (
     <div className="space-y-10 pb-10">
       <section className="space-y-6">
@@ -265,7 +305,8 @@ export default function RolesPermissionsPage() {
           <div />
           <button
             type="button"
-            className="inline-flex h-14 items-center justify-center gap-3 rounded-xl bg-primary px-6 text-lg font-medium text-white transition hover:bg-primary/95"
+            onClick={() => setIsAddUserOpen(true)}
+            className="inline-flex h-14 cursor-pointer items-center justify-center gap-3 rounded-xl bg-primary px-6 text-lg font-medium text-white transition hover:bg-primary/95"
           >
             <Plus className="h-5 w-5" />
             Add New Authorized User
@@ -277,7 +318,7 @@ export default function RolesPermissionsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <button
               type="button"
-              className="inline-flex h-10 min-w-25 items-center justify-between rounded-xl border border-[#D9D9D9] bg-white px-4 text-left text-[15px] text-[#2B2B2B]"
+              className="inline-flex h-10 min-w-25 cursor-pointer items-center justify-between rounded-xl border border-[#D9D9D9] bg-white px-4 text-left text-[15px] text-[#2B2B2B]"
             >
               All
               <ChevronDown className="h-4 w-4 text-[#666666]" />
@@ -285,7 +326,7 @@ export default function RolesPermissionsPage() {
 
             <button
               type="button"
-              className="inline-flex h-10 min-w-70 items-center justify-between rounded-xl border border-[#D9D9D9] bg-white px-4 text-[15px] text-[#2B2B2B]"
+              className="inline-flex h-10 min-w-70 cursor-pointer items-center justify-between rounded-xl border border-[#D9D9D9] bg-white px-4 text-[15px] text-[#2B2B2B]"
             >
               <span>May 12, 2026 - May 18, 2026</span>
               <CalendarDays className="h-4 w-4 text-[#666666]" />
@@ -295,7 +336,7 @@ export default function RolesPermissionsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#D9D9D9] bg-white px-4 text-[15px] text-[#2B2B2B]"
+              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#D9D9D9] bg-white px-4 text-[15px] text-[#2B2B2B]"
             >
               Column View
               <Columns3Cog className="h-4 w-4 text-[#666666]" />
@@ -303,7 +344,7 @@ export default function RolesPermissionsPage() {
 
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[#D9D9D9] bg-white px-4 text-[15px] text-[#2B2B2B]"
+              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#D9D9D9] bg-white px-4 text-[15px] text-[#2B2B2B]"
             >
               Filter
               <Filter className="h-4 w-4 text-[#666666]" />
@@ -332,7 +373,7 @@ export default function RolesPermissionsPage() {
           </div>
 
           <div className="divide-y divide-[#EFEFEF]">
-            {domainRows.map((row, index) => (
+            {domainRows.map((row) => (
               <div
                 key={row.domain}
                 className="grid gap-4 px-4 py-5 md:grid-cols-[2.1fr_1.5fr_1fr_1fr] md:px-7"
@@ -369,12 +410,7 @@ export default function RolesPermissionsPage() {
                   <button
                     type="button"
                     onClick={() => openManageAccess(row)}
-                    className={[
-                      "inline-flex h-11 items-center justify-center rounded-md border px-5 text-[15px] font-medium transition",
-                      index === 0
-                        ? "border-primary bg-primary text-white"
-                        : "border-[#D6D6D6] bg-white text-[#2B2B2B] hover:border-primary/30",
-                    ].join(" ")}
+                    className="inline-flex h-11 cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 text-[15px] font-medium text-white transition hover:bg-primary/90"
                   >
                     Manage Access
                   </button>
@@ -434,21 +470,145 @@ export default function RolesPermissionsPage() {
         </div>
       </section>
 
-      {(isManageAccessOpen || isRemoveUserOpen) && (
+      {(isAddUserOpen || isManageAccessOpen || isRemoveUserOpen) && (
         <div
           className="fixed inset-0 z-40 bg-[#9A9A9A]/45 backdrop-blur-[2px]"
-          onClick={closeManageAccess}
+          onClick={() => {
+            closeAddUser();
+            closeManageAccess();
+          }}
         />
       )}
 
-      {isManageAccessOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {isAddUserOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
           <div
-            className="w-full max-w-[720px] rounded-[18px] bg-white p-6 shadow-[0_24px_80px_rgba(0,0,0,0.16)] md:p-8"
+            className="my-6 w-full max-w-[560px] rounded-[18px] bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-7"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-[26px] font-semibold leading-tight text-[#2B2B2B] sm:text-[32px]">
+                  Add Authorized User
+                </h2>
+                <p className="mt-2 text-[15px] text-[#3F4E57]">
+                  Give a user access to a domain.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeAddUser}
+                className="cursor-pointer rounded-full p-1 text-[#666666] hover:bg-[#F2F2F2]"
+                aria-label="Close add authorized user modal"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form className="space-y-4" onSubmit={addAuthorizedUser}>
+              <div>
+                <label className="mb-1.5 block text-[15px] font-medium text-[#2B2B2B]">
+                  Full name
+                </label>
+                <input
+                  type="text"
+                  value={newUserForm.name}
+                  onChange={(event) =>
+                    setNewUserForm((form) => ({ ...form, name: event.target.value }))
+                  }
+                  placeholder="Francis Daniel"
+                  className="h-11 w-full rounded-lg border border-[#D9D9D9] px-3 text-[15px] text-[#2B2B2B] outline-none focus:border-primary"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-[15px] font-medium text-[#2B2B2B]">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  value={newUserForm.email}
+                  onChange={(event) =>
+                    setNewUserForm((form) => ({ ...form, email: event.target.value }))
+                  }
+                  placeholder="francis@acme.com"
+                  className="h-11 w-full rounded-lg border border-[#D9D9D9] px-3 text-[15px] text-[#2B2B2B] outline-none focus:border-primary"
+                  required
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-[15px] font-medium text-[#2B2B2B]">
+                    Domain
+                  </label>
+                  <select
+                    value={newUserForm.domain}
+                    onChange={(event) =>
+                      setNewUserForm((form) => ({
+                        ...form,
+                        domain: event.target.value,
+                      }))
+                    }
+                    className="h-11 w-full cursor-pointer rounded-lg border border-[#D9D9D9] bg-white px-3 text-[15px] text-[#2B2B2B] outline-none focus:border-primary"
+                  >
+                    {domainRows.map((row) => (
+                      <option key={row.domain} value={row.domain}>
+                        {row.domain}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-[15px] font-medium text-[#2B2B2B]">
+                    Role
+                  </label>
+                  <select
+                    value={newUserForm.role}
+                    onChange={(event) =>
+                      setNewUserForm((form) => ({
+                        ...form,
+                        role: event.target.value as Exclude<Role, "Owner">,
+                      }))
+                    }
+                    className="h-11 w-full cursor-pointer rounded-lg border border-[#D9D9D9] bg-white px-3 text-[15px] text-[#2B2B2B] outline-none focus:border-primary"
+                  >
+                    <option value="Viewer">Viewer</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeAddUser}
+                  className="inline-flex h-11 cursor-pointer items-center justify-center rounded-xl border border-primary bg-white px-7 text-[15px] font-semibold text-primary"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-primary px-7 text-[15px] font-semibold text-white"
+                >
+                  Add user
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isManageAccessOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-3 sm:p-4">
+          <div
+            className="my-6 max-h-[calc(100vh-2rem)] w-full max-w-[720px] overflow-y-auto rounded-[18px] bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-6 md:p-8"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-8">
-              <h2 className="text-[34px] leading-none font-semibold text-[#2B2B2B]">
+              <h2 className="text-[28px] leading-tight font-semibold text-[#2B2B2B] sm:text-[34px]">
                 Manage Access
               </h2>
               <p className="mt-2 text-[18px] text-[#3F4E57]">
@@ -457,7 +617,7 @@ export default function RolesPermissionsPage() {
             </div>
 
             <div className="space-y-6">
-              <div className="flex flex-col gap-4 rounded-[4px] bg-[#FCFCFC] px-5 py-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-4 rounded-[4px] bg-[#FCFCFC] px-4 py-4 sm:px-5 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-5">
                   <UserAvatar name={ownerMember.name} solid large />
                   <div>
@@ -470,20 +630,20 @@ export default function RolesPermissionsPage() {
 
                 <button
                   type="button"
-                  className="inline-flex h-11 min-w-40 items-center justify-center gap-3 rounded-xl bg-primary px-5 text-[16px] font-medium text-white"
+                  className="inline-flex h-11 min-w-40 cursor-pointer items-center justify-center gap-3 rounded-xl bg-primary px-5 text-[16px] font-medium text-white"
                 >
                   Owner
                   <ArrowRight className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="space-y-5 rounded-[4px] bg-[#FCFCFC] px-5 py-4">
+              <div className="space-y-5 rounded-[4px] bg-[#FCFCFC] px-4 py-4 sm:px-5">
                 {members.map((member) => (
                   <div
                     key={member.id}
-                    className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+                    className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="relative flex items-center gap-5">
+                    <div className="relative flex min-w-0 items-center gap-4 sm:gap-5">
                       <UserAvatar name={member.name} />
                       <div className="flex flex-wrap items-center gap-4">
                         <p className="text-[18px] font-medium text-[#2B2B2B]">
@@ -498,7 +658,7 @@ export default function RolesPermissionsPage() {
                                 current === member.id ? null : member.id,
                               )
                             }
-                            className="inline-flex items-center gap-1 text-[15px] text-[#565656]"
+                            className="inline-flex cursor-pointer items-center gap-1 text-[15px] text-[#565656]"
                           >
                             {member.role}
                             <ChevronDown className="h-4 w-4" />
@@ -512,7 +672,7 @@ export default function RolesPermissionsPage() {
                                   type="button"
                                   onClick={() => setRole(member.id, roleOption)}
                                   className={[
-                                    "block w-full px-2 py-1 text-left text-[15px]",
+                                    "block w-full cursor-pointer px-2 py-1 text-left text-[15px]",
                                     member.role === roleOption
                                       ? "bg-primary text-white"
                                       : "text-[#3C3C3C] hover:bg-[#F4F4F4]",
@@ -527,18 +687,18 @@ export default function RolesPermissionsPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 self-end md:self-auto">
+                    <div className="flex items-center gap-3 self-end sm:self-auto">
                       <button
                         type="button"
                         onClick={() => promptRemoveMember(member)}
-                        className="text-[15px] font-medium text-[#B10000]"
+                        className="cursor-pointer text-[15px] font-medium text-[#B10000]"
                       >
                         Remove
                       </button>
                       <button
                         type="button"
                         onClick={() => promptRemoveMember(member)}
-                        className="text-[#646464]"
+                        className="cursor-pointer text-[#646464]"
                         aria-label={`Remove ${member.name}`}
                       >
                         <Trash2 className="h-5 w-5" />
@@ -553,14 +713,14 @@ export default function RolesPermissionsPage() {
               <button
                 type="button"
                 onClick={closeManageAccess}
-                className="inline-flex h-12 items-center justify-center rounded-xl border border-primary bg-white px-8 text-[16px] font-semibold text-primary"
+                className="inline-flex h-12 cursor-pointer items-center justify-center rounded-xl border border-primary bg-white px-8 text-[16px] font-semibold text-primary"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={closeManageAccess}
-                className="inline-flex h-12 items-center justify-center rounded-xl border border-primary bg-white px-8 text-[16px] font-semibold text-primary"
+                className="inline-flex h-12 cursor-pointer items-center justify-center rounded-xl border border-primary bg-white px-8 text-[16px] font-semibold text-primary"
               >
                 Save changes
               </button>
@@ -589,14 +749,14 @@ export default function RolesPermissionsPage() {
               <button
                 type="button"
                 onClick={() => setIsRemoveUserOpen(false)}
-                className="inline-flex h-12 items-center justify-center rounded-xl border border-primary bg-white px-8 text-[16px] font-semibold text-primary"
+                className="inline-flex h-12 cursor-pointer items-center justify-center rounded-xl border border-primary bg-white px-8 text-[16px] font-semibold text-primary"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={confirmRemoveMember}
-                className="inline-flex h-12 items-center justify-center rounded-xl border border-primary bg-white px-8 text-[16px] font-semibold text-primary"
+                className="inline-flex h-12 cursor-pointer items-center justify-center rounded-xl border border-primary bg-white px-8 text-[16px] font-semibold text-primary"
               >
                 Remove user
               </button>
