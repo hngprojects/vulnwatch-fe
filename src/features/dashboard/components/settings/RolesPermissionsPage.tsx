@@ -171,7 +171,7 @@ const permissionSections: PermissionSection[] = [
 
 const statusClasses: Record<DomainRow["status"], string> = {
   Verified: "bg-[#C8F6DF] text-[#0F5132]",
-  Pending: "bg-[#B8F279] text-[#FF8A00]",
+  Pending: "bg-[#FFF1E7] text-[#D96A1D]",
 };
 
 function UserAvatar({
