@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import { Mail } from "lucide-react";
-import Image from "next/image";
 import GoogleLogo from "@/features/auth/components/icons/google-logo";
-import { profileService } from "../../services/profile.service";
 import { useAuthStore } from "@/store/auth.store";
+import { useProfile } from "../../hooks/useProfile";
+import SettingsErrorState from "./SettingsErrorState";
+import SettingsSectionSkeleton from "./SettingsSectionSkeleton";
+import ChangePasswordModal from "./SecuritySettings";
 
 type ActionType = "button" | "status";
 
@@ -45,55 +46,24 @@ const SecurityRow = ({
   </div>
 );
 
-const getBrowserLabel = () => {
-  if (typeof navigator === "undefined") return "Current browser";
-
-  const userAgent = navigator.userAgent.toLowerCase();
-
-  if (userAgent.includes("edg")) return "Microsoft Edge";
-  if (userAgent.includes("opr") || userAgent.includes("opera")) return "Opera";
-  if (userAgent.includes("chrome")) return "Google Chrome";
-  if (userAgent.includes("safari")) return "Safari";
-  if (userAgent.includes("firefox")) return "Firefox";
-
-  return "Current browser";
-};
-
-const isChromeBrowser = () => {
-  if (typeof navigator === "undefined") return false;
-  const userAgent = navigator.userAgent.toLowerCase();
-  return userAgent.includes("chrome") && !userAgent.includes("edg");
-};
-
 const SecurityPrivacySettings = () => {
-  const router = useRouter();
   const authEmail = useAuthStore.getState().email ?? "";
-  const [email, setEmail] = useState(authEmail);
-  const [hasGoogleLinked, setHasGoogleLinked] = useState(false);
-  const browserLabel = useMemo(() => getBrowserLabel(), []);
-  const isChrome = useMemo(() => isChromeBrowser(), []);
+  const { profile, loading, error, refetch } = useProfile();
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
-  useEffect(() => {
-    profileService
-      .getProfile()
-      .then((profile) => {
-        setEmail(profile.email ?? authEmail);
-        setHasGoogleLinked(profile.hasGoogleLinked);
-      })
-      .catch(() => {
-        setEmail(authEmail);
-      });
-  }, [authEmail]);
+  const email = profile?.email ?? authEmail;
+  const hasGoogleLinked = profile?.hasGoogleLinked ?? false;
 
   const linkedAccountLabel = useMemo(
     () => (hasGoogleLinked ? "Google" : "Email login"),
     [hasGoogleLinked]
   );
 
-  const handleSignOut = () => {
-    useAuthStore.getState().logout();
-    router.push("/login");
-  };
+  if (loading) return <SettingsSectionSkeleton label="Loading security settings..." />;
+
+  if (error) {
+    return <SettingsErrorState message={error} onRetry={() => void refetch()} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -113,9 +83,14 @@ const SecurityPrivacySettings = () => {
 
           <SecurityRow
             title="Password"
-            description="Manage your password and login alerts."
-            actionLabel="Change password"
-            onAction={() => router.push("/settings/security")}
+            description={
+              hasGoogleLinked
+                ? "This account uses Google sign-in, so password changes are managed by Google."
+                : "Manage your password and login alerts."
+            }
+            actionLabel={hasGoogleLinked ? "Managed by Google" : "Change password"}
+            actionType={hasGoogleLinked ? "status" : "button"}
+            onAction={hasGoogleLinked ? undefined : () => setIsPasswordModalOpen(true)}
           />
 
           <SecurityRow
@@ -151,43 +126,10 @@ const SecurityPrivacySettings = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
-        <div className="flex flex-col gap-2 border-b border-[#E5E7EB] pb-4">
-          <h2 className="text-xl font-semibold text-[#2B2B2B]">Session</h2>
-        </div>
-
-        <div className="pt-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                {isChrome ? (
-                  <Image
-                    src="/images/google.jpg"
-                    alt="Google Chrome"
-                    width={20}
-                    height={20}
-                    className="rounded-full object-cover"
-                  />
-                ) : null}
-                <p className="text-[16px] font-semibold text-[#2B2B2B] sm:text-[17px]">
-                  {isChrome ? "Google Chrome" : browserLabel}
-                </p>
-              </div>
-              <p className="mt-1 text-[14px] leading-6 text-[#2563EB] sm:text-[16px]">
-                Current session
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="w-full cursor-pointer rounded-lg border border-[#072E28] px-4 py-3 text-sm font-semibold text-[#072E28] transition-colors hover:bg-[#F5FAF8] sm:w-auto sm:min-w-[160px] sm:text-[16px]"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </div>
+      <ChangePasswordModal
+        open={isPasswordModalOpen}
+        onOpenChange={setIsPasswordModalOpen}
+      />
     </div>
   );
 };
