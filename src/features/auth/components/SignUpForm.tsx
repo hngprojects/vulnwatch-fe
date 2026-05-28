@@ -57,7 +57,7 @@ export function SignUpForm() {
   };
 
   return (
-    <div className='flex min-h-screen w-full flex-col items-center bg-[#FAFAFA] px-4 py-8 sm:px-6 lg:px-8'>
+    <main className='flex min-h-screen w-full flex-col items-center bg-[#FAFAFA] px-4 py-8 sm:px-6 lg:px-8'>
       <div className='flex w-full flex-1 flex-col items-center justify-center pb-12'>
         <AuthCard>
           <div className='mb-8 w-full flex items-center justify-center'>
@@ -141,7 +141,7 @@ export function SignUpForm() {
                 Already have an account?{' '}
                 <Link
                   href='/login'
-                  className='font-medium text-[#C68A00] hover:underline'
+                  className='font-medium text-[#8B6200] hover:underline'
                 >
                   Sign in
                 </Link>
@@ -154,6 +154,6 @@ export function SignUpForm() {
           </form>
         </AuthCard>
       </div>
-    </div>
+    </main>
   );
 }
