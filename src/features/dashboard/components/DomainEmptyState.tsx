@@ -22,10 +22,10 @@ export function DomainEmptyState({ domainName, domainId }: DomainEmptyStateProps
       </div>
 
       {/* Heading */}
-      <h2 className='font-geist text-[40px] font-bold tracking-[-1.5px] leading-[48px] text-[#2B2B2B] mb-4'>
+      <h2 className='font-geist text-3xl md:text-[40px] font-bold tracking-[-1.5px] leading-tight md:leading-[48px] text-[#2B2B2B] mb-4'>
         No scans yet for {domainName}
       </h2>
-      <p className='font-inter text-[20px] font-normal leading-[32px] text-[#666666] max-w-[513px] mb-8'>
+      <p className='font-inter text-lg md:text-[20px] font-normal leading-relaxed md:leading-[32px] text-[#666666] max-w-[513px] mb-8'>
         Run a security scan to see your vulnerability report and security
         posture for this domain.
       </p>

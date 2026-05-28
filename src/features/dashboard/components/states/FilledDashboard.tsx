@@ -1,6 +1,4 @@
 import { useRouter } from 'next/navigation';
-import type { Domain } from '@/features/domain/types/domain.types';
-import type { ScanHistoryItem } from '@/features/scans/services/scan.service';
 import type {
   DashboardSummary,
   DashboardDomainRow,
@@ -15,9 +13,6 @@ import { SslCertificatesList, SslCertItem } from '@/features/dashboard/component
 import { DashboardRecentAlerts, DashboardAlertItem } from '@/features/dashboard/components/monitoring/DashboardRecentAlerts';
 import { MonitoredDomains, MonitoredDomainCard } from '@/features/dashboard/components/monitoring/MonitoredDomains';
 import { RecentActivity } from '@/features/dashboard/components/monitoring/RecentActivity';
-import { DomainSelector } from '@/features/dashboard/components/DomainSelector';
-import { RecentScans } from '@/features/dashboard/components/RecentScans';
-import { ScanLine } from 'lucide-react';
 
 // ── Mapping helpers ────────────────────────────────────────────────────────────
 
@@ -97,14 +92,7 @@ interface FilledDashboardProps {
   totalDomainsCount: number;
   alerts: DashboardAlert[];
   
-  // Scans context
-  domainsForSelector: Domain[];
-  selectedDomain: Domain;
-  onDomainChange: (domain: Domain) => void;
-  scans: ScanHistoryItem[];
-  pagination: { currentPage: number; totalPages: number };
   onAddDomain: () => void;
-  onPageChange: (page: number) => void;
 }
 
 export function FilledDashboard({
@@ -112,13 +100,7 @@ export function FilledDashboard({
   domainRows,
   totalDomainsCount,
   alerts,
-  domainsForSelector,
-  selectedDomain,
-  onDomainChange,
-  scans,
-  pagination,
   onAddDomain,
-  onPageChange,
 }: FilledDashboardProps) {
   const router = useRouter();
 
@@ -142,7 +124,7 @@ export function FilledDashboard({
   const alertItems: DashboardAlertItem[] = alerts.map(apiAlertToItem);
 
   return (
-    <div className="flex flex-col gap-6 p-8 min-h-screen" style={{ background: '#F9F9F9' }}>
+    <div className="flex flex-col gap-4 md:gap-6 p-4 md:p-8 min-h-screen" style={{ background: '#F9F9F9' }}>
       
       {/* ── Global Monitoring Header ────────────────────────────────────────── */}
       <MonitoringStatusBanner
@@ -163,7 +145,7 @@ export function FilledDashboard({
         allVerified={allVerified}
       />
 
-      <div className="flex flex-row gap-6 items-stretch">
+      <div className="flex flex-col xl:flex-row gap-6 items-stretch">
         <div className="flex-1 min-w-0">
           <SecurityScoreTrend />
         </div>
@@ -177,7 +159,7 @@ export function FilledDashboard({
         onAddDomain={onAddDomain}
       />
 
-      <div className="flex flex-row gap-6 items-stretch">
+      <div className="flex flex-col xl:flex-row gap-6 items-stretch">
         <div className="flex-1 min-w-0">
           <SslCertificatesList items={sslItems} totalCount={totalDomainsCount} />
         </div>
@@ -187,38 +169,6 @@ export function FilledDashboard({
       </div>
 
       <RecentActivity />
-
-      {/* ── Per-Domain Scans Section ───────────────────────────────────────── */}
-      <div className="mt-8 flex flex-col gap-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-[#111827]">Domain Scans</h2>
-            <p className="text-sm text-[#6B7280] mt-0.5">Recent scan history for your domains</p>
-          </div>
-          <button
-            onClick={() => router.push(`/scan?domainId=${encodeURIComponent(selectedDomain.id)}&domainName=${encodeURIComponent(selectedDomain.domain)}`)}
-            className="hidden md:inline-flex items-center gap-2 h-10 px-4 bg-[#072E28] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity shrink-0"
-          >
-            <ScanLine className="h-4 w-4" />
-            <span className="hidden sm:inline">Run New Scan</span>
-          </button>
-        </div>
-
-        <div className="flex w-full md:w-80">
-          <DomainSelector
-            domains={domainsForSelector}
-            selected={selectedDomain}
-            onChange={onDomainChange}
-          />
-        </div>
-
-        <RecentScans 
-          scans={scans} 
-          domainName={selectedDomain.domain} 
-          pagination={pagination}
-          onPageChange={onPageChange}
-        />
-      </div>
 
     </div>
   );

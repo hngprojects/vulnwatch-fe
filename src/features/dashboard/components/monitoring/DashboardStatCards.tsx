@@ -202,7 +202,7 @@ export function DashboardStatCards({
   allVerified = true,
 }: DashboardStatCardsProps) {
   return (
-    <div className="flex flex-row items-stretch gap-6 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 items-stretch gap-4 md:gap-6 w-full">
       {/* Security Score */}
       <StatCard
         label="Security Score"

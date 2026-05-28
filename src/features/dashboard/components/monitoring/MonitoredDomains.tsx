@@ -149,7 +149,7 @@ export function MonitoredDomains({
       }}
     >
       {/* Header row */}
-      <div className="flex flex-row justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <span
           style={{
             fontFamily: 'Geist, sans-serif',
@@ -186,7 +186,7 @@ export function MonitoredDomains({
       </div>
 
       {/* Domain cards row */}
-      <div className="flex flex-row gap-6 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full">
         {domains.map((card) => (
           <DomainCard
             key={card.domainId}

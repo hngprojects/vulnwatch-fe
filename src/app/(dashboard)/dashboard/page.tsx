@@ -7,7 +7,6 @@ import { Loader2 } from 'lucide-react';
 
 import { dashboardService } from '@/features/dashboard/services/dashboard.service';
 import { domainService } from '@/features/domain/services/domain.service';
-import { scanService } from '@/features/scans/services/scan.service';
 import type { Domain } from '@/features/domain/types/domain.types';
 
 import { EmptyDashboard } from '@/features/dashboard/components/EmptyDashboard';
@@ -26,11 +25,9 @@ export default function DashboardController() {
     }
     return null;
   });
-  const [currentPage, setCurrentPage] = useState(1);
 
   const handleDomainChange = (domain: Domain) => {
     setSelectedDomainId(domain.id);
-    setCurrentPage(1); // reset pagination when switching domains
     if (typeof window !== 'undefined') {
       localStorage.setItem(SELECTED_DOMAIN_KEY, domain.id);
     }
@@ -72,19 +69,7 @@ export default function DashboardController() {
     enabled: verifiedDomains.length > 0,
   });
 
-  // ── 3. Fetch Scan History (Only if selected domain has scans) ───────────
   const hasScans = selectedDomain && selectedDomain.lastScannedAt !== null;
-
-  const { data: scanHistoryRes } = useQuery({
-    queryKey: ['dashboard', 'scans', selectedDomain?.id, currentPage],
-    queryFn: () => scanService.getScanHistory(selectedDomain.id, {
-      page_size: 10,
-      page: currentPage,
-      sort_by: "createdAt",
-      order: "desc"
-    }),
-    enabled: !!selectedDomain && hasScans,
-  });
 
   // ── Routing Logic ───────────────────────────────────────────────────────
 
@@ -126,19 +111,7 @@ export default function DashboardController() {
       totalDomainsCount={dashboardDomainsRes?.totalCount ?? 0}
       alerts={alertsRes ?? []}
       
-      // Domain Selection Context
-      domainsForSelector={verifiedDomains}
-      selectedDomain={selectedDomain}
-      onDomainChange={handleDomainChange}
-      
-      // Scans Data
-      scans={scanHistoryRes?.value?.data ?? []}
-      pagination={{
-        currentPage: scanHistoryRes?.value?.page ?? 1,
-        totalPages: scanHistoryRes?.value?.totalPages ?? 1,
-      }}
       onAddDomain={() => router.push('/domain?add=true')}
-      onPageChange={setCurrentPage}
     />
   );
 }
