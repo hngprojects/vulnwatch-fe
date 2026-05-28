@@ -6,6 +6,7 @@ interface FooterColumnProps {
   links: FooterLink[];
 }
 
+/** Renders a footer navigation column with a heading and list of links. */
 export function FooterColumn({ title, links }: FooterColumnProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -23,7 +24,7 @@ export function FooterColumn({ title, links }: FooterColumnProps) {
           <li key={label}>
             <Link
               href={href}
-              className="font-inter text-[16px] text-[#737373] leading-[24px] font-normal tracking-[-0.005em]
+              className="font-inter text-[16px] text-[#595959] leading-[24px] font-normal tracking-[-0.005em]
               transition-all duration-200 hover:text-primary hover:translate-x-1"
             >
               {label}

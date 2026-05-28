@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "../../constants/nav-links";
 
+/** Renders the desktop navigation links with active state highlighting. */
 export function NavLinks() {
   const pathname = usePathname();
 
@@ -20,7 +21,7 @@ export function NavLinks() {
                 className={cn(
                   "font-geist text-base leading-6 font-normal transition-all duration-200",
                   "cursor-pointer hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                  isActive ? "text-primary" : "text-primary/60"
+                  isActive ? "text-primary" : "text-[#45625E]"
                 )}
               >
                 {label}
