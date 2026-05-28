@@ -1,6 +1,14 @@
+"use client";
+
+import { motion } from "motion/react";
 import PricingHeader from "./PricingHeader";
 import PricingCard from "./PricingCard";
 import { plans } from "./constants";
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
 
 const PricingSection = () => {
   const cardLayoutClasses = [
@@ -11,19 +19,33 @@ const PricingSection = () => {
 
   return (
     <section className="mx-auto w-full bg-[#F1FCEA] px-4 py-20 lg:px-15">
-      <div className="mx-auto w-full max-w-[1280px]">
-        <PricingHeader />
+      <div className="mx-auto w-full max-w-7xl">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <PricingHeader />
+        </motion.div>
 
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 lg:px-10">
+        <motion.div
+          className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3 lg:px-10"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
           {plans.map((plan, index) => (
-            <div
+            <motion.div
               key={`${plan.name}-${index}`}
+              variants={cardVariants}
               className={cardLayoutClasses[index] ?? ""}
             >
               <PricingCard plan={plan} index={index} />
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
