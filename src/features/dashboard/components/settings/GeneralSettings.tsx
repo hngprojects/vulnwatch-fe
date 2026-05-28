@@ -144,7 +144,7 @@ const GeneralSettingsContent = ({
   };
 
   const handleCancelEdit = () => {
-    if (!isDirty || saving) return;
+    if (saving) return;
 
     setForm(initialForm);
     setIsEditModalOpen(false);

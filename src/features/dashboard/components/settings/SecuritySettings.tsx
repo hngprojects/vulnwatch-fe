@@ -112,10 +112,11 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
 
             <div className="mt-6 space-y-5">
               <div>
-                <label className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
+                <label htmlFor="currentPassword" className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
                   Current Password
                 </label>
                 <input
+                  id="currentPassword"
                   type="password"
                   name="currentPassword"
                   placeholder="Current password"
@@ -126,10 +127,11 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
               </div>
 
               <div>
-                <label className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
+                <label htmlFor="newPassword" className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
                   New Password
                 </label>
                 <input
+                  id="newPassword"
                   type="password"
                   name="newPassword"
                   placeholder="New password"
@@ -140,10 +142,11 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
               </div>
 
               <div>
-                <label className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
+                <label htmlFor="confirmPassword" className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
                   Confirm New Password
                 </label>
                 <input
+                  id="confirmPassword"
                   type="password"
                   name="confirmPassword"
                   placeholder="Confirm new password"

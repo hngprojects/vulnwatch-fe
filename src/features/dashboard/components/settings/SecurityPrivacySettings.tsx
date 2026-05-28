@@ -47,7 +47,7 @@ const SecurityRow = ({
 );
 
 const SecurityPrivacySettings = () => {
-  const authEmail = useAuthStore.getState().email ?? "";
+  const authEmail = useAuthStore((state) => state.email) ?? "";
   const { profile, loading, error, refetch } = useProfile();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 

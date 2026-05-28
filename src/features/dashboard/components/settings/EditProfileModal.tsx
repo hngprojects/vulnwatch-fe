@@ -90,7 +90,7 @@ const EditProfileModal = ({
                 </button>
                 <button
                   onClick={onSave}
-                  disabled={saving}
+                  disabled={saving || !isDirty}
                   className="min-w-[190px] py-3 px-6 text-sm sm:text-[16px] font-semibold text-white bg-primary rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {saving && <Loader2 size={15} className="animate-spin" />}
