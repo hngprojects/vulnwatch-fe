@@ -1,17 +1,25 @@
-"use client"
+"use client";
 
-import { privateApi } from "@/lib/axios";
+import { useState, type ChangeEvent } from "react";
+import { Loader2, X } from "lucide-react";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
-import React, { useState } from "react";
+import { privateApi } from "@/lib/axios";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-const SecuritySettings = () => {
-  const [loginAlert, setLoginAlert] = useState({
-    sessionsAlert: true,
-    suspiciousLoginAlerts: true,
-    newDeviceAlerts: true,
-  });
+type ChangePasswordModalProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
 
+const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) => {
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -19,19 +27,35 @@ const SecuritySettings = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const closeModal = () => {
+    if (loading) return;
+    resetForm();
+    onOpenChange(false);
+  };
+
+  const resetForm = () => {
+    setForm({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async () => {
-    if (!form.currentPassword || !form.newPassword || !form.currentPassword) {
+    if (!form.currentPassword || !form.newPassword || !form.confirmPassword) {
       toast.error("All fields are required.");
       return;
     }
+
     if (form.newPassword !== form.confirmPassword) {
       toast.error("New password and confirm password do not match.");
       return;
     }
+
     if (form.newPassword.length < 8) {
       toast.error("New password must be at least 8 characters.");
       return;
@@ -39,180 +63,123 @@ const SecuritySettings = () => {
 
     try {
       setLoading(true);
-      // the /auth/change-password is a placeholder
-      await privateApi.patch("/auth/change-password", {
-        current_password: form.currentPassword,
-        new_password: form.newPassword,
+      await privateApi.post("/api/auth/change-password", {
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword,
+        confirmNewPassword: form.confirmPassword,
       });
       toast.success("Password updated successfully.");
-      setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      resetForm();
+      onOpenChange(false);
     } catch (err: unknown) {
-      const message = isAxiosError(err) ? err.response?.data?.message : undefined;
+      const message =
+        isAxiosError(err) ? err.response?.data?.error?.message ?? err.response?.data?.message : undefined;
       toast.error(message || "Failed to update password.");
     } finally {
       setLoading(false);
     }
   };
+
   const handleCancel = () => {
-    setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    if (loading) return;
+    resetForm();
+    onOpenChange(false);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
-        <div>
-          <p className="text-[#2B2B2B] font-semibold text-xl mb-2">
-            Change Password
-          </p>
-          <span className="font-normal text-[16px] text-[#666666]">
-            Use a strong password
-          </span>
-        </div>
-        <div>
-          <div>
-            <label className="block text-[16px] font-normal text-[#2B2B2B] mt-3 mb-1.5">
-              Current Password
-            </label>
-            <input
-              type="password"
-              name="currentPassword"
-              placeholder="Current Password"
-              value={form.currentPassword}
-              onChange={handleChange}
-              className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label className="block text-[16px] font-normal text-[#2B2B2B] mt-2 mb-1.5">
-              New Password
-            </label>
-            <input
-              type="password"
-              name="newPassword"
-              value={form.newPassword}
-              onChange={handleChange}
-              placeholder="New Password"
-              className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label className="block text-[16px] font-normal text-[#2B2B2B] mt-2 mb-1.5">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm Password"
-              className="w-full border border-[#E5E7EB] rounded-lg px-3 py-2.5 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-          <div className="flex justify-end gap-3 mt-6">
-            <button
-              onClick={handleCancel}
-              className="py-3 px-5 sm:px-10 text-sm sm:text-[16px] font-semibold text-[#666666] border border-[#EDEDED] rounded-lg transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="py-3 px-5 sm:px-10 text-sm sm:text-[16px] font-semibold text-white bg-primary rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
-            >
-              {loading ? "Updating..." : "Update password"}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
-        <div>
-          <p className="text-[#2B2B2B] font-semibold text-xl mb-2">Login</p>
-          <span className="font-normal text-[16px] text-[#666666]">
-            Get notify about unusual account activity
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between border border-[#E5E7EB] rounded-lg px-4 py-3 mt-5">
-          <span className="text-[16px] font-normal text-[#2B2B2B]">
-            Sessions Alert
-          </span>
-          <button
-            role="switch"
-            aria-checked={loginAlert.sessionsAlert}
-            onClick={() =>
-              setLoginAlert({
-                ...loginAlert,
-                sessionsAlert: !loginAlert.sessionsAlert,
-              })
-            }
-            className={`relative w-10 h-6 rounded-full transition-colors ${
-              loginAlert.sessionsAlert ? "bg-primary" : "bg-[#D1D5DB]"
-            }`}
+    <Dialog open={open} onOpenChange={(nextOpen) => (nextOpen ? onOpenChange(true) : closeModal())}>
+      <DialogContent
+        showCloseButton={false}
+        className="top-0 left-0 h-dvh w-screen max-w-none translate-x-0 translate-y-0 rounded-none border-0 p-0 sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[85vh] sm:w-[70vw] sm:max-w-4xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border sm:border-[#E5E7EB] sm:p-6"
+      >
+        <div className="relative flex h-full flex-col overflow-y-auto px-4 pb-5 pt-6 sm:p-0">
+          <DialogClose
+            className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#666666] transition-colors hover:bg-[#F3F4F6]"
+            aria-label="Close password modal"
           >
-            <span
-              className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                loginAlert.sessionsAlert ? "translate-x-5" : "translate-x-1"
-              }`}
-            />
-          </button>
-        </div>
+            <X className="h-5 w-5" />
+          </DialogClose>
 
-        <div className="flex items-center justify-between border border-[#E5E7EB] rounded-lg px-4 py-3 mt-5">
-          <span className="text-[16px] font-normal text-[#2B2B2B]">
-            Suspicious Login Alerts
-          </span>
-          <button
-            role="switch"
-            aria-checked={loginAlert.suspiciousLoginAlerts}
-            onClick={() =>
-              setLoginAlert({
-                ...loginAlert,
-                suspiciousLoginAlerts: !loginAlert.suspiciousLoginAlerts,
-              })
-            }
-            className={`relative w-10 h-6 rounded-full transition-colors ${
-              loginAlert.suspiciousLoginAlerts ? "bg-primary" : "bg-[#D1D5DB]"
-            }`}
-          >
-            <span
-              className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                loginAlert.suspiciousLoginAlerts
-                  ? "translate-x-5"
-                  : "translate-x-1"
-              }`}
-            />
-          </button>
-        </div>
+          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
+            <DialogHeader className="mt-10 space-y-2 text-left sm:mt-0">
+              <DialogTitle className="text-xl leading-[42px] font-semibold text-[#2B2B2B] md:text-2xl md:leading-[38px]">
+                Change Password
+              </DialogTitle>
+              <DialogDescription className="text-[16px] leading-7 text-[#666666]">
+                Update your password using your current password and a new secure password.
+              </DialogDescription>
+            </DialogHeader>
 
-        <div className="flex items-center justify-between border border-[#E5E7EB] rounded-lg px-4 py-3 mt-5">
-          <span className="text-[16px] font-normal text-[#2B2B2B]">
-            New Device Alerts
-          </span>
-          <button
-            role="switch"
-            aria-checked={loginAlert.newDeviceAlerts}
-            onClick={() =>
-              setLoginAlert({
-                ...loginAlert,
-                newDeviceAlerts: !loginAlert.newDeviceAlerts,
-              })
-            }
-            className={`relative w-10 h-6 rounded-full transition-colors ${
-              loginAlert.newDeviceAlerts ? "bg-primary" : "bg-[#D1D5DB]"
-            }`}
-          >
-            <span
-              className={`absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                loginAlert.newDeviceAlerts ? "translate-x-5" : "translate-x-1"
-              }`}
-            />
-          </button>
+            <div className="mt-6 space-y-5">
+              <div>
+                <label className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  name="currentPassword"
+                  placeholder="Current password"
+                  value={form.currentPassword}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  placeholder="New password"
+                  value={form.newPassword}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="Confirm new password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <div className="mt-auto pt-7">
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  onClick={handleCancel}
+                  disabled={loading}
+                  className="min-w-[140px] rounded-lg border border-[#EDEDED] px-5 py-3 text-sm font-semibold text-[#666666] transition-colors disabled:cursor-not-allowed disabled:opacity-50 sm:text-[16px]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="flex min-w-[190px] cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:text-[16px]"
+                >
+                  {loading && <Loader2 size={15} className="animate-spin" />}
+                  {loading ? "Updating..." : "Update password"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <DialogClose className="sr-only">Close</DialogClose>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default SecuritySettings;
+export default ChangePasswordModal;

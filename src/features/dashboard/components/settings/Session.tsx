@@ -1,7 +1,10 @@
 "use client";
 
 import { Check, Globe2, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useProfile } from "../../hooks/useProfile";
+import SettingsErrorState from "./SettingsErrorState";
+import SettingsSectionSkeleton from "./SettingsSectionSkeleton";
 
 const inputClass =
   "h-10 w-full rounded-lg border border-[#CCCCCC] bg-white px-3 text-sm text-[#2B2B2B] outline-none transition focus:border-primary focus:ring-1 focus:ring-primary";
@@ -110,10 +113,26 @@ function IconSelect({
 }
 
 const Session = () => {
+  const { profile, loading, error, refetch } = useProfile();
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const [weeklySummary, setWeeklySummary] = useState(true);
+  const [slackNotifications, setSlackNotifications] = useState(false);
+  const [pushNotifications, setPushNotifications] = useState(false);
   const [riskBadges, setRiskBadges] = useState(false);
   const [theme, setTheme] = useState<"Light" | "Dark">("Light");
+
+  useEffect(() => {
+    if (!profile) return;
+
+    setEmailNotifications(profile.notificationPreferences.emailAlerts);
+    setSlackNotifications(profile.notificationPreferences.slackAlerts);
+    setPushNotifications(profile.notificationPreferences.pushNotifications);
+  }, [profile]);
+
+  if (loading) return <SettingsSectionSkeleton label="Loading preferences..." />;
+
+  if (error) {
+    return <SettingsErrorState message={error} onRetry={() => void refetch()} />;
+  }
 
   return (
     <div className="space-y-4 lg:space-y-3">
@@ -186,10 +205,14 @@ const Session = () => {
             onChange={() => setEmailNotifications((value) => !value)}
           />
           <Toggle
-            label="Weekly Summary Report"
-            checked={weeklySummary}
-            onChange={() => setWeeklySummary((value) => !value)}
-            checkmark
+            label="Slack Notifications"
+            checked={slackNotifications}
+            onChange={() => setSlackNotifications((value) => !value)}
+          />
+          <Toggle
+            label="Push Notifications"
+            checked={pushNotifications}
+            onChange={() => setPushNotifications((value) => !value)}
           />
         </div>
       </Section>
