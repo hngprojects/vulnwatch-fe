@@ -133,13 +133,15 @@ export default function AddDomainModal({ open, onOpenChange }: Props) {
                   setError("");
                 }}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                aria-invalid={!!error}
+                aria-describedby={error ? "domain-error" : "domain-hint"}
                 className="w-full pl-11 pr-4 h-12 text-sm rounded-[12px] border border-[#E5E7EB] text-brand-dark placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#072E28]/10 focus:border-[#072E28] font-geist transition-shadow"
               />
             </div>
             {error ? (
-              <p className="text-xs text-[#EF4444] font-geist mt-1.5">{error}</p>
+              <p id="domain-error" className="text-xs text-[#EF4444] font-geist mt-1.5">{error}</p>
             ) : (
-              <p className="text-xs text-brand-gray font-geist mt-1.5">
+              <p id="domain-hint" className="text-xs text-brand-gray font-geist mt-1.5">
                 Enter a valid domain (e.g. example.com)
               </p>
             )}

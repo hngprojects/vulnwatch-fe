@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Eye, EyeOff } from "lucide-react";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
 import { privateApi } from "@/lib/axios";
@@ -26,6 +26,15 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
+
+  const toggleShow = (field: keyof typeof showPasswords) => {
+    setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
 
   const closeModal = () => {
     if (loading) return;
@@ -38,6 +47,11 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
+    });
+    setShowPasswords({
+      currentPassword: false,
+      newPassword: false,
+      confirmPassword: false,
     });
   };
 
@@ -115,45 +129,78 @@ const ChangePasswordModal = ({ open, onOpenChange }: ChangePasswordModalProps) =
                 <label htmlFor="currentPassword" className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
                   Current Password
                 </label>
-                <input
-                  id="currentPassword"
-                  type="password"
-                  name="currentPassword"
-                  placeholder="Current password"
-                  value={form.currentPassword}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-                />
+                <div className="relative">
+                  <input
+                    id="currentPassword"
+                    type={showPasswords.currentPassword ? "text" : "password"}
+                    name="currentPassword"
+                    autoComplete="current-password"
+                    placeholder="Current password"
+                    value={form.currentPassword}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 pr-10 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleShow("currentPassword")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280]"
+                    aria-label={showPasswords.currentPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPasswords.currentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label htmlFor="newPassword" className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
                   New Password
                 </label>
-                <input
-                  id="newPassword"
-                  type="password"
-                  name="newPassword"
-                  placeholder="New password"
-                  value={form.newPassword}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-                />
+                <div className="relative">
+                  <input
+                    id="newPassword"
+                    type={showPasswords.newPassword ? "text" : "password"}
+                    name="newPassword"
+                    autoComplete="new-password"
+                    placeholder="New password"
+                    value={form.newPassword}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 pr-10 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleShow("newPassword")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280]"
+                    aria-label={showPasswords.newPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPasswords.newPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               <div>
                 <label htmlFor="confirmPassword" className="mb-2 block text-[16px] font-normal text-[#2B2B2B]">
                   Confirm New Password
                 </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="Confirm new password"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
-                />
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    type={showPasswords.confirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    autoComplete="new-password"
+                    placeholder="Confirm new password"
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-[#E5E7EB] px-3 py-3 pr-10 text-sm text-[#2B2B2B] outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleShow("confirmPassword")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280]"
+                    aria-label={showPasswords.confirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPasswords.confirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
             </div>
 

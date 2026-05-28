@@ -358,6 +358,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
         {loading ? (
           <div className="flex items-center justify-center py-16 bg-white rounded-[12px] border border-brand-input-border">
             <Loader2 size={24} className="animate-spin text-primary" />
+            <span className="sr-only">Loading domains...</span>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-[12px] border border-brand-input-border gap-3">
@@ -442,6 +443,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
                   <td colSpan={6} className="text-center py-16">
                     <div className="flex items-center justify-center">
                       <Loader2 size={24} className="animate-spin text-primary" />
+                      <span className="sr-only">Loading domains...</span>
                     </div>
                   </td>
                 </tr>

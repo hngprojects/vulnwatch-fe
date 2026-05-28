@@ -210,7 +210,7 @@ export function Contact() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-primary inline-flex h-[46px] items-center gap-3 rounded-[10px] px-5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
+                className="bg-primary inline-flex h-[46px] items-center gap-3 rounded-[10px] px-5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
                 <span className="text-primary flex h-8 w-8 items-center justify-center rounded-[8px] bg-white">
