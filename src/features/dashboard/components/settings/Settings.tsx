@@ -26,9 +26,7 @@ const Settings = ({ initialTab = "general" }: SettingsProps) => {
 
   return (
     <div>
-      <p className="text-[#2B2B2B] text-xl md:text-2xl font-semibold">Settings</p>
-
-      <div className="mt-6 flex sm:gap-[30px]">
+      <div className="flex sm:gap-[30px]">
         {TABS.map((tab) => (
           <button
             key={tab.value}
