@@ -25,8 +25,8 @@ export default function Report() {
   const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
 
   const [domains, setDomains] = useState<Domain[]>([]);
-  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const selectedDomain = domains.find((d) => d.id === domainId) ?? null;
   const [domainsLoading, setDomainsLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -55,6 +55,7 @@ export default function Report() {
         if (!domainId && verified.length > 0) {
           router.replace(`/report?domainId=${encodeURIComponent(verified[0].id)}`);
         }
+
       } finally {
         setDomainsLoading(false);
       }
@@ -63,12 +64,6 @@ export default function Report() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync selectedDomain whenever domainId or domains list changes
-  useEffect(() => {
-    if (!domainId || domains.length === 0) return;
-    const match = domains.find((d) => d.id === domainId);
-    setSelectedDomain(match ?? null);
-  }, [domainId, domains]);
 
   // Fetch scan history when domainId or page changes
   useEffect(() => {
@@ -93,10 +88,10 @@ export default function Report() {
       }
     };
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domainId, page]);
 
   const handleDomainSelect = (domain: Domain) => {
-    setSelectedDomain(domain);
     setDropdownOpen(false);
     router.push(`/report?domainId=${encodeURIComponent(domain.id)}`);
   };
