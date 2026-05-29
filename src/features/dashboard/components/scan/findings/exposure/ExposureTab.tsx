@@ -4,29 +4,10 @@ import { Check } from 'lucide-react';
 import { SecurityScoreCard } from '../SecurityScoreCard';
 import { SecuritySummaryCard } from '../SecuritySummaryCard';
 import { FindingsSummaryRow } from '../FindingsSummaryRow';
-import { type FindingSummary } from '../scan-findings.types';
-import { ScanReport, FindingDto } from '../../../../../scans/services/scan.service';
+import { type FindingSummary, mapFindingDtoToSummary } from '../scan-findings.types';
+import { ScanReport } from '../../../../../scans/services/scan.service';
 
-const mapFindingDtoToSummary = (finding: FindingDto): FindingSummary => {
-  let findingModule: 'Exposure' | 'SSL' | 'DNS' = "Exposure";
-  const surface = finding.surface.toLowerCase();
-  if (surface === "dns") findingModule = "DNS";
-  if (surface === "ssl") findingModule = "SSL";
-  
-  let severity: "Critical" | "High" | "Medium" | "Low" | "Pass" = "Medium";
-  const sev = finding.severity.toLowerCase();
-  if (sev === "critical") severity = "Critical";
-  else if (sev === "high") severity = "High";
-  else if (sev === "medium") severity = "Medium";
-  else if (sev === "low") severity = "Low";
 
-  return {
-    id: finding.id,
-    severity,
-    title: finding.title,
-    module: findingModule,
-  };
-};
 
 type ExposureTabProps = {
   report: ScanReport;
@@ -46,7 +27,7 @@ export function ExposureTab({ report }: ExposureTabProps) {
     ];
     allIssues.forEach(f => {
       if (typeof f !== "string" && (f.surface.toLowerCase() === "exposure" || f.surface.toLowerCase() === "httpheaders")) {
-        activeFailed.push(mapFindingDtoToSummary(f));
+        activeFailed.push(mapFindingDtoToSummary(f, "Exposure"));
       }
     });
   }

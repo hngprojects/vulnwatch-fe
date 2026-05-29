@@ -41,7 +41,7 @@ export function DomainStatusBanner({
         </span>
       </div>
 
-      <div className="h-5 w-px bg-[#E5E7EB] hidden sm:block" />
+      <div className="h-5 w-px bg-gray-200 hidden sm:block" />
 
       {/* Last monitored */}
       <div className="flex items-center gap-2 text-sm text-slate-600">

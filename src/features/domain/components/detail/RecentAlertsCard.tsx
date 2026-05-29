@@ -33,8 +33,11 @@ const ALERT_TYPE_CONFIG: Record<
 // Helpers
 // ---------------------------------------------------------------------------
 function formatRelativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "Unknown";
+  const diff = Math.max(0, Date.now() - d.getTime());
   const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "Just now";
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
@@ -46,9 +49,10 @@ function formatRelativeTime(iso: string): string {
 // ---------------------------------------------------------------------------
 interface RecentAlertsCardProps {
   alerts: SecurityAlert[];
+  onViewAll?: () => void;
 }
 
-export function RecentAlertsCard({ alerts }: RecentAlertsCardProps) {
+export function RecentAlertsCard({ alerts, onViewAll }: RecentAlertsCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
       {/* Header */}
@@ -69,6 +73,7 @@ export function RecentAlertsCard({ alerts }: RecentAlertsCardProps) {
 
         <button
           type="button"
+          onClick={onViewAll}
           className="text-xs font-medium transition-opacity hover:opacity-70 text-primary"
         >
           View All Alerts →

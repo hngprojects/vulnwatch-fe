@@ -51,7 +51,13 @@ export function DomainDetailLoader() {
   }, [cooldown]);
 
   useEffect(() => {
-    if (!domainId) return;
+    if (!domainId) {
+      queueMicrotask(() => {
+        setLoading(false);
+        setError("Domain ID is missing.");
+      });
+      return;
+    }
     let active = true;
 
     async function load() {
@@ -113,7 +119,7 @@ export function DomainDetailLoader() {
   if (loading) {
     return (
       <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-2">
-        <Loader2 className="h-7 w-7 animate-spin text-[#072E28]" />
+        <Loader2 className="h-7 w-7 animate-spin text-primary" />
         <p className="text-sm font-medium text-neutral-500">Loading domain details...</p>
       </div>
     );
@@ -127,7 +133,7 @@ export function DomainDetailLoader() {
             <AlertCircle className="h-6 w-6 text-red-600" />
           </div>
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-[#111827] font-geist">
+            <h3 className="text-lg font-semibold text-gray-900 font-geist">
               Failed to load domain
             </h3>
             <p className="text-sm text-neutral-500 leading-relaxed">
@@ -136,7 +142,6 @@ export function DomainDetailLoader() {
                 : (error ?? "This domain could not be found.")}
             </p>
           </div>
-          
           {isRateLimitError ? (
             <div className="w-full flex flex-col gap-2 mt-2">
               <Button
@@ -145,7 +150,7 @@ export function DomainDetailLoader() {
                 className={`w-full font-semibold h-11 transition-colors ${
                   cooldown > 0 
                     ? "bg-neutral-200 text-neutral-500 cursor-not-allowed hover:bg-neutral-200 opacity-100" 
-                    : "bg-[#072e28] text-white hover:bg-[#072e28]/90"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
                 }`}
               >
                 {cooldown > 0 ? `Retry in ${cooldown}s...` : "Try Again"}
@@ -160,7 +165,7 @@ export function DomainDetailLoader() {
           ) : (
             <Button
               asChild
-              className="w-full mt-2 bg-[#072e28] text-white hover:bg-[#072e28]/90 font-semibold h-11"
+              className="w-full mt-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold h-11"
             >
               <Link href="/domain">Back to Domains</Link>
             </Button>

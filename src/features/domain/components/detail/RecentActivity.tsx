@@ -8,7 +8,7 @@ import {
   Activity,
   Globe,
 } from "lucide-react";
-import type { ActivityIconType } from "./domain-detail.types";
+import type { ActivityEvent, ActivityIconType } from "./domain-detail.types";
 
 const ICON_MAP: Record<ActivityIconType, React.ElementType> = {
   scan: ScanLine,
@@ -28,14 +28,7 @@ const COLOR_MAP = {
   red:    { text: "text-red-600",    bg: "bg-red-50",    dot: "bg-red-500" },
 } as const;
 
-interface ActivityEvent {
-  id: string | number;
-  iconType: ActivityIconType;
-  title: string;
-  detail: string;
-  time: string;
-  colorVariant: keyof typeof COLOR_MAP;
-}
+
 
 interface RecentActivityProps {
   events: ActivityEvent[];
