@@ -1,19 +1,14 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Check, X, Loader2, ScanLine, ArrowRight } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Check, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FindingsSummaryRow } from './FindingsSummaryRow';
 import {
-  allPassedFindings,
-  failedFindings,
-  findingStats,
   type FindingModule,
   type FindingSummary,
-} from './scan-findings-data';
-import { scanService, ScanReport, FindingDto } from '../../../../scans/services/scan.service';
+  mapFindingDtoToSummary,
+} from './scan-findings.types';
+import { ScanReport } from '../../../../scans/services/scan.service';
 
 const moduleHref: Record<FindingModule, string> = {
   Exposure: '/scan/report/findings/exposure',
@@ -30,230 +25,140 @@ const getSeverityFromLabel = (label: string) => {
   return "all";
 };
 
-const mapFindingDtoToSummary = (finding: FindingDto): FindingSummary => {
-  let findingModule: FindingModule = "Exposure";
-  const surface = finding.surface.toLowerCase();
-  if (surface === "dns") findingModule = "DNS";
-  if (surface === "ssl") findingModule = "SSL";
-  
-  // Normalize severity casing
-  let severity: "Critical" | "High" | "Medium" | "Low" | "Pass" = "Medium";
-  const sev = finding.severity.toLowerCase();
-  if (sev === "critical") severity = "Critical";
-  else if (sev === "high") severity = "High";
-  else if (sev === "medium") severity = "Medium";
-  else if (sev === "low") severity = "Low";
 
-  return {
-    id: finding.id,
-    severity,
-    title: finding.title,
-    module: findingModule,
-  };
+
+type AllFindingsTabProps = {
+  report: ScanReport;
 };
 
-export function AllFindingsTab() {
+export function AllFindingsTab({ report }: AllFindingsTabProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const severityFilter = searchParams.get('severity') || 'all';
-  const scanId = searchParams.get('scanId');
-
-  const [report, setReport] = useState<ScanReport | null>(null);
-  const [loading, setLoading] = useState(!!scanId);
-
-  useEffect(() => {
-    if (!scanId) return;
-
-    let active = true;
-    scanService.getScanReport(scanId)
-      .then((res) => {
-        if (active && res.isSuccess && res.value) {
-          setReport(res.value);
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to load report", err);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [scanId]);
+  const scanId = report.scanId;
 
   const handleFilterToggle = (severity: string) => {
-    const base = `/scan/report/findings${scanId ? `?scanId=${encodeURIComponent(scanId)}` : ''}`;
+    const base = `/scan/report/findings?scanId=${encodeURIComponent(scanId)}`;
     if (severityFilter === severity) {
       router.push(base); // Clear filter if clicked again
     } else {
-      router.push(`${base}${scanId ? '&' : '?'}severity=${severity}`);
+      router.push(`${base}&severity=${severity}`);
     }
   };
 
   const handleClearFilter = () => {
-    router.push(`/scan/report/findings${scanId ? `?scanId=${encodeURIComponent(scanId)}` : ''}`);
+    router.push(`/scan/report/findings?scanId=${encodeURIComponent(scanId)}`);
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-[30vh] w-full flex-col items-center justify-center gap-2 p-5 bg-white rounded-xl md:border border-neutral-200 shadow-sm">
-        <Loader2 className="h-7 w-7 animate-spin text-[#072e28]" />
-        <p className="text-neutral-500 font-medium text-xs">Loading scan findings...</p>
-      </div>
-    );
-  }
-
-  if (!scanId) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-360px)] px-4 py-4 text-center">
-        <div className="mb-6">
-          <Image
-            src="/images/dashboard-empty.png"
-            alt="No scan selected"
-            width={200}
-            height={200}
-            className="h-auto w-48"
-          />
-        </div>
-        <h2 className="text-xl font-bold text-[#111827] mb-2">No scan selected</h2>
-        <p className="text-sm text-[#6B7280] max-w-sm mb-8 leading-relaxed">
-          Run a security scan on one of your domains to see findings and your vulnerability report here.
-        </p>
-        <Link
-          href="/scan"
-          className="inline-flex items-center justify-center gap-2 px-8 py-[15px] bg-[#072E28] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-[320px] md:w-auto md:h-12 md:py-0 whitespace-nowrap"
-        >
-          <ScanLine className="h-5 w-5" aria-hidden="true" />
-          Run New Scan
-          <ArrowRight className="h-5 w-5 md:hidden ml-auto" aria-hidden="true" />
-        </Link>
-      </div>
-    );
-  }
-
-  // Determine active dataset: either backend report or mock fallback
-  let activeFailed = failedFindings;
-  let activePassed = allPassedFindings;
-  let activeStats = findingStats;
-
-  if (report) {
-    const dynamicFailed: FindingSummary[] = [];
-    if (report.summary) {
-      if (report.summary.criticalIssues) {
-        report.summary.criticalIssues.forEach(f => {
-          if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
-        });
-      }
-      if (report.summary.highSeverityIssues) {
-        report.summary.highSeverityIssues.forEach(f => {
-          if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
-        });
-      }
-      if (report.summary.mediumSeverityIssues) {
-        report.summary.mediumSeverityIssues.forEach(f => {
-          if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
-        });
-      }
-      if (report.summary.lowSeverityIssues) {
-        report.summary.lowSeverityIssues.forEach(f => {
-          if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
-        });
-      }
-    }
-    activeFailed = dynamicFailed;
-
-    const dynamicPassed: FindingSummary[] = [];
-    if (report.subScores.ssl.score >= 80 && !dynamicFailed.some(f => f.module === 'SSL')) {
-      dynamicPassed.push({
-        id: 'ssl-pass',
-        severity: 'Pass',
-        title: 'SSL/TLS Configuration Nominal',
-        module: 'SSL',
+  const dynamicFailed: FindingSummary[] = [];
+  if (report.summary) {
+    if (report.summary.criticalIssues) {
+      report.summary.criticalIssues.forEach(f => {
+        if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
       });
     }
-    if (report.subScores.dns.score >= 80 && !dynamicFailed.some(f => f.module === 'DNS')) {
-      dynamicPassed.push({
-        id: 'dns-pass',
-        severity: 'Pass',
-        title: 'DNS Records & Delegation Nominal',
-        module: 'DNS',
+    if (report.summary.highSeverityIssues) {
+      report.summary.highSeverityIssues.forEach(f => {
+        if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
       });
     }
-    if (report.subScores.exposure.score >= 80 && !dynamicFailed.some(f => f.module === 'Exposure')) {
-      dynamicPassed.push({
-        id: 'exposure-pass',
-        severity: 'Pass',
-        title: 'Exposure & Endpoints Safe',
-        module: 'Exposure',
+    if (report.summary.mediumSeverityIssues) {
+      report.summary.mediumSeverityIssues.forEach(f => {
+        if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
       });
     }
-    activePassed = dynamicPassed;
-
-    const criticalCount = report.findingGroups?.criticalCount ?? 0;
-    const highCount = report.findingGroups?.highCount ?? 0;
-    const mediumCount = report.findingGroups?.mediumCount ?? 0;
-    const lowCount = report.findingGroups?.lowCount ?? 0;
-    const passCount = report.findingGroups?.passCount ?? activePassed.length;
-
-    activeStats = [
-      {
-        label: 'Critical fixes',
-        count: criticalCount,
-        description: 'Could cause serious harm if not fixed soon',
-        className: 'bg-[#FFE6EC] text-[#D92D50]',
-        countClassName: 'bg-[#D92D50] text-white',
-      },
-      {
-        label: 'High priority fixes',
-        count: highCount,
-        description: 'Important to fix within the next 2 weeks',
-        className: 'bg-[#FFF0E6] text-[#E46B16]',
-        countClassName: 'bg-[#E46B16] text-white',
-      },
-      {
-        label: 'Medium fixes',
-        count: mediumCount,
-        description: 'Could cause serious harm if not fixed soon',
-        className: 'bg-[#FFF8DB] text-[#B89412]',
-        countClassName: 'bg-[#B89412] text-white',
-      },
-      {
-        label: 'Low fixes',
-        count: lowCount,
-        description: 'Important to fix within the next 2 weeks',
-        className: 'bg-[#E8EDFF] text-[#2F5BC7]',
-        countClassName: 'bg-[#2F5BC7] text-white',
-      },
-      {
-        label: 'Pass',
-        count: passCount,
-        description: 'These areas passed our checks',
-        className: 'bg-[#DFF8EC] text-[#1FA870]',
-        countClassName: 'bg-[#1FA870] text-white',
-      },
-    ];
+    if (report.summary.lowSeverityIssues) {
+      report.summary.lowSeverityIssues.forEach(f => {
+        if (typeof f !== "string") dynamicFailed.push(mapFindingDtoToSummary(f));
+      });
+    }
   }
 
-  const filteredFailed = activeFailed.filter((finding) => {
+  const dynamicPassed: FindingSummary[] = [];
+  if (report.subScores.ssl.score >= 80 && !dynamicFailed.some(f => f.module === 'SSL')) {
+    dynamicPassed.push({
+      id: 'ssl-pass',
+      severity: 'Pass',
+      title: 'SSL/TLS Configuration Nominal',
+      module: 'SSL',
+    });
+  }
+  if (report.subScores.dns.score >= 80 && !dynamicFailed.some(f => f.module === 'DNS')) {
+    dynamicPassed.push({
+      id: 'dns-pass',
+      severity: 'Pass',
+      title: 'DNS Records & Delegation Nominal',
+      module: 'DNS',
+    });
+  }
+  if (report.subScores.exposure.score >= 80 && !dynamicFailed.some(f => f.module === 'Exposure')) {
+    dynamicPassed.push({
+      id: 'exposure-pass',
+      severity: 'Pass',
+      title: 'Exposure & Endpoints Safe',
+      module: 'Exposure',
+    });
+  }
+
+  const criticalCount = report.findingGroups?.criticalCount ?? 0;
+  const highCount = report.findingGroups?.highCount ?? 0;
+  const mediumCount = report.findingGroups?.mediumCount ?? 0;
+  const lowCount = report.findingGroups?.lowCount ?? 0;
+  const passCount = report.findingGroups?.passCount ?? dynamicPassed.length;
+
+  const activeStats = [
+    {
+      label: 'Critical fixes',
+      count: criticalCount,
+      description: 'Could cause serious harm if not fixed soon',
+      className: 'bg-[#FFE6EC] text-[#D92D50]',
+      countClassName: 'bg-[#D92D50] text-white',
+    },
+    {
+      label: 'High priority fixes',
+      count: highCount,
+      description: 'Important to fix within the next 2 weeks',
+      className: 'bg-[#FFF0E6] text-[#E46B16]',
+      countClassName: 'bg-[#E46B16] text-white',
+    },
+    {
+      label: 'Medium fixes',
+      count: mediumCount,
+      description: 'Could cause serious harm if not fixed soon',
+      className: 'bg-[#FFF8DB] text-[#B89412]',
+      countClassName: 'bg-[#B89412] text-white',
+    },
+    {
+      label: 'Low fixes',
+      count: lowCount,
+      description: 'Important to fix within the next 2 weeks',
+      className: 'bg-[#E8EDFF] text-[#2F5BC7]',
+      countClassName: 'bg-[#2F5BC7] text-white',
+    },
+    {
+      label: 'Pass',
+      count: passCount,
+      description: 'These areas passed our checks',
+      className: 'bg-[#DFF8EC] text-[#1FA870]',
+      countClassName: 'bg-[#1FA870] text-white',
+    },
+  ];
+
+  const filteredFailed = dynamicFailed.filter((finding) => {
     if (severityFilter === 'all') return true;
     return finding.severity.toLowerCase() === severityFilter;
   });
 
-  const filteredPassed = activePassed.filter(() => {
+  const filteredPassed = dynamicPassed.filter(() => {
     return severityFilter === 'all' || severityFilter === 'pass';
   });
 
-  // Helper to inject scanId into back/sub-page URLs dynamically
   const getFindingHref = (basePath: string) => {
-    if (!scanId) return basePath;
     return `${basePath}?scanId=${encodeURIComponent(scanId)}`;
   };
 
   const getFindingDetailsHref = (finding: FindingSummary) => {
     const base = moduleHref[finding.module];
-    if (!scanId) return `${base}/details?findingId=${encodeURIComponent(finding.id)}`;
     return `${base}/details?scanId=${encodeURIComponent(scanId)}&findingId=${encodeURIComponent(finding.id)}`;
   };
 
