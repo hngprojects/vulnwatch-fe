@@ -69,6 +69,9 @@ export default function AddDomainModal({ open, onOpenChange }: Props) {
     setLoading(true);
     try {
       const domain = await domainService.createDomain({ domain: trimmed });
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`vulnwatch_token_${domain.id}`, domain.verificationToken);
+      }
       toast.success("Domain added! Proceeding to verification...");
       onOpenChange(false);
       router.push(`/domain/${domain.id}/verify?token=${encodeURIComponent(domain.verificationToken)}`);
