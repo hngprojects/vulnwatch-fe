@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   Globe,
@@ -102,8 +103,14 @@ export default function DomainTable({ domains, loading = false, error = null, on
   const [deleteDomain, setDeleteDomain] = useState<Domain | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const router = useRouter();
+
   const handleViewDetails = (domain: Domain) => {
-    setDetailsDomain(domain);
+    if (domain.status === "Verified") {
+      router.push(`/domain/${domain.id}`);
+    } else {
+      setDetailsDomain(domain);
+    }
   };
 
   const statusDropRef = useRef<HTMLDivElement>(null);
@@ -382,7 +389,7 @@ export default function DomainTable({ domains, loading = false, error = null, on
           </div>
         ) : (
           filtered.map((domain) => (
-            <div
+              <div
               key={domain.id}
               className="bg-white rounded-[8px] border border-black/10 p-4 flex flex-col gap-3 shadow-sm animate-in fade-in duration-200"
             >

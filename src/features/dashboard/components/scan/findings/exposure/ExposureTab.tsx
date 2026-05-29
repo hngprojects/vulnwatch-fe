@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Check, Loader2 } from 'lucide-react';
+"use client";
+
+import { Check } from 'lucide-react';
 import { SecurityScoreCard } from '../SecurityScoreCard';
 import { SecuritySummaryCard } from '../SecuritySummaryCard';
 import { FindingsSummaryRow } from '../FindingsSummaryRow';
-import { useSearchParams } from 'next/navigation';
-import { type FindingSummary } from '../scan-findings-data';
-import { scanService, ScanReport, FindingDto } from '../../../../../scans/services/scan.service';
+import { type FindingSummary } from '../scan-findings.types';
+import { ScanReport, FindingDto } from '../../../../../scans/services/scan.service';
 
 const mapFindingDtoToSummary = (finding: FindingDto): FindingSummary => {
   let findingModule: 'Exposure' | 'SSL' | 'DNS' = "Exposure";
@@ -28,60 +28,12 @@ const mapFindingDtoToSummary = (finding: FindingDto): FindingSummary => {
   };
 };
 
-export function ExposureTab() {
-  const searchParams = useSearchParams();
-  const scanId = searchParams.get('scanId');
+type ExposureTabProps = {
+  report: ScanReport;
+};
 
-  const [report, setReport] = useState<ScanReport | null>(null);
-  const [loading, setLoading] = useState(!!scanId);
-
-  useEffect(() => {
-    if (!scanId) return;
-
-    let active = true;
-    scanService.getScanReport(scanId)
-      .then((res) => {
-        if (active && res.isSuccess && res.value) {
-          setReport(res.value);
-        }
-      })
-      .catch((err: unknown) => {
-        console.error("Failed to load report", err);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [scanId]);
-
-  if (loading) {
-    return (
-      <div className="flex h-[30vh] w-full flex-col items-center justify-center gap-2 p-5 bg-white rounded-xl md:border border-neutral-200 shadow-sm">
-        <Loader2 className="h-7 w-7 animate-spin text-[#072e28]" />
-        <p className="text-neutral-500 font-medium text-xs">Loading Exposure findings...</p>
-      </div>
-    );
-  }
-
-  if (!scanId) {
-    return (
-      <div className="rounded-xl border border-dashed border-neutral-300 p-8 text-center text-neutral-500 text-sm bg-white">
-        No active scan. Please select or run a scan to see Exposure details.
-      </div>
-    );
-  }
-
-  if (!report) {
-    return (
-      <div className="rounded-xl border border-dashed border-neutral-300 p-8 text-center text-neutral-500 text-sm bg-white">
-        Failed to load scan report. The scan may still be in progress or does not exist.
-      </div>
-    );
-  }
-
+export function ExposureTab({ report }: ExposureTabProps) {
+  const scanId = report.scanId;
   const activeScore = report.subScores.exposure.score;
   
   const activeFailed: FindingSummary[] = [];
