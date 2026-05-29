@@ -29,7 +29,7 @@ import type {
 interface DomainDetailPageProps {
   data: DomainDetailData;
   /** The domain UUID — used to redirect to scan progress after initiating a scan */
-  domainId?: string;
+  domainId: string;
 }
 
 export function DomainDetailPage({ data, domainId }: DomainDetailPageProps) {

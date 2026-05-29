@@ -39,6 +39,12 @@ export function ScanFindings({ activeTab }: ScanFindingsProps) {
     if (!scanId) return;
 
     let active = true;
+    queueMicrotask(() => {
+      if (active) {
+        setLoading(true);
+        setError(null);
+      }
+    });
     scanService.getScanReport(scanId)
       .then((res) => {
         if (active) {

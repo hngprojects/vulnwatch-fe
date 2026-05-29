@@ -27,13 +27,11 @@ export function Switch({
       onClick={() => !disabled && onCheckedChange?.(!checked)}
       className={[
         "relative inline-flex h-6 w-11 items-center rounded-full border-2 border-transparent",
-        "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#072E28] focus-visible:ring-offset-2",
+        "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        checked ? "bg-[#072E28]" : "bg-slate-200",
+        checked ? "bg-primary" : "bg-gray-200",
         className,
-      ]
-        .join(" ")
-        .replace(/data-\[state=checked\]:bg-\S+/g, "")}
+      ].join(" ")}
     >
       <span
         className={[

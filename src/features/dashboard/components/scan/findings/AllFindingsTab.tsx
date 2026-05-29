@@ -6,8 +6,9 @@ import { FindingsSummaryRow } from './FindingsSummaryRow';
 import {
   type FindingModule,
   type FindingSummary,
+  mapFindingDtoToSummary,
 } from './scan-findings.types';
-import { ScanReport, FindingDto } from '../../../../scans/services/scan.service';
+import { ScanReport } from '../../../../scans/services/scan.service';
 
 const moduleHref: Record<FindingModule, string> = {
   Exposure: '/scan/report/findings/exposure',
@@ -24,27 +25,7 @@ const getSeverityFromLabel = (label: string) => {
   return "all";
 };
 
-const mapFindingDtoToSummary = (finding: FindingDto): FindingSummary => {
-  let findingModule: FindingModule = "Exposure";
-  const surface = finding.surface.toLowerCase();
-  if (surface === "dns") findingModule = "DNS";
-  if (surface === "ssl") findingModule = "SSL";
-  
-  // Normalize severity casing
-  let severity: "Critical" | "High" | "Medium" | "Low" | "Pass" = "Medium";
-  const sev = finding.severity.toLowerCase();
-  if (sev === "critical") severity = "Critical";
-  else if (sev === "high") severity = "High";
-  else if (sev === "medium") severity = "Medium";
-  else if (sev === "low") severity = "Low";
 
-  return {
-    id: finding.id,
-    severity,
-    title: finding.title,
-    module: findingModule,
-  };
-};
 
 type AllFindingsTabProps = {
   report: ScanReport;

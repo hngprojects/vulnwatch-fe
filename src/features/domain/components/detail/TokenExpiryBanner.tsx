@@ -1,12 +1,14 @@
 "use client";
 
 import { AlertTriangle, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface TokenExpiryBannerProps {
   onDismiss: () => void;
+  onRenewToken?: () => void;
 }
 
-export function TokenExpiryBanner({ onDismiss }: TokenExpiryBannerProps) {
+export function TokenExpiryBanner({ onDismiss, onRenewToken }: TokenExpiryBannerProps) {
   return (
     <div
       className="flex items-start justify-between gap-4 rounded-xl border px-5 py-4 bg-brand-pending-bg border-orange-200"
@@ -41,7 +43,9 @@ export function TokenExpiryBanner({ onDismiss }: TokenExpiryBannerProps) {
           type="button"
           className="text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors bg-brand-pending-text border-brand-pending-text text-white hover:opacity-90"
           onClick={() => {
-            /* TODO: navigate to token renewal flow */
+            console.log("analytics.track('token_renewal_initiated')");
+            toast.info("Token renewal flow initiated.");
+            onRenewToken?.();
           }}
         >
           Renew Token

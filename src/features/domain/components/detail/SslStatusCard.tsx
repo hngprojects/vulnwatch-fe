@@ -35,7 +35,13 @@ export function SslStatusCard({ isValid, expiresInDays }: SslStatusCardProps) {
             <p className={`font-bold text-lg font-geist ${statusColor.label}`}>
               {statusColor.labelText}
             </p>
-            <p className="text-xs text-slate-500">Certificate active</p>
+            <p className="text-xs text-slate-500">
+              {isValid
+                ? "Certificate active"
+                : expiresInDays !== null && expiresInDays <= 0
+                ? "Certificate expired"
+                : "Certificate invalid"}
+            </p>
           </div>
         </div>
 

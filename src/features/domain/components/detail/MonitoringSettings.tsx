@@ -39,8 +39,9 @@ export function MonitoringSettings({ initialSettings, onSave }: MonitoringSettin
       <div className="space-y-6">
         {/* Scan Frequency */}
         <div className="space-y-2">
-          <Label className="text-sm font-semibold text-slate-700">Scan Frequency</Label>
+          <Label htmlFor="scan-frequency" className="text-sm font-semibold text-slate-700">Scan Frequency</Label>
           <select
+            id="scan-frequency"
             value={settings.scanFrequency}
             onChange={(e) =>
               setSettings((prev) => ({

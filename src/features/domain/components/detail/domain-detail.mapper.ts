@@ -26,16 +26,19 @@ function toRiskLevel(raw: string | null | undefined): RiskLevel {
 
 function formatRelativeTime(iso: string | null): string {
   if (!iso) return "Unknown";
-  const diff = Date.now() - new Date(iso).getTime();
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "Unknown";
+
+  const diff = Math.max(0, Date.now() - d.getTime());
   const mins = Math.floor(diff / 60_000);
-  if (mins < 2) return "Just now";
+  if (mins < 1) return "Just now";
   if (mins < 60) return `${mins} minutes ago`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours === 1 ? "1 hour" : `${hours} hours`} ago`;
   const days = Math.floor(hours / 24);
   if (days === 1) return "Yesterday";
   if (days < 7) return `${days} days ago`;
-  return new Date(iso).toLocaleDateString("en-US", {
+  return d.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",

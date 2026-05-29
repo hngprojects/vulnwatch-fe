@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Globe, ScanLine, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,22 @@ interface RunScanModalProps {
 
 export function RunScanModal({ domainName, onClose, onStart }: RunScanModalProps) {
   const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   if (typeof document === "undefined") return null;
 
   return createPortal(
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="run-scan-title"
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ backgroundColor: "rgba(0,0,0,0.45)", backdropFilter: "blur(4px)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
@@ -29,7 +41,7 @@ export function RunScanModal({ domainName, onClose, onStart }: RunScanModalProps
         {/* Header */}
         <div className="flex items-start justify-between p-6 pb-4 border-b border-gray-200">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 font-geist">Run Security Scan</h2>
+            <h2 id="run-scan-title" className="text-lg font-bold text-slate-900 font-geist">Run Security Scan</h2>
             <p className="text-sm text-slate-500 mt-0.5">
               Initiate a manual on-demand scan for this domain.
             </p>

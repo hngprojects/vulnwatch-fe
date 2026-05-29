@@ -1,4 +1,5 @@
 import { type LucideIcon } from 'lucide-react';
+import { type FindingDto } from '../../../../scans/services/scan.service';
 
 export type Severity = "Critical" | "High" | "Medium" | "Low" | "Pass";
 
@@ -42,4 +43,25 @@ export type ExposureFinding = {
   icon: LucideIcon;
   isOpen: boolean;
   checks?: ExposureCheck[];
+};
+
+export const mapFindingDtoToSummary = (finding: FindingDto, defaultModule: FindingModule = "Exposure"): FindingSummary => {
+  let findingModule: FindingModule = defaultModule;
+  const surface = finding.surface.toLowerCase();
+  if (surface === "dns") findingModule = "DNS";
+  if (surface === "ssl") findingModule = "SSL";
+  
+  let severity: Severity = "Medium";
+  const sev = finding.severity.toLowerCase();
+  if (sev === "critical") severity = "Critical";
+  else if (sev === "high") severity = "High";
+  else if (sev === "medium") severity = "Medium";
+  else if (sev === "low") severity = "Low";
+
+  return {
+    id: finding.id,
+    severity,
+    title: finding.title,
+    module: findingModule,
+  };
 };
