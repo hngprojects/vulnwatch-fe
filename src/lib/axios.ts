@@ -147,10 +147,16 @@ privateApi.interceptors.response.use(
       // Retry the original request with the new token
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
       return privateApi(originalRequest);
-    } catch (refreshError) {
+    } catch (refreshError: unknown) {
       isRefreshing = false;
       processQueue(refreshError, null);
-      performLogout();
+
+      if (axios.isAxiosError(refreshError) && refreshError.response?.status === 429) {
+        // Do NOT log the user out if the failure was just a 429, let the ui handles that
+      } else {
+        performLogout();
+      }
+
       return Promise.reject(refreshError);
     }
   },

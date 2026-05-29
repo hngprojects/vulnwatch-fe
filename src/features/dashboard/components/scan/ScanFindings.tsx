@@ -34,11 +34,43 @@ export function ScanFindings({ activeTab }: ScanFindingsProps) {
   const [report, setReport] = useState<ScanReport | null>(null);
   const [loading, setLoading] = useState(!!scanId);
   const [error, setError] = useState<string | null>(scanId ? null : "No Scan ID provided.");
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Derive if it's a rate limit error
+  const isRateLimitError = Boolean(
+    error?.includes("429") ||
+      error?.toLowerCase().includes("rate limit") ||
+      error?.toLowerCase().includes("too many requests"),
+  );
+
+  const [cooldown, setCooldown] = useState(0);
+
+  // Initialize cooldown when rate limit error appears
+  useEffect(() => {
+    if (error && isRateLimitError) {
+      queueMicrotask(() => setCooldown(15));
+    } else {
+      queueMicrotask(() => setCooldown(0));
+    }
+  }, [error, isRateLimitError]);
+
+  // Tick the cooldown timer
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
 
   useEffect(() => {
     if (!scanId) return;
 
     let active = true;
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
+    
     scanService.getScanReport(scanId)
       .then((res) => {
         if (active) {
@@ -69,7 +101,7 @@ export function ScanFindings({ activeTab }: ScanFindingsProps) {
     return () => {
       active = false;
     };
-  }, [scanId]);
+  }, [scanId, retryCount]);
   
   // Keep the scanId and severity filters in sub-tabs
   const getTabHref = (href: string) => {
@@ -124,12 +156,37 @@ export function ScanFindings({ activeTab }: ScanFindingsProps) {
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-[#111827]">Failed to load report</h3>
               <p className="text-sm text-neutral-500 leading-relaxed">
-                {error || "The report could not be found."}
+                {isRateLimitError
+                  ? "Too many requests, please wait a moment before trying again."
+                  : (error || "The report could not be found.")}
               </p>
             </div>
-            <Button asChild className="w-full mt-2 bg-[#072e28] text-white hover:bg-[#072e28]/90 font-semibold h-11">
-              <Link href={backHref}>Back to Summary</Link>
-            </Button>
+            
+            {isRateLimitError ? (
+              <div className="w-full flex flex-col gap-2 mt-2">
+                <Button
+                  onClick={() => setRetryCount((c) => c + 1)}
+                  disabled={cooldown > 0}
+                  className={`w-full font-semibold h-11 transition-colors ${
+                  cooldown > 0 
+                    ? "bg-neutral-200 text-neutral-500 cursor-not-allowed hover:bg-neutral-200 opacity-100" 
+                    : "bg-[#072e28] text-white hover:bg-[#072e28]/90"
+                }`}
+                >
+                  {cooldown > 0 ? `Retry in ${cooldown}s...` : "Try Again"}
+                </Button>
+                <Link
+                  href={backHref}
+                  className="text-sm font-medium text-neutral-500 hover:text-neutral-700 transition-colors"
+                >
+                  Back to Summary
+                </Link>
+              </div>
+            ) : (
+              <Button asChild className="w-full mt-2 bg-[#072e28] text-white hover:bg-[#072e28]/90 font-semibold h-11">
+                <Link href={backHref}>Back to Summary</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>

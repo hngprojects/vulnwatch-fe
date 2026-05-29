@@ -44,10 +44,7 @@ export default function DashboardLayout({
       return;
     }
 
-    if (!token) {
-      router.replace("/login");
-      return;
-    }
+
 
     const pendingDomain = localStorage.getItem("pending_scan_domain");
     if (!pendingDomain) return;
