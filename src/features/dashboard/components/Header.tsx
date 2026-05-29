@@ -32,7 +32,7 @@ function getPageHeaderInfo(pathname: string) {
     return { title: 'Domains', description: 'Manage and verify your domains' };
   }
   if (pathname.startsWith('/report') || pathname.startsWith('/scan')) {
-    return { title: 'Reports & Scans', description: 'View detailed security reports' };
+    return { title: 'Report Overview', description: 'Summary of all security reports' };
   }
   if (pathname.startsWith('/settings')) {
     return { title: 'Settings', description: 'Manage your account and preferences' };

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Check, X, Loader2 } from 'lucide-react';
+import { Check, X, Loader2, ScanLine, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FindingsSummaryRow } from './FindingsSummaryRow';
 import {
@@ -99,6 +101,34 @@ export function AllFindingsTab() {
       <div className="flex h-[30vh] w-full flex-col items-center justify-center gap-2 p-5 bg-white rounded-xl md:border border-neutral-200 shadow-sm">
         <Loader2 className="h-7 w-7 animate-spin text-[#072e28]" />
         <p className="text-neutral-500 font-medium text-xs">Loading scan findings...</p>
+      </div>
+    );
+  }
+
+  if (!scanId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-360px)] px-4 py-4 text-center">
+        <div className="mb-6">
+          <Image
+            src="/images/dashboard-empty.png"
+            alt="No scan selected"
+            width={200}
+            height={200}
+            className="h-auto w-48"
+          />
+        </div>
+        <h2 className="text-xl font-bold text-[#111827] mb-2">No scan selected</h2>
+        <p className="text-sm text-[#6B7280] max-w-sm mb-8 leading-relaxed">
+          Run a security scan on one of your domains to see findings and your vulnerability report here.
+        </p>
+        <Link
+          href="/scan"
+          className="inline-flex items-center justify-center gap-2 px-8 py-[15px] bg-[#072E28] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity w-full max-w-[320px] md:w-auto md:h-12 md:py-0 whitespace-nowrap"
+        >
+          <ScanLine className="h-5 w-5" aria-hidden="true" />
+          Run New Scan
+          <ArrowRight className="h-5 w-5 md:hidden ml-auto" aria-hidden="true" />
+        </Link>
       </div>
     );
   }

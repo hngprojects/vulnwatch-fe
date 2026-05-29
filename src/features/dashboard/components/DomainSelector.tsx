@@ -19,11 +19,14 @@ export function DomainSelector({ domains, selected, onChange }: DomainSelectorPr
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between bg-white border-2 border-[#EBE5E7] rounded-xl px-4 py-2.5 hover:border-[#D1D5DB] transition-colors w-full"
+        className="flex items-center justify-between bg-white border-2 border-[#EBE5E7] rounded-xl h-[46px] pr-4 hover:border-[#D1D5DB] transition-colors w-full overflow-hidden"
       >
-        <div className="flex items-center gap-2">
-          <Globe className="h-5 w-5 text-[#2B2B2B] shrink-0" />
-          <span className="font-geist font-normal text-[18px] leading-[100%] tracking-[0%] text-[#2B2B2B] truncate">
+        <div className="flex items-center h-full">
+          <div className="px-3.5 flex items-center justify-center h-full">
+            <Globe className="h-[22px] w-[22px] text-[#2B2B2B]" />
+          </div>
+          <div className="w-[2px] h-full bg-[#EBE5E7]" />
+          <span className="font-geist font-normal text-[18px] leading-[100%] tracking-[0%] text-[#2B2B2B] truncate ml-3.5">
             {selected.domain}
           </span>
         </div>

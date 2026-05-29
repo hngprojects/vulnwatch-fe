@@ -1,5 +1,4 @@
 import { privateApi } from "@/lib/axios";
-import { useAuthStore } from "@/store/auth.store";
 import type {
   ApiResponse,
   CreateDomainPayload,
@@ -11,13 +10,6 @@ import type {
 function unwrap<T>(res: { data: ApiResponse<T>; status: number }): T {
   if (!res.data.isSuccess || !res.data.value) {
     const msg = res.data.error?.message ?? "Request failed";
-    if (
-      res.status === 401 ||
-      /token.*(expired|invalid)|unauthorized/i.test(msg)
-    ) {
-      useAuthStore.getState().logout();
-      if (typeof window !== "undefined") window.location.href = "/login";
-    }
     const err = new Error(msg) as Error & { response?: { status: number } };
     err.response = { status: res.status };
     throw err;
