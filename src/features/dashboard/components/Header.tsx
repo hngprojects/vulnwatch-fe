@@ -98,8 +98,8 @@ export function DashboardHeader() {
           />
         </Link>
 
-        {/* Page Title (Desktop only) */}
-        <div className='hidden md:flex flex-col ml-8 lg:ml-0 order-3 items-start gap-1'>
+        {/* Page Title (lg+ only) */}
+        <div className="hidden lg:flex flex-col ml-8 lg:ml-0 order-3 items-start gap-1">
           <h1
             style={{
               fontFamily: 'Geist, sans-serif',
