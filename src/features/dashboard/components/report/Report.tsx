@@ -21,7 +21,8 @@ export default function Report() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const domainId = searchParams.get("domainId");
-  const page = parseInt(searchParams.get("page") || "1", 10);
+  const rawPage = parseInt(searchParams.get("page") || "1", 10);
+  const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
 
   const [domains, setDomains] = useState<Domain[]>([]);
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
@@ -44,18 +45,14 @@ export default function Report() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Fetch domains list
+  // Fetch domains list once on mount
   useEffect(() => {
     const load = async () => {
       try {
         const res = await domainService.getDomains();
         const verified = res.data.filter((d) => d.status === "Verified");
         setDomains(verified);
-        if (domainId) {
-          const match = verified.find((d) => d.id === domainId);
-          if (match) setSelectedDomain(match);
-        } else if (verified.length > 0) {
-          setSelectedDomain(verified[0]);
+        if (!domainId && verified.length > 0) {
           router.replace(`/report?domainId=${encodeURIComponent(verified[0].id)}`);
         }
       } finally {
@@ -66,6 +63,13 @@ export default function Report() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sync selectedDomain whenever domainId or domains list changes
+  useEffect(() => {
+    if (!domainId || domains.length === 0) return;
+    const match = domains.find((d) => d.id === domainId);
+    setSelectedDomain(match ?? null);
+  }, [domainId, domains]);
+
   // Fetch scan history when domainId or page changes
   useEffect(() => {
     if (!domainId) return;
@@ -74,9 +78,16 @@ export default function Report() {
       try {
         const res = await scanService.getScanHistory(domainId, { page, page_size: 5 });
         if (res.isSuccess && res.value) {
+          const total = res.value.totalPages || 1;
           setHistory(res.value.data || []);
-          setTotalPages(res.value.totalPages || 1);
+          setTotalPages(total);
+          if (page > total) {
+            router.replace(`/report?domainId=${encodeURIComponent(domainId)}&page=${total}`);
+          }
         }
+      } catch {
+        setHistory([]);
+        setTotalPages(1);
       } finally {
         setHistoryLoading(false);
       }

@@ -3,14 +3,13 @@ import { cn } from "@/lib/utils";
 
 export function parseDateTime(dateStr: string) {
   if (!dateStr) return { date: "—", time: "—" };
-  try {
-    const d = new Date(dateStr);
-    const date = d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-    const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-    return { date, time };
-  } catch {
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) {
     return { date: "—", time: "—" };
   }
+  const date = d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const time = d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  return { date, time };
 }
 
 export function ScanTypeIcon({ coverage }: { coverage: string }) {
@@ -18,10 +17,11 @@ export function ScanTypeIcon({ coverage }: { coverage: string }) {
   return <Icon className="h-4 w-4 shrink-0 text-gray-700" strokeWidth={1.8} />;
 }
 
-type RiskLevel = "Low" | "High" | "Critical";
+type RiskLevel = "Low" | "Medium" | "High" | "Critical";
 
 const riskDotClassName: Record<RiskLevel, string> = {
   Low: "bg-brand-risk-low",
+  Medium: "bg-brand-risk-high",
   High: "bg-brand-risk-high",
   Critical: "bg-brand-risk-critical",
 };
@@ -39,7 +39,7 @@ export function RiskIndicator({ level }: { level: string | null }) {
       mappedLevel = "High";
       statusText = "Action Needed";
     } else if (norm === "medium" || norm === "moderate") {
-      mappedLevel = "High";
+      mappedLevel = "Medium";
       statusText = "Action Recommended";
     }
   }

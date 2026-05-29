@@ -121,7 +121,7 @@ export function ReportScansTable({
                           : `/scan/progress?scanId=${encodeURIComponent(run.scanId)}&domain=${encodeURIComponent(run.domainName)}&initiatedAt=${encodeURIComponent(run.createdAt)}`
                       }
                       className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#E5E7EB] text-[#2B2B2B] transition-colors hover:bg-gray-50"
-                      aria-label={`View details for scan on ${date}`}
+                      aria-label={`${isCompleted ? "View details" : "Track progress"} for scan on ${date}`}
                     >
                       <ChevronRight className="h-5 w-5" strokeWidth={1.8} />
                     </Link>
