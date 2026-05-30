@@ -162,10 +162,10 @@ export function FilledDashboard({
 
       <div className="flex flex-col xl:flex-row gap-6 items-stretch">
         <div className="flex-1 min-w-0">
-          <SslCertificatesList items={sslItems} totalCount={totalDomainsCount} />
+          <SslCertificatesList items={sslItems.slice(0, 5)} totalCount={totalDomainsCount} />
         </div>
         <div className="flex-1 min-w-0">
-          <DashboardRecentAlerts alerts={alertItems} onViewAll={() => router.push('/report')} />
+          <DashboardRecentAlerts alerts={alertItems.slice(0, 5)} onViewAll={() => router.push('/report')} />
         </div>
       </div>
 
