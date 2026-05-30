@@ -371,7 +371,7 @@ function ScanReportContent() {
 
       {/* AI Chatbot overlay */}
       {isChatOpen && (
-        <AIChatbot onClose={() => setIsChatOpen(false)} />
+        <AIChatbot scanId={scanId ?? ""} onClose={() => setIsChatOpen(false)} />
       )}
     </div>
   );
