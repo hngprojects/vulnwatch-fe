@@ -18,40 +18,15 @@ export interface DashboardAlertItem {
   domain: string;
 }
 
-// ── Placeholder data ──────────────────────────────────────────────────────────
-
-const PLACEHOLDER_ALERTS: DashboardAlertItem[] = [
-  {
-    id: '1',
-    type: 'SSL',
-    timeAgo: '2 hours ago',
-    title: 'SSL certificate expiring in 15 days',
-    domain: 'app.example.com',
-  },
-  {
-    id: '2',
-    type: 'Security',
-    timeAgo: '5 hours ago',
-    title: 'New vulnerability detected',
-    domain: 'example.com',
-  },
-  {
-    id: '3',
-    type: 'DNS',
-    timeAgo: '1 day ago',
-    title: 'DNS configuration changed',
-    domain: 'api.example.com',
-  },
-];
-
 // ── Single alert row ──────────────────────────────────────────────────────────
 
 function AlertRow({ alert }: { alert: DashboardAlertItem }) {
   return (
     <div
-      className="flex flex-row items-start gap-4"
+      className="flex flex-row items-start gap-4 shadow-md hover:shadow-lg"
       style={{
-        background: '#F6F6F6',
+        background: '#fff',
+        border: "1px solid #ededed",
         borderRadius: '8px',
         padding: '16px 24px',
       }}
@@ -69,7 +44,7 @@ function AlertRow({ alert }: { alert: DashboardAlertItem }) {
             className="flex items-center justify-center"
             style={{
               padding: '4px 12px',
-              border: '1px solid #EDEDED',
+              border: '1px solid #b8b7b7ff',
               borderRadius: '8px',
               fontFamily: 'Geist, sans-serif',
               fontWeight: 500,
@@ -132,12 +107,12 @@ interface DashboardRecentAlertsProps {
 }
 
 export function DashboardRecentAlerts({
-  alerts = PLACEHOLDER_ALERTS,
+  alerts = [],
   onViewAll,
 }: DashboardRecentAlertsProps) {
   return (
     <div
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-6 h-full"
       style={{
         background: '#FFFFFF',
         border: '1px solid #EDEDED',
@@ -180,11 +155,17 @@ export function DashboardRecentAlerts({
       </div>
 
       {/* Alert rows */}
-      <div className="flex flex-col gap-4">
-        {alerts.map((alert) => (
-          <AlertRow key={alert.id} alert={alert} />
-        ))}
-      </div>
+      {alerts.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {alerts.map((alert) => (
+            <AlertRow key={alert.id} alert={alert} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center py-8 text-[#666666]">
+          No recent alerts found.
+        </div>
+      )}
     </div>
   );
 }

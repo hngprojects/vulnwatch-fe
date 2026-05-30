@@ -1,6 +1,6 @@
 'use client';
 
-import { ShieldAlert } from 'lucide-react';
+import { ShieldCheck, ShieldAlert } from 'lucide-react';
 
 interface MonitoringStatusBannerProps {
   isActive?: boolean;
@@ -23,21 +23,30 @@ export function MonitoringStatusBanner({
       }}
     >
       {/* Left: icon + status */}
-      <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row items-center gap-2">
         <div className="flex items-center justify-center w-10 h-10 shrink-0">
-          <ShieldAlert
-            size={40}
-            strokeWidth={1.6}
-            style={{ color: '#2B2B2B' }}
-          />
+          {isActive ? (
+            <ShieldCheck
+              size={40}
+              strokeWidth={1.6}
+              style={{ color: '#1daf61' }}
+            />
+          ) : (
+            <ShieldAlert
+              size={40}
+              strokeWidth={1.6}
+              style={{ color: '#D00416' }}
+            />
+          )}
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0">
           <span
             className="text-xl"
             style={{
               fontFamily: 'Geist, sans-serif',
               fontWeight: 600,
               color: '#2B2B2B',
+              lineHeight: '1.2',
             }}
           >
             {isActive ? 'Monitoring Active' : 'Monitoring Inactive'}
@@ -56,14 +65,14 @@ export function MonitoringStatusBanner({
       </div>
 
       {/* Right: Last scan info */}
-      <div className="flex flex-col items-end gap-1">
+      <div className="flex flex-col items-end gap-0">
         <span
           style={{
             fontFamily: 'Geist, sans-serif',
             fontWeight: 400,
-            fontSize: '16px',
-            lineHeight: '16px',
-            color: '#666666',
+            fontSize: '12px',
+            lineHeight: '1.2',
+            color: '#444444ff',
             textAlign: 'right',
           }}
         >
@@ -73,9 +82,9 @@ export function MonitoringStatusBanner({
           style={{
             fontFamily: 'Geist, sans-serif',
             fontWeight: 400,
-            fontSize: '18px',
+            fontSize: '11px',
             lineHeight: '18px',
-            color: '#2B2B2B',
+            color: '#2b2b2ba2',
             textAlign: 'right',
           }}
         >
