@@ -19,7 +19,7 @@ import WhyChoose from "@/features/landing/components/why-choose/WhyChoose";
 
 export default function Home() {
   return (
-    <>
+    <main>
       <Hero />
       <Features />
       <HowItWorks />
@@ -28,6 +28,6 @@ export default function Home() {
       <Testimonials />
       <FAQs />
       <TrustTransparency />
-    </>
+    </main>
   );
 }

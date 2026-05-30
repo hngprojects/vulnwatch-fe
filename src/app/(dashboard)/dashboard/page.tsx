@@ -1,81 +1,129 @@
 'use client';
 
 import { useState } from 'react';
-import { ScanLine } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
+
+import { dashboardService } from '@/features/dashboard/services/dashboard.service';
+import { domainService } from '@/features/domain/services/domain.service';
+import type { Domain } from '@/features/domain/types/domain.types';
+
 import { EmptyDashboard } from '@/features/dashboard/components/EmptyDashboard';
-import { DomainSelector } from '@/features/dashboard/components/DomainSelector';
-import { WhatToFixFirst } from '@/features/dashboard/components/WhatToFixFirst';
-import { SecurityPosture } from '@/features/dashboard/components/SecurityPosture';
-import { AISecurityAssistant } from '@/features/dashboard/components/AISecurityAssistant';
-import { RecentScans } from '@/features/dashboard/components/RecentScans';
-import { mockDashboardData } from '@/features/dashboard/constants/mock-data';
-import { TourProvider } from '@/features/dashboard/components/tour/TourProvider';
+import { NoScansDashboard } from '@/features/dashboard/components/states/NoScansDashboard';
+import { FilledDashboard } from '@/features/dashboard/components/states/FilledDashboard';
 
-// Toggle this to false to preview the empty state
-const HAS_SCANS = false;
+const SELECTED_DOMAIN_KEY = 'selected_dashboard_domain';
 
-export default function DashboardPage() {
-  const [selectedDomain, setSelectedDomain] = useState(
-    mockDashboardData.domain,
+export default function DashboardController() {
+  const router = useRouter();
+
+  // ── State ───────────────────────────────────────────────────────────────
+  const [selectedDomainId, setSelectedDomainId] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(SELECTED_DOMAIN_KEY);
+    }
+    return null;
+  });
+
+  const handleDomainChange = (domain: Domain) => {
+    setSelectedDomainId(domain.id);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(SELECTED_DOMAIN_KEY, domain.id);
+    }
+  };
+
+  // ── 1. Fetch Verified Domains (For DomainSelector + Onboarding Check) ───
+  const {
+    data: allDomainsRes,
+    isLoading: isDomainsLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['domains'],
+    queryFn: () => domainService.getDomains(),
+  });
+
+  const verifiedDomains = (allDomainsRes?.data ?? []).filter(
+    (d) => d.status === 'Verified'
   );
 
-  if (!HAS_SCANS) {
+  // Determine currently selected domain object
+  const selectedDomain = verifiedDomains.find((d) => d.id === selectedDomainId) ?? verifiedDomains[0];
+
+  // ── 2. Fetch Global Dashboard Stats (Banner, Stat Cards, SSL, Alerts) ───
+  // We only fetch these if there is at least one verified domain.
+  const { data: summaryRes } = useQuery({
+    queryKey: ['dashboard', 'summary'],
+    queryFn: () => dashboardService.getDashboardSummary(),
+    enabled: verifiedDomains.length > 0,
+  });
+
+  const { data: dashboardDomainsRes } = useQuery({
+    queryKey: ['dashboard', 'domains'],
+    queryFn: () => dashboardService.getDashboardDomains({ pageSize: 20 }),
+    enabled: verifiedDomains.length > 0,
+  });
+
+  const { data: alertsRes } = useQuery({
+    queryKey: ['dashboard', 'alerts'],
+    queryFn: () => dashboardService.getDashboardAlerts({ limit: 5 }),
+    enabled: verifiedDomains.length > 0,
+  });
+
+  const hasScans = selectedDomain && selectedDomain.lastScannedAt !== null;
+
+  // ── Routing Logic ───────────────────────────────────────────────────────
+
+  if (isDomainsLoading) {
     return (
-      <div className='px-4 md:px-6 py-6'>
-        <TourProvider />
-        <div className='mb-6'>
-          <h1 className='font-geist text-[40px] font-bold text-[#111827]'>
-            Your dashboard
-          </h1>
-          <p className='font-inter text-[20px] font-normal text-[#6B7280] mt-1'>
-            Your security overview will be displayed here
-          </p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-[#072E28]" />
+        <p className="text-sm text-[#6B7280] font-medium">Loading your dashboard...</p>
+      </div>
+    );
+  }
+
+  // State 0: Error fetching domains
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] gap-3 text-center px-4">
+        <p className="text-sm text-red-500 font-medium">Failed to load domains.</p>
+        <p className="text-xs text-[#6B7280]">{error instanceof Error ? error.message : 'Please try again later.'}</p>
+      </div>
+    );
+  }
+
+  // State 1: No Verified Domains
+  if (verifiedDomains.length === 0) {
+    return (
+      <div className="px-4 md:px-6 py-6">
         <EmptyDashboard />
       </div>
     );
   }
 
+  // State 2: Domain Exists, but never scanned
+  if (!hasScans) {
+    return (
+      <NoScansDashboard
+        domainsForSelector={verifiedDomains}
+        selectedDomain={selectedDomain}
+        onDomainChange={handleDomainChange}
+      />
+    );
+  }
+
+  // State 3: Filled Dashboard (Scans Exist)
   return (
-    <div className='px-4 md:px-6 py-6 space-y-5 max-w-7xl mx-auto'>
-      <TourProvider />
-      {/* Page header */}
-      <div className='flex flex-col gap-5'>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h1 className='text-xl font-bold text-[#111827]'>Dashboard</h1>
-            <p className='text-sm text-[#6B7280] mt-0.5'>
-              Overview of your security posture
-            </p>
-          </div>
-          <button
-            type='button'
-            className='hidden md:inline-flex items-center gap-2 h-10 px-4 bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity shrink-0'
-          >
-            <ScanLine className='h-4 w-4' />
-            <span className='hidden sm:inline'>Run New Scan</span>
-          </button>
-        </div>
-
-        <div className='flex'>
-          <DomainSelector
-            selected={selectedDomain}
-            onChange={setSelectedDomain}
-          />
-        </div>
-      </div>
-
-      {/* Row 1: What to fix + Security Posture */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        <WhatToFixFirst issue={mockDashboardData.primaryAlert} />
-        <SecurityPosture score={mockDashboardData.securityScore} />
-      </div>
-
-      {/* Row 2: AI Security Assistant */}
-      <AISecurityAssistant actions={mockDashboardData.aiActions} />
-
-      {/* Row 3: Recent Scans */}
-      <RecentScans scans={mockDashboardData.recentScans} />
-    </div>
+    <FilledDashboard
+      // Global Data
+      summary={summaryRes}
+      domainRows={dashboardDomainsRes?.data ?? []}
+      totalDomainsCount={dashboardDomainsRes?.totalCount ?? 0}
+      alerts={alertsRes ?? []}
+      
+      onAddDomain={() => router.push('/domain?add=true')}
+    />
   );
 }

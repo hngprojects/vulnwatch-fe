@@ -1,9 +1,17 @@
-import ComingSoon from "@/features/dashboard/components/settings/ComingSoon";
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
+import Report from "@/features/dashboard/components/report/Report";
 
 export default function ReportPage() {
   return (
-    <div className="px-4 py-5 md:px-6 lg:px-4 lg:py-3 max-w-4xl mx-auto">
-      <ComingSoon title="Reports" />
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex h-[60vh] w-full items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#072e28]" />
+        </div>
+      }
+    >
+      <Report />
+    </Suspense>
   );
 }

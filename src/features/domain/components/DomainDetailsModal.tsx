@@ -252,7 +252,11 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
         {/* Details card */}
         <div className="mx-6 mb-4 rounded-xl border border-[#DCDCDC] bg-[#F6F6F6] overflow-hidden">
           {(() => {
-            const token = liveDomain.verificationToken || liveDomain.instructions?.value || (checking ? "Loading..." : "");
+            const storedToken =
+              typeof window !== "undefined"
+                ? (localStorage.getItem(`vulnwatch_token_${liveDomain.id}`) ?? "")
+                : "";
+            const token = liveDomain.verificationToken || liveDomain.instructions?.value || storedToken || (checking ? "Loading..." : "");
             const rawHost = liveDomain.txtRecord || liveDomain.instructions?.txtRecord || "_vulnwatch-verify";
             const domainName = liveDomain.domain || "";
             const host = (domainName && rawHost.endsWith(`.${domainName}`))
@@ -290,7 +294,8 @@ export default function DomainDetailsModal({ domain, open, onOpenChange, onDelet
                   {copyable && (
                     <button
                       onClick={() => handleCopy(value, label)}
-                      className="p-1 hover:bg-[#E5E7EB] rounded text-[#6B7280] hover:text-[#111827] transition-colors shrink-0 cursor-pointer"
+                      aria-label={`Copy ${label}`}
+                      className="p-1 hover:bg-[#E5E7EB] rounded text-[#4B5563] hover:text-[#111827] transition-colors shrink-0 cursor-pointer"
                     >
                       {copiedField === label ? (
                         <Check size={14} className="text-brand-green" />

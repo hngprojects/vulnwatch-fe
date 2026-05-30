@@ -3,19 +3,15 @@
 import { useState } from "react";
 import { Globe, ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const DOMAINS = [
-  "www.mycompany.com",
-  "api.mycompany.com",
-  "staging.mycompany.com",
-];
+import type { Domain } from "@/features/domain/types/domain.types";
 
 interface DomainSelectorProps {
-  selected: string;
-  onChange?: (domain: string) => void;
+  domains: Domain[];
+  selected: Domain;
+  onChange?: (domain: Domain) => void;
 }
 
-export function DomainSelector({ selected, onChange }: DomainSelectorProps) {
+export function DomainSelector({ domains, selected, onChange }: DomainSelectorProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,12 +19,15 @@ export function DomainSelector({ selected, onChange }: DomainSelectorProps) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between bg-white border-2 border-[#EBE5E7] rounded-xl px-4 py-2.5 hover:border-[#D1D5DB] transition-colors w-full"
+        className="flex items-center justify-between bg-white border-2 border-[#EBE5E7] rounded-xl h-[46px] pr-4 hover:border-[#D1D5DB] transition-colors w-full overflow-hidden"
       >
-        <div className="flex items-center gap-2">
-          <Globe className="h-5 w-5 text-[#2B2B2B] shrink-0" />
-          <span className="font-geist font-normal text-[18px] leading-[100%] tracking-[0%] text-[#2B2B2B] truncate">
-            {selected}
+        <div className="flex items-center h-full">
+          <div className="px-3.5 flex items-center justify-center h-full">
+            <Globe className="h-[22px] w-[22px] text-[#2B2B2B]" />
+          </div>
+          <div className="w-[2px] h-full bg-[#EBE5E7]" />
+          <span className="font-geist font-normal text-[18px] leading-[100%] tracking-[0%] text-[#2B2B2B] truncate ml-3.5">
+            {selected.domain}
           </span>
         </div>
         <ChevronDown
@@ -46,9 +45,11 @@ export function DomainSelector({ selected, onChange }: DomainSelectorProps) {
             onClick={() => setOpen(false)}
           />
           <div className="absolute left-0 top-full mt-1 w-full bg-white border border-[#E5E7EB] rounded-xl shadow-lg z-20 py-1">
-            {DOMAINS.map((domain) => (
+            {domains
+              .filter((domain) => domain.status === "Verified")
+              .map((domain) => (
               <button
-                key={domain}
+                key={domain.id}
                 type="button"
                 onClick={() => {
                   onChange?.(domain);
@@ -56,8 +57,8 @@ export function DomainSelector({ selected, onChange }: DomainSelectorProps) {
                 }}
                 className="w-full flex items-center justify-between px-3 py-2 text-sm text-[#374151] hover:bg-[#F9FAFB] transition-colors"
               >
-                <span className="truncate">{domain}</span>
-                {domain === selected && (
+                <span className="truncate">{domain.domain}</span>
+                {domain.id === selected.id && (
                   <Check className="h-4 w-4 text-primary shrink-0 ml-2" />
                 )}
               </button>

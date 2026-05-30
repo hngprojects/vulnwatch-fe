@@ -1,12 +1,48 @@
 'use client';
 
-import { useState } from "react";
+import { startTransition, useEffect, useEffectEvent, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Copy, Check } from "lucide-react";
+import { ArrowLeft, Copy, Check, Loader2, RefreshCw, TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  scanService,
+  type FindingDto,
+  type ScanReport,
+} from "@/features/scans/services/scan.service";
+import { AskAiButton } from "@/features/ai-chat/components/AskAiButton";
+import { AIChatbot } from "@/features/ai-chat/components/AIChatbot";
 
 interface AISecuritySummaryProps {
+  scanId: string;
   backHref?: string;
 }
+
+type SummaryTone = "critical" | "high" | "good" | "neutral";
+
+type SummaryItem = {
+  tone: SummaryTone;
+  text: string;
+};
+
+const FALLBACK_BASIC_SUMMARY: SummaryItem[] = [
+  {
+    tone: "critical",
+    text: "Your domain has 1 critical issue that needs immediate attention: missing HSTS protection may expose visitor traffic to interception on untrusted networks.",
+  },
+  {
+    tone: "high",
+    text: "High-severity findings compound the risk: sensitive paths may be exposed publicly and should be reviewed first.",
+  },
+  {
+    tone: "good",
+    text: "The good news: these are typically configuration-level fixes that can often be addressed without application code changes.",
+  },
+];
+
+const FALLBACK_TECHNICAL_SUMMARY = [
+  "Finding counts are not available yet from the backend report. This view is temporarily showing the design-time summary content.",
+  "Once the scan completes, this page will replace the placeholder copy with live scan findings, counts, and sub-score details.",
+];
 
 function ExecutiveBriefIcon() {
   return (
@@ -33,30 +69,265 @@ function ExecutiveBriefIcon() {
   );
 }
 
-export function AISecuritySummary({
-  backHref = "/scan/report",
-}: AISecuritySummaryProps) {
-  const [isTechnical, setIsTechnical] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const currentDateLabel = new Date().toLocaleDateString("en-US", {
+function formatDateLabel(iso?: string | null) {
+  if (!iso) {
+    return new Date().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return new Date().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  return date.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
   });
+}
+
+function formatCoverage(value?: string | null) {
+  if (!value) return "Scan";
+  return `${value} Scan`;
+}
+
+function titleCase(value?: string | null) {
+  if (!value) return "Unknown";
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function getSummaryText(item: string | FindingDto) {
+  if (typeof item === "string") {
+    return item;
+  }
+
+  return item.explanation || item.title || "Security finding detected.";
+}
+
+function buildBasicSummary(report: ScanReport) {
+  const criticalIssues = report.summary?.criticalIssues?.filter(Boolean) ?? [];
+  const highIssues = report.summary?.highSeverityIssues?.filter(Boolean) ?? [];
+  const items: SummaryItem[] = [
+    ...criticalIssues.map((issue) => ({
+      tone: "critical" as const,
+      text: getSummaryText(issue),
+    })),
+    ...highIssues.map((issue) => ({
+      tone: "high" as const,
+      text: getSummaryText(issue),
+    })),
+  ];
+
+  if (report.summary?.goodNews) {
+    items.push({
+      tone: "good" as const,
+      text: report.summary.goodNews,
+    });
+  }
+
+  if (items.length === 0 && report.findingGroups) {
+    items.push({
+      tone: "neutral" as const,
+      text: `This ${formatCoverage(report.coverage).toLowerCase()} found ${report.findingGroups.criticalCount} critical, ${report.findingGroups.highCount} high, ${report.findingGroups.mediumCount} medium, and ${report.findingGroups.lowCount} low findings.`,
+    });
+  }
+
+  if (items.length === 0 && report.securityScore !== null) {
+    items.push({
+      tone: "neutral" as const,
+      text: `This scan completed with a security score of ${report.securityScore}${report.riskLevel ? ` and an overall ${report.riskLevel.toLowerCase()} risk level` : ""}.`,
+    });
+  }
+
+  return items;
+}
+
+function buildTechnicalSummary(report: ScanReport) {
+  const sections: string[] = [];
+
+  if (report.findingGroups) {
+    sections.push(
+      `Finding counts: ${report.findingGroups.criticalCount} critical, ${report.findingGroups.highCount} high, ${report.findingGroups.mediumCount} medium, ${report.findingGroups.lowCount} low, ${report.findingGroups.passCount} pass.`,
+    );
+  }
+
+  const subScoreEntries = [
+    ["Exposure", report.subScores?.exposure],
+    ["SSL", report.subScores?.ssl],
+    ["DNS", report.subScores?.dns],
+  ] as const;
+
+  for (const [label, item] of subScoreEntries) {
+    if (!item) continue;
+
+    const detail = item.detail ? ` ${item.detail}` : "";
+    sections.push(
+      `${label}: score ${item.score}, status ${titleCase(item.status)}.${detail}`,
+    );
+  }
+
+  if (sections.length === 0 && report.summary?.goodNews) {
+    sections.push(report.summary.goodNews);
+  }
+
+  return sections;
+}
+
+function getToneClasses(tone: SummaryTone) {
+  if (tone === "critical" || tone === "high") {
+    return {
+      wrap: "bg-[#57D132]/10",
+      icon: "text-[#2E7D32]",
+      text: "text-[#4B5563]",
+    };
+  }
+
+  if (tone === "good") {
+    return {
+      wrap: "bg-[#57D132]/10",
+      icon: "text-[#2E7D32]",
+      text: "text-[#4B5563]",
+    };
+  }
+
+  return {
+    wrap: "bg-[#EEF2F7]",
+    icon: "text-[#6B7280]",
+    text: "text-[#6B7280]",
+  };
+}
+
+async function fetchReportOutcome(scanId: string) {
+  const response = await scanService.getScanReport(scanId);
+
+  if (!response.isSuccess || !response.value) {
+    return {
+      type: "error" as const,
+      message: response.error?.message ?? "Unable to load AI security summary.",
+    };
+  }
+
+  return {
+    type: "success" as const,
+    report: response.value,
+  };
+}
+
+export function AISecuritySummary({
+  scanId,
+  backHref = "/scan/report",
+}: AISecuritySummaryProps) {
+  const [isTechnical, setIsTechnical] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [report, setReport] = useState<ScanReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showFallbackSummary, setShowFallbackSummary] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const isReportPendingMessage = (message: string) =>
+    /scan is not complete|current status:\s*(queued|running)/i.test(message);
+
+  const loadReport = useEffectEvent(async () => {
+    startTransition(() => {
+      setLoading(true);
+      setError(null);
+      setShowFallbackSummary(false);
+    });
+
+    try {
+      const outcome = await fetchReportOutcome(scanId);
+
+      if (outcome.type === "success") {
+        startTransition(() => {
+          setReport(outcome.report);
+        });
+      } else if (isReportPendingMessage(outcome.message)) {
+        startTransition(() => {
+          setShowFallbackSummary(true);
+          setReport(null);
+        });
+      } else {
+        startTransition(() => {
+          setError(outcome.message);
+        });
+      }
+    } finally {
+      startTransition(() => {
+        setLoading(false);
+      });
+    }
+  });
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadReport();
+    });
+  }, [scanId]);
+
+  const handleRetry = async () => {
+    setLoading(true);
+    setError(null);
+    setShowFallbackSummary(false);
+
+    const outcome = await fetchReportOutcome(scanId);
+
+    if (outcome.type === "success") {
+      setReport(outcome.report);
+    } else if (isReportPendingMessage(outcome.message)) {
+      setShowFallbackSummary(true);
+      setReport(null);
+    } else {
+      setError(outcome.message);
+    }
+
+    setLoading(false);
+  };
+
+  const currentDateLabel = formatDateLabel(report?.completedAt);
+  const basicSummary = useMemo(
+    () => (report ? buildBasicSummary(report) : []),
+    [report],
+  );
+  const technicalSummary = useMemo(
+    () => (report ? buildTechnicalSummary(report) : []),
+    [report],
+  );
+  const isSummaryReady = report?.status === "Completed";
+  const isUsingFallback = showFallbackSummary && !report;
+  const displayedBasicSummary = isUsingFallback
+    ? FALLBACK_BASIC_SUMMARY
+    : basicSummary;
+  const displayedTechnicalSummary = isUsingFallback
+    ? FALLBACK_TECHNICAL_SUMMARY
+    : technicalSummary;
 
   const handleCopy = () => {
+    if (!report && !isUsingFallback) return;
+
+    const domainLabel = report?.domainName ?? "this domain";
     let copyText = "";
     if (!isTechnical) {
-      copyText = `EXECUTIVE BRIEF - ${currentDateLabel}\n\nYour Security Summary:\n` +
-        `- Your domain has 1 Critical Issue that need immediate attention: The missing HSTS header leaves every visitor exposed to potential traffic interception, especially on public networks.\n` +
-        `- 2 high-severity findings compound the risk: Your admin panel is publicly reachable and being actively targeted by automated bots, and your robots.txt file is advertising internal paths.\n` +
-        `- The good news: All three of these are configuration fixes don't require code changes and can typically be resolved in under an hour. Prioritise the HSTS header and admin panel restriction first.\n` +
-        `- Your SSL infrastructure is mostly solid, certificate chain is valid and SPF is correctly configured. Focus on the 3 high-impact items above before addressing the medium and low findings.\n\n` +
-        `Overall, your security posture is moderate, fixable in a focused afternoon, but attackers actively scan for these specific gaps.`;
+      copyText =
+        `EXECUTIVE BRIEF - ${currentDateLabel}\n\n` +
+        `${domainLabel}\n` +
+        `${report ? `Coverage: ${formatCoverage(report.coverage)}\n` : ""}` +
+        `${report ? `Status: ${report.status}\n` : "Status: Pending backend report\n"}` +
+        `${report?.securityScore !== null && report?.securityScore !== undefined ? `Security Score: ${report.securityScore}\n` : ""}` +
+        `${report?.riskLevel ? `Risk Level: ${report.riskLevel}\n` : ""}\n` +
+        displayedBasicSummary.map((item) => `- ${item.text}`).join("\n");
     } else {
-      copyText = `EXECUTIVE BRIEF - ${currentDateLabel}\n\nWHAT WE FOUND:\n` +
-        `- DNS resolution is functioning nominally with valid A, MX, SPF, and DMARC records. TLS certificate, acme-corp.com is valid but expires 2026-05-13T00:00:00Z (18d remaining). Response headers lack CSP, X-Frame-Options, and Strict-Transport-Security directives.\n` +
-        `- HTTP response from origin 203.0.113.42 does not include Administrative endpoint /admin returns HTTP 200 without authentication challenge from non-whitelisted IPs. CVSS base score: 7.4.`;
+      copyText =
+        `EXECUTIVE BRIEF - ${currentDateLabel}\n\nWHAT WE FOUND:\n` +
+        displayedTechnicalSummary.map((item) => `- ${item}`).join("\n");
     }
 
     navigator.clipboard.writeText(copyText).then(() => {
@@ -67,6 +338,36 @@ export function AISecuritySummary({
       console.error("Failed to copy AI security summary", error);
     });
   };
+
+  const renderStateCard = (
+    title: string,
+    description: string,
+    actionLabel?: string,
+    onAction?: () => void,
+  ) => (
+    <div className="bg-white rounded-2xl border border-[#E5E7EB] p-8 shadow-sm">
+      <div className="flex flex-col items-center text-center">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#F3F4F6] text-[#4B5563]">
+          <TriangleAlert className="h-6 w-6" />
+        </div>
+        <h2 className="text-xl font-semibold text-[#111827]">{title}</h2>
+        <p className="mt-2 max-w-xl text-sm leading-6 text-[#6B7280]">
+          {description}
+        </p>
+        {actionLabel && onAction ? (
+          <Button
+            type="button"
+            onClick={onAction}
+            variant="outline"
+            className="mt-5 rounded-xl"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            {actionLabel}
+          </Button>
+        ) : null}
+      </div>
+    </div>
+  );
 
   return (
     <div className="px-4 md:px-8 py-6 max-w-6xl mx-auto">
@@ -88,6 +389,36 @@ export function AISecuritySummary({
           Auto-generated from your latest scan, written for humans.
         </p>
       </div>
+
+      {loading ? (
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-8 shadow-sm">
+          <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+            <Loader2 className="h-7 w-7 animate-spin text-[#08342D]" />
+            <p className="text-sm text-[#6B7280]">
+              Loading the latest scan summary...
+            </p>
+          </div>
+        </div>
+      ) : error ? (
+        renderStateCard(
+          "We couldn't load this scan summary",
+          error,
+          "Try Again",
+          () => void handleRetry(),
+        )
+      ) : !report && !isUsingFallback ? (
+        renderStateCard(
+          "No scan summary found",
+          "This scan report is not available yet or may have been removed.",
+        )
+      ) : (
+        <>
+
+      {isUsingFallback ? (
+        <div className="mb-6 rounded-2xl border border-[#F2D7A1] bg-[#FFF8E8] px-4 py-3 text-sm text-[#7A5A16]">
+          This scan report is not ready from the backend yet, so you are seeing the AI summary page with fallback content for now.
+        </div>
+      ) : null}
 
       {/* Executive Brief Card */}
       <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 md:p-6 mb-8 shadow-sm">
@@ -151,6 +482,7 @@ export function AISecuritySummary({
             {/* Copy Button */}
             <button
               onClick={handleCopy}
+              disabled={!isSummaryReady && !isUsingFallback}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all select-none ${copied ? "bg-green-50 border-green-200 text-green-700" : "bg-white border-[#E5E7EB] text-[#4B5563] hover:border-[#111827] hover:text-[#111827]"}`}
             >
               {copied ? (
@@ -176,44 +508,25 @@ export function AISecuritySummary({
               Your Security Summary
             </h3>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <div className="h-5 w-5 rounded-full bg-[#57D132]/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="h-3.5 w-3.5 text-[#2E7D32]" strokeWidth={3} />
-                </div>
-                <p className="text-[13px] text-[#4B5563] leading-relaxed">
-                  Your domain has <span className="text-red-500 font-bold">1 Critical Issue</span> that need immediate attention: <span className="text-[#6B7280]">The missing HSTS header leaves every visitor exposed to potential traffic interception, especially on public networks.</span>
-                </p>
-              </li>
+              {displayedBasicSummary.map((item, index) => {
+                const toneClasses = getToneClasses(item.tone);
 
-              <li className="flex items-start gap-3">
-                <div className="h-5 w-5 rounded-full bg-[#57D132]/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="h-3.5 w-3.5 text-[#2E7D32]" strokeWidth={3} />
-                </div>
-                <p className="text-[13px] text-[#4B5563] leading-relaxed">
-                  <span className="text-red-500 font-bold">2 high-severity findings</span> compound the risk: <span className="text-[#6B7280]">Your admin panel is publicly reachable and being actively targeted by automated bots, and your robots.txt file is advertising internal paths.</span>
-                </p>
-              </li>
-
-              <li className="flex items-start gap-3">
-                <div className="h-5 w-5 rounded-full bg-[#57D132]/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="h-3.5 w-3.5 text-[#2E7D32]" strokeWidth={3} />
-                </div>
-                <p className="text-[13px] text-[#4B5563] leading-relaxed">
-                  <span className="text-green-600 font-bold">The good news:</span> <span className="text-[#6B7280]">All three of these are configuration fixes don&apos;t require code changes and can typically be resolved in under an hour.</span> <strong>Prioritise the HSTS header and admin panel restriction first.</strong>
-                </p>
-              </li>
-
-              <li className="flex items-start gap-3">
-                <div className="h-5 w-5 rounded-full bg-[#57D132]/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="h-3.5 w-3.5 text-[#2E7D32]" strokeWidth={3} />
-                </div>
-                <p className="text-[13px] text-[#6B7280] leading-relaxed">
-                  Your SSL infrastructure is mostly solid, certificate chain is valid and SPF is correctly configured. Focus on the 3 high-impact items above before addressing the medium and low findings.
-                </p>
-              </li>
+                return (
+                  <li key={`${item.tone}-${index}`} className="flex items-start gap-3">
+                    <div className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${toneClasses.wrap}`}>
+                      <Check className={`h-3.5 w-3.5 ${toneClasses.icon}`} strokeWidth={3} />
+                    </div>
+                    <p className={`text-[13px] leading-relaxed ${toneClasses.text}`}>
+                      {item.text}
+                    </p>
+                  </li>
+                );
+              })}
             </ul>
             <p className="text-[13px] text-[#6B7280] leading-relaxed pt-3 border-t border-[#F3F4F6]">
-              Overall, your security posture is moderate, fixable in a focused afternoon, but attackers actively scan for these specific gaps.
+              {report?.securityScore !== null && report?.securityScore !== undefined
+                ? `Security score: ${report.securityScore}${report.riskLevel ? ` with ${report.riskLevel.toLowerCase()} overall risk` : ""}.`
+                : "Use this summary alongside the scan findings to prioritize the next fixes while the backend report finishes processing."}
             </p>
           </div>
         ) : (
@@ -223,23 +536,16 @@ export function AISecuritySummary({
               WHAT WE FOUND
             </h3>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <div className="h-5 w-5 rounded-full bg-[#57D132]/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="h-3.5 w-3.5 text-[#2E7D32]" strokeWidth={3} />
-                </div>
-                <p className="text-[13px] text-[#6B7280] leading-relaxed">
-                  DNS resolution is functioning nominally with valid A, MX, SPF, and DMARC records. TLS certificate, acme-corp.com is valid but expires 2026-05-13T00:00:00Z (18d remaining). Response headers lack CSP, X-Frame-Options, and Strict-Transport-Security directives.
-                </p>
-              </li>
-
-              <li className="flex items-start gap-3">
-                <div className="h-5 w-5 rounded-full bg-[#57D132]/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Check className="h-3.5 w-3.5 text-[#2E7D32]" strokeWidth={3} />
-                </div>
-                <p className="text-[13px] text-[#6B7280] leading-relaxed">
-                  HTTP response from origin 203.0.113.42 does not include Administrative endpoint /admin returns HTTP 200 without authentication challenge from non-whitelisted IPs. CVSS base score: 7.4.
-                </p>
-              </li>
+              {displayedTechnicalSummary.map((item, index) => (
+                <li key={`technical-${index}`} className="flex items-start gap-3">
+                  <div className="h-5 w-5 rounded-full bg-[#57D132]/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="h-3.5 w-3.5 text-[#2E7D32]" strokeWidth={3} />
+                  </div>
+                  <p className="text-[13px] text-[#6B7280] leading-relaxed">
+                    {item}
+                  </p>
+                </li>
+              ))}
             </ul>
           </div>
         )}
@@ -259,7 +565,7 @@ export function AISecuritySummary({
               </span>
             </div>
             <p className="text-[13px] font-medium text-[#4B5563] leading-snug">
-              Renew your SSL certificate before April 24
+              {report?.subScores?.ssl?.detail ?? "Review SSL findings and address the highest-impact certificate or transport issues first."}
             </p>
           </div>
 
@@ -271,7 +577,9 @@ export function AISecuritySummary({
               </span>
             </div>
             <p className="text-[13px] font-medium text-[#4B5563] leading-snug">
-              Missing security headers leave your site open to injection attacks
+              {report?.summary?.criticalIssues?.[0]
+                ? getSummaryText(report.summary.criticalIssues[0])
+                : "Tackle the first critical issue from the report to reduce immediate risk."}
             </p>
           </div>
 
@@ -283,7 +591,10 @@ export function AISecuritySummary({
               </span>
             </div>
             <p className="text-[13px] font-medium text-[#4B5563] leading-snug">
-              Your admin panel is publicly visible without access controls
+              {report?.subScores?.exposure?.detail ??
+                (report?.summary?.highSeverityIssues?.[0]
+                  ? getSummaryText(report.summary.highSeverityIssues[0])
+                  : "Review externally exposed services and access controls next.")}
             </p>
           </div>
         </div>
@@ -301,7 +612,10 @@ export function AISecuritySummary({
               1
             </span>
             <p className="text-[13px] text-[#4B5563] leading-relaxed">
-              <strong>Renew your SSL certificate before April 24.</strong> Contact your certificate authority or hosting provider today to initiate renewal.
+              <strong>Start with the first critical issue.</strong>{" "}
+              {report?.summary?.criticalIssues?.[0]
+                ? getSummaryText(report.summary.criticalIssues[0])
+                : "Use the scan findings page to address the most urgent item first."}
             </p>
           </div>
 
@@ -311,7 +625,7 @@ export function AISecuritySummary({
               2
             </span>
             <p className="text-[13px] text-[#4B5563] leading-relaxed">
-              <strong>Add a Content-Security-Policy, X-Frame-Options, and HSTS header to your web server configuration file.</strong> This can be done in under 30 minutes.
+              <strong>Then work through the high-severity items.</strong> {report?.summary?.highSeverityIssues?.[0] ? getSummaryText(report.summary.highSeverityIssues[0]) : "Review the remaining high-risk findings and sequence the fastest configuration fixes next."}
             </p>
           </div>
 
@@ -321,11 +635,25 @@ export function AISecuritySummary({
               3
             </span>
             <p className="text-[13px] text-[#4B5563] leading-relaxed">
-              <strong>Restrict access to your admin panel by IP address or require VPN access.</strong> Talk to your system administrator or hosting support.
+              <strong>Close by validating the supporting controls.</strong> {report?.summary?.goodNews ?? "After the urgent fixes, re-run the scan and validate improvements across DNS, SSL, and exposure."}
             </p>
           </div>
         </div>
       </div>
+      </>
+      )}
+
+      {/* Floating Ask AI button */}
+      {!isChatOpen && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <AskAiButton onClick={() => setIsChatOpen(true)} />
+        </div>
+      )}
+
+      {/* AI Chatbot overlay */}
+      {isChatOpen && (
+        <AIChatbot onClose={() => setIsChatOpen(false)} />
+      )}
     </div>
   );
 }

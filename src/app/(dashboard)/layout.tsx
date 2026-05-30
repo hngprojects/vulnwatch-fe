@@ -1,11 +1,28 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useSyncExternalStore } from "react";
+import { Loader2 } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/features/dashboard/components/Sidebar";
 import { DashboardHeader } from "@/features/dashboard/components/Header";
 import { useAuthStore } from "@/store/auth.store";
 import { domainService } from "@/features/domain/services/domain.service";
+
+function subscribeAuthStore(listener: () => void) {
+  return useAuthStore.subscribe(listener);
+}
+
+function getAuthSnapshot() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return useAuthStore.getState().token ?? localStorage.getItem("auth_token");
+}
+
+function getServerAuthSnapshot() {
+  return null;
+}
 
 export default function DashboardLayout({
   children,
@@ -13,11 +30,39 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { token } = useAuthStore.getState();
+  const pathname = usePathname();
+  const isRolesPermissionsPage =
+    pathname === "/settings/roles-permissions" ||
+    pathname === "/settings/roles-permission";
+  const token = useSyncExternalStore(
+    subscribeAuthStore,
+    getAuthSnapshot,
+    getServerAuthSnapshot,
+  );
+
+
 
   useEffect(() => {
-    if (!token) {
-      router.replace("/login");
+    if (!token && !isRolesPermissionsPage) {
+      if (typeof document !== "undefined") {
+        const match = document.cookie.match(/(^| )auth_token=([^;]+)/);
+        if (match) {
+          try {
+            const decodedToken = decodeURIComponent(match[2]);
+            useAuthStore.getState().login(decodedToken);
+          } catch (e) {
+            console.error("Failed to rehydrate token from cookie", e);
+            router.replace("/login");
+          }
+        } else {
+          router.replace("/login");
+        }
+      }
+    }
+  }, [token, isRolesPermissionsPage, router]);
+
+  useEffect(() => {
+    if (isRolesPermissionsPage) {
       return;
     }
 
@@ -63,9 +108,15 @@ export default function DashboardLayout({
     return () => {
       mounted = false;
     };
-  }, [token, router]);
+  }, [isRolesPermissionsPage, router, token]);
 
-  if (!token) return null;
+  if (!token && !isRolesPermissionsPage) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-brand-dashboard-bg">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-brand-dashboard-bg overflow-hidden">

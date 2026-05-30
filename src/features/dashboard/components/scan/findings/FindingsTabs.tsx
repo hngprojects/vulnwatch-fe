@@ -31,6 +31,7 @@ export function FindingsTabs({ tabs, activeTab }: FindingsTabsProps) {
             key={tab.id}
             id={`${tab.id}-finding-tab`}
             href={tab.href}
+            replace
             role='tab'
             aria-selected={isActive}
             className={[
