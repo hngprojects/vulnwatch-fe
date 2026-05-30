@@ -71,9 +71,9 @@ function DomainCard({ card, onClick }: { card: MonitoredDomainCard; onClick: () 
         }
       }}
       aria-label={`View details for ${card.domainName}`}
-      className="flex flex-col text-left cursor-pointer hover:shadow-md transition-shadow duration-200 flex-1 focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
+      className="flex flex-col text-left cursor-pointer hover:shadow-lg shadow-md transition-shadow duration-200 flex-1 focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
       style={{
-        background: '#F6F6F6',
+        background: '#fff',
         border: '1px solid #EDEDED',
         borderRadius: '8px',
         padding: '24px 16px',
@@ -148,7 +148,7 @@ export function MonitoredDomains({
     <div
       className="flex flex-col w-full"
       style={{
-        background: '#FFFFFF',
+        background: '#ffffffff',
         border: '1px solid #EDEDED',
         borderRadius: '12px',
         padding: '24px',

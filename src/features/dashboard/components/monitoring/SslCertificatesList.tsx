@@ -90,9 +90,10 @@ function StatusBadge({ status }: { status: SslStatus }) {
 function SslRow({ item }: { item: SslCertItem }) {
   return (
     <div
-      className="flex flex-row justify-between items-center"
+      className="flex flex-row justify-between items-center shadow-md hover:shadow-lg"
       style={{
-        background: '#F6F6F6',
+        background: '#fff',
+        border: '1px solid #EDEDED',
         borderRadius: '8px',
         padding: '16px 24px',
       }}
@@ -147,7 +148,7 @@ export function SslCertificatesList({
 
   return (
     <div
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-6 h-full"
       style={{
         background: '#FFFFFF',
         border: '1px solid #EDEDED',

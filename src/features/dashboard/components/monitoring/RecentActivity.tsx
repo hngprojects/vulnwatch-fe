@@ -13,14 +13,6 @@ export interface ActivityItem {
   type: ActivityEventType;
 }
 
-// ── Placeholder data ──────────────────────────────────────────────────────────
-
-const PLACEHOLDER_ACTIVITY: ActivityItem[] = [
-  { id: '1', title: 'Security Scan Completed', timeAgo: '10 minutes ago', type: 'success' },
-  { id: '2', title: 'SSL Certificate Checked', timeAgo: '1 hour ago', type: 'success' },
-  { id: '3', title: 'Domain Verification Failed', timeAgo: '3 hours ago', type: 'error' },
-];
-
 // ── Dot indicator ─────────────────────────────────────────────────────────────
 
 function DotIndicator({ type }: { type: ActivityEventType }) {
@@ -110,7 +102,7 @@ interface RecentActivityProps {
   activities?: ActivityItem[];
 }
 
-export function RecentActivity({ activities = PLACEHOLDER_ACTIVITY }: RecentActivityProps) {
+export function RecentActivity({ activities = [] }: RecentActivityProps) {
   return (
     <div
       className="flex flex-col gap-4 w-full"
@@ -137,11 +129,17 @@ export function RecentActivity({ activities = PLACEHOLDER_ACTIVITY }: RecentActi
       </div>
 
       {/* Activity list */}
-      <div className="flex flex-col">
-        {activities.map((item) => (
-          <ActivityRow key={item.id} item={item} />
-        ))}
-      </div>
+      {activities.length > 0 ? (
+        <div className="flex flex-col">
+          {activities.map((item) => (
+            <ActivityRow key={item.id} item={item} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center py-8 text-[#666666]">
+          No recent activity found.
+        </div>
+      )}
     </div>
   );
 }
