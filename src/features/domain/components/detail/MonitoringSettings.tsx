@@ -17,6 +17,21 @@ interface MonitoringSettingsProps {
 
 export function MonitoringSettings({ initialSettings, onSave }: MonitoringSettingsProps) {
   const [settings, setSettings] = useState<MonitoringSettingsType>(initialSettings);
+  const [customDays, setCustomDays] = useState("");
+
+  const handleAddCustom = () => {
+    const parsed = parseInt(customDays, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      const newThreshold = `${parsed} Days`;
+      if (!settings.sslAlertThresholds.includes(newThreshold)) {
+        setSettings((prev) => ({
+          ...prev,
+          sslAlertThresholds: [...prev.sslAlertThresholds, newThreshold],
+        }));
+      }
+      setCustomDays("");
+    }
+  };
 
   const toggleThreshold = (t: string) => {
     setSettings((prev) => ({
@@ -25,6 +40,10 @@ export function MonitoringSettings({ initialSettings, onSave }: MonitoringSettin
         ? prev.sslAlertThresholds.filter((x) => x !== t)
         : [...prev.sslAlertThresholds, t],
     }));
+  };
+
+  const handleSave = () => {
+    onSave(settings);
   };
 
   return (
@@ -80,6 +99,46 @@ export function MonitoringSettings({ initialSettings, onSave }: MonitoringSettin
                 </button>
               );
             })}
+
+            {/* Custom added thresholds */}
+            {settings.sslAlertThresholds
+              .filter((t) => !(SSL_THRESHOLDS as readonly string[]).includes(t))
+              .map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => toggleThreshold(t)}
+                  className="px-3 py-1.5 rounded-full text-xs font-semibold border transition-all bg-primary text-white border-primary"
+                >
+                  {t}
+                </button>
+              ))}
+
+            {/* Custom Input Pill */}
+            <div className="flex items-center gap-1 ml-1">
+              <input
+                type="number"
+                min="1"
+                value={customDays}
+                onChange={(e) => setCustomDays(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCustom();
+                  }
+                }}
+                placeholder="Days"
+                className="w-16 px-2 py-1.5 text-xs text-center rounded-full border border-gray-200 focus:outline-none focus:ring-1 focus:ring-primary/50"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustom}
+                disabled={!customDays}
+                className="w-7 h-7 flex items-center justify-center bg-gray-100 text-slate-700 hover:bg-gray-200 rounded-full text-sm font-medium disabled:opacity-50 transition-colors"
+              >
+                +
+              </button>
+            </div>
           </div>
         </div>
 
@@ -129,7 +188,7 @@ export function MonitoringSettings({ initialSettings, onSave }: MonitoringSettin
 
         <Button
           className="w-full bg-primary hover:bg-primary/90 text-white mt-2 font-semibold"
-          onClick={() => onSave(settings)}
+          onClick={handleSave}
         >
           Save Settings
         </Button>
