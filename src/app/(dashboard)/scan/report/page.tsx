@@ -9,7 +9,7 @@ import ScanReportPageHeader from "@/features/scans/scan-report/ui/ScanReportPage
 import ScanReportScoreStatCard from "@/features/scans/scan-report/ui/ScanReportStatCard";
 import Card from "@/features/scans/shared/ui/Card";
 import PageHeader from "@/features/scans/shared/ui/PageHeader";
-import { ChevronRight, Loader2, AlertCircle, RefreshCcw } from "lucide-react";
+import { ChevronRight, Loader2, AlertCircle } from "lucide-react";
 import SecurityScoreCard from "@/features/scans/scan-report/ui/SecurityScoreCard";
 import { scanService, ScanReport } from "@/features/scans/services/scan.service";
 import { AIChatbot } from "@/features/ai-chat/components/AIChatbot";
@@ -224,6 +224,8 @@ function ScanReportContent() {
         domain={report.domainName} 
         domainStatus={report.domainStatus} 
         onAskAi={() => setIsChatOpen(true)}
+        onRescan={handleRescan}
+        isRescanning={isRescanning}
       />
       <PageHeader
         title="Security Scan Report"
@@ -316,22 +318,9 @@ function ScanReportContent() {
               />
             ))}
           </div>
-          {/* View All Findings & Rescan CTAs */}
+          {/* View All Findings CTA */}
           {scanId && (
             <div className="flex items-center justify-end gap-3 pt-2">
-              <Button
-                variant="outline"
-                disabled={isRescanning}
-                className="border-[1px] border-primary text-primary bg-transparent hover:bg-primary/10 flex items-center gap-2 disabled:opacity-60 font-semibold"
-                onClick={handleRescan}
-              >
-                {isRescanning ? (
-                  <Loader2 size={18} className="animate-spin text-primary" />
-                ) : (
-                  <RefreshCcw strokeWidth={2.2} size={18} />
-                )}
-                <span>{isRescanning ? "Rescanning..." : "Rescan"}</span>
-              </Button>
               <Button
                 className="flex items-center gap-2 text-white font-semibold"
                 onClick={() => router.push(`/scan/report/findings?scanId=${encodeURIComponent(scanId)}`)}
