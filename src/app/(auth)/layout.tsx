@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { RedirectIfAuthed } from "@/features/auth/components/RedirectIfAuthed";
 
@@ -9,7 +10,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <GoogleOAuthProvider clientId={clientId || ""}>
-      <RedirectIfAuthed />
+      <Suspense fallback={null}>
+        <RedirectIfAuthed />
+      </Suspense>
       {children}
     </GoogleOAuthProvider>
   );

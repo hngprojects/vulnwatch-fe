@@ -7,7 +7,7 @@ import { Mail, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { authService } from "@/features/auth/services/auth.services";
 
@@ -20,9 +20,11 @@ import { AuthInput } from "./AuthInput";
 import { PasswordInput } from "./PasswordInput";
 import { AuthDivider } from "./AuthDivider";
 import { SocialAuthButton } from "./SocialAuthButton";
+import { getSafeReturnUrl } from "@/lib/utils";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     register,
     handleSubmit,
@@ -43,7 +45,9 @@ export function LoginForm() {
         useAuthStore
           .getState()
           .login(response.value.accessToken, data.email);
-        router.push("/dashboard");
+        
+        const returnUrl = searchParams.get("returnUrl");
+        router.push(getSafeReturnUrl(returnUrl));
       } else {
         const isNotVerified =
           response.error?.code === "403" ||

@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* experimental: {
+  experimental: {
     authInterrupts: true,
-  }, */
+  },
   images: {
     remotePatterns: [
       {
@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
         hostname: "i.pravatar.cc",
       },
       {
-         protocol: "https",
+        protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
     ],

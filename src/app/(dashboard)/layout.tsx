@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/features/dashboard/components/Sidebar";
 import { DashboardHeader } from "@/features/dashboard/components/Header";
@@ -39,13 +40,29 @@ export default function DashboardLayout({
     getServerAuthSnapshot,
   );
 
+
+
+  useEffect(() => {
+    if (!token && !isRolesPermissionsPage) {
+      if (typeof document !== "undefined") {
+        const match = document.cookie.match(/(^| )auth_token=([^;]+)/);
+        if (match) {
+          try {
+            const decodedToken = decodeURIComponent(match[2]);
+            useAuthStore.getState().login(decodedToken);
+          } catch (e) {
+            console.error("Failed to rehydrate token from cookie", e);
+            router.replace("/login");
+          }
+        } else {
+          router.replace("/login");
+        }
+      }
+    }
+  }, [token, isRolesPermissionsPage, router]);
+
   useEffect(() => {
     if (isRolesPermissionsPage) {
-      return;
-    }
-
-    if (!token) {
-      router.replace("/login");
       return;
     }
 
@@ -93,7 +110,13 @@ export default function DashboardLayout({
     };
   }, [isRolesPermissionsPage, router, token]);
 
-  if (!token && !isRolesPermissionsPage) return null;
+  if (!token && !isRolesPermissionsPage) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-brand-dashboard-bg">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-brand-dashboard-bg overflow-hidden">

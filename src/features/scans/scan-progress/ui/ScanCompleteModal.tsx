@@ -213,7 +213,7 @@ export default function ScanCompleteModal({
                 <div className="space-y-2 pt-2">
                   <Button
                     onClick={() =>
-                      router.push(
+                      router.replace(
                         scanId
                           ? `/scan/report?scanId=${encodeURIComponent(scanId)}`
                           : "/scan/report",

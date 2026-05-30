@@ -18,7 +18,7 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   
-  // Steps status array for the progress items list: Checking DNS, Analyzing SSL, Scanning subdomains, etc.
+  // Steps status array for the progress items list
   const [stepStatuses, setStepStatuses] = useState<("completed" | "current" | "pending")[]>([
     "current",
     "pending",
@@ -28,15 +28,16 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
   ]);
 
   const hubConnectionRef = useRef<signalR.HubConnection | null>(null);
+  const timerIdRef = useRef<NodeJS.Timeout | null>(null);
+  const fastForwardingRef = useRef(false);
+  const currentProgressRef = useRef(0);
 
-  // Helper to compute duration string like "1m 32s" or "45s"
+  // Helper to compute duration string
   const calculateDuration = (startIso: string, endIso: string): string => {
     try {
       const start = new Date(startIso).getTime();
       const end = new Date(endIso).getTime();
-      if (!Number.isFinite(start) || !Number.isFinite(end)) {
-        return "0s";
-      }
+      if (!Number.isFinite(start) || !Number.isFinite(end)) return "0s";
       const diffMs = Math.max(0, end - start);
       const totalSeconds = Math.floor(diffMs / 1000);
       const mins = Math.floor(totalSeconds / 60);
@@ -47,7 +48,7 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
     }
   };
 
-  // Helper to compile scan result card stats from the API report
+  // Helper to compile scan result card stats
   const compileScanResult = (report: ScanReport): ScanResult => {
     const scores = report.subScores;
     let passedCount = 0;
@@ -71,44 +72,67 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
     };
   };
 
-  // Force snap the UI to 100% complete
-  const handleCompletedState = (report: ScanReport) => {
-    setProgress(100);
-    setStepStatuses(["completed", "completed", "completed", "completed", "completed"]);
-    setScanResult(compileScanResult(report));
-    setIsCompleted(true);
-  };
+  // Keep ref in sync with state for easy access in intervals
+  useEffect(() => {
+    currentProgressRef.current = progress;
+  }, [progress]);
 
   useEffect(() => {
     if (!scanId) return;
 
     let isMounted = true;
-    let timerId: NodeJS.Timeout;
 
-    // Check if the scan is already finished on the backend (e.g. page refresh)
-    const checkCurrentStatus = async () => {
-      try {
-        const res = await scanService.getScanReport(scanId);
-        if (isMounted && res.isSuccess && res.value && res.value.status === "Completed") {
-          handleCompletedState(res.value);
-          return true; // Already complete
+    const updateStepStatuses = (prog: number) => {
+      const currentStepIdx = Math.min(4, Math.floor(prog / 20));
+      setStepStatuses((prev) => {
+        const next = [...prev];
+        for (let i = 0; i < 5; i++) {
+          if (i < currentStepIdx) next[i] = "completed";
+          else if (i === currentStepIdx) next[i] = "current";
+          else next[i] = "pending";
         }
-      } catch (err) {
-        console.warn("Failed checking initial scan status, continuing with simulation...", err);
-      }
-      return false;
+        return next;
+      });
     };
 
-    const startProgressSimulation = (alreadyFinished: boolean) => {
-      if (alreadyFinished) return;
+    // Trigger the 5-second fast forward sequence
+    const triggerFastForward = (report: ScanReport) => {
+      if (fastForwardingRef.current || !isMounted) return;
+      fastForwardingRef.current = true;
 
-      let startTime = initiatedAtParam ? new Date(initiatedAtParam).getTime() : Date.now();
-      if (!Number.isFinite(startTime)) {
-        startTime = Date.now();
-      }
+      // Clear the standard simulation timer
+      if (timerIdRef.current) clearInterval(timerIdRef.current);
 
-      timerId = setInterval(() => {
+      const FAST_FORWARD_DURATION_MS = 5000;
+      const UPDATE_INTERVAL_MS = 100;
+      const totalSteps = FAST_FORWARD_DURATION_MS / UPDATE_INTERVAL_MS;
+      const startProgress = currentProgressRef.current;
+      const increment = (100 - startProgress) / totalSteps;
+
+      timerIdRef.current = setInterval(() => {
         if (!isMounted) return;
+
+        setProgress((prev) => {
+          const nextVal = prev + increment;
+          if (nextVal >= 100) {
+            if (timerIdRef.current) clearInterval(timerIdRef.current);
+            setStepStatuses(["completed", "completed", "completed", "completed", "completed"]);
+            setScanResult(compileScanResult(report));
+            setIsCompleted(true);
+            return 100;
+          }
+          updateStepStatuses(nextVal);
+          return nextVal;
+        });
+      }, UPDATE_INTERVAL_MS);
+    };
+
+    const startProgressSimulation = () => {
+      let startTime = initiatedAtParam ? new Date(initiatedAtParam).getTime() : Date.now();
+      if (!Number.isFinite(startTime)) startTime = Date.now();
+
+      timerIdRef.current = setInterval(() => {
+        if (!isMounted || fastForwardingRef.current) return;
 
         const elapsed = Date.now() - startTime;
         let computedProgress = Math.min(95, Math.floor((elapsed / SCAN_DURATION_MS) * 100));
@@ -117,38 +141,31 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
         }
         
         setProgress((prev) => {
-          // Keep advancing but don't go backwards
-          const nextVal = Math.max(prev, computedProgress);
-          return Math.min(100, Math.max(0, nextVal));
-        });
-
-        // Determine step index based on progress value (5 steps: 0-19, 20-39, 40-59, 60-79, 80+)
-        const currentStepIdx = Math.min(4, Math.floor(computedProgress / 20));
-        
-        setStepStatuses((prev) => {
-          const next = [...prev];
-          for (let i = 0; i < 5; i++) {
-            if (i < currentStepIdx) {
-              next[i] = "completed";
-            } else if (i === currentStepIdx) {
-              next[i] = "current";
-            } else {
-              next[i] = "pending";
-            }
-          }
-          return next;
+          const nextVal = Math.min(100, Math.max(prev, computedProgress));
+          updateStepStatuses(nextVal);
+          return nextVal;
         });
       }, 500);
     };
 
     // Main initialization flow
     const init = async () => {
-      const alreadyDone = await checkCurrentStatus();
-      if (alreadyDone) return;
+      // 1. Start simulation immediately so UI feels responsive
+      startProgressSimulation();
 
-      startProgressSimulation(false);
+      // 2. Check if already completed on the backend
+      try {
+        const res = await scanService.getScanReport(scanId);
+        if (isMounted && res.isSuccess && res.value && res.value.status === "Completed") {
+          // If already complete, we still fast-forward from 0 to 100 over 5 seconds
+          triggerFastForward(res.value);
+          return;
+        }
+      } catch (err) {
+        console.warn("Failed checking initial scan status, continuing with simulation...", err);
+      }
 
-      // Connect to SignalR channel for realtime scan completion events
+      // 3. Connect to SignalR channel for realtime events
       const userId = getUserIdFromToken();
       if (!userId) {
         console.warn("Cannot subscribe to SignalR: User ID not found in token");
@@ -170,22 +187,15 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
 
       connection.on("ScanCompleted", async (event: { scanId: string }) => {
         if (event?.scanId === scanId) {
-          if (timerId) clearInterval(timerId);
-          
-          // Fetch final results from the report endpoint
           try {
             const reportRes = await scanService.getScanReport(scanId);
             if (isMounted && reportRes.isSuccess && reportRes.value) {
-              handleCompletedState(reportRes.value);
+              triggerFastForward(reportRes.value);
             }
           } catch (err) {
             console.error("Error fetching completed scan report:", err);
-            // Fallback complete state
-            if (isMounted) {
-              setProgress(100);
-              setStepStatuses(["completed", "completed", "completed", "completed", "completed"]);
-              setIsCompleted(true);
-            }
+            // Fallback complete state with fast forward
+            triggerFastForward({ scanId, status: "Completed", securityScore: 0, subScores: {} } as unknown as ScanReport);
           }
         }
       });
@@ -195,24 +205,7 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
         await connection.invoke("JoinUserGroup", userId);
         console.log(`Connected to SignalR scan hub. Joined user group: ${userId}`);
       } catch (err) {
-        console.error("SignalR connection failed, triggering fallback completion...", err);
-        if (isMounted) {
-          if (timerId) clearInterval(timerId);
-          try {
-            const reportRes = await scanService.getScanReport(scanId);
-            if (isMounted && reportRes.isSuccess && reportRes.value) {
-              handleCompletedState(reportRes.value);
-            } else {
-              setProgress(100);
-              setStepStatuses(["completed", "completed", "completed", "completed", "completed"]);
-              setIsCompleted(true);
-            }
-          } catch {
-            setProgress(100);
-            setStepStatuses(["completed", "completed", "completed", "completed", "completed"]);
-            setIsCompleted(true);
-          }
-        }
+        console.error("SignalR connection failed, waiting for poll or timeout...", err);
       }
     };
 
@@ -220,7 +213,7 @@ export function useScanProgress(scanId?: string, initiatedAtParam?: string) {
 
     return () => {
       isMounted = false;
-      if (timerId) clearInterval(timerId);
+      if (timerIdRef.current) clearInterval(timerIdRef.current);
       if (hubConnectionRef.current) {
         hubConnectionRef.current.stop().catch((e) => console.log("Error stopping connection:", e));
       }

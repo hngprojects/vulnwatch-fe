@@ -22,6 +22,33 @@ export function DomainDetailLoader() {
   const [data, setData] = useState<DomainDetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  // Derive if it's a rate limit error
+  const isRateLimitError = Boolean(
+    error?.includes("429") ||
+      error?.toLowerCase().includes("rate limit") ||
+      error?.toLowerCase().includes("too many requests"),
+  );
+
+  const [cooldown, setCooldown] = useState(0);
+
+  // Initialize cooldown when rate limit error appears
+  useEffect(() => {
+    if (error && isRateLimitError) {
+      queueMicrotask(() => setCooldown(15));
+    } else {
+      queueMicrotask(() => setCooldown(0));
+    }
+  }, [error, isRateLimitError]);
+
+  // Tick the cooldown timer
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
 
   useEffect(() => {
     if (!domainId) {
@@ -49,31 +76,37 @@ export function DomainDetailLoader() {
           ),
         ]);
 
-        if (!domainRes.data.isSuccess || !domainRes.data.value) {
+        const domainValue = domainRes.data.value;
+        if (!domainRes.data.isSuccess || !domainValue) {
           throw new Error(
             domainRes.data.error?.message ?? "Failed to load domain monitoring data.",
           );
         }
 
-        if (!settingsRes.data.isSuccess || !settingsRes.data.value) {
+        const settingsValue = settingsRes.data.value;
+        if (!settingsRes.data.isSuccess || !settingsValue) {
           throw new Error(
             settingsRes.data.error?.message ?? "Failed to load monitoring settings.",
           );
         }
 
-        if (active) {
-          setData(
-            mapToDomainDetailData(baseDomain, domainRes.data.value, settingsRes.data.value),
-          );
-        }
+        queueMicrotask(() => {
+          if (active) {
+            setData(
+              mapToDomainDetailData(baseDomain, domainValue, settingsValue),
+            );
+          }
+        });
       } catch (err: unknown) {
-        if (active) {
-          const msg =
-            err instanceof Error ? err.message : "Failed to load domain details.";
-          setError(msg);
-        }
+        const msg =
+          err instanceof Error ? err.message : "Failed to load domain details.";
+        queueMicrotask(() => {
+          if (active) setError(msg);
+        });
       } finally {
-        if (active) setLoading(false);
+        queueMicrotask(() => {
+          if (active) setLoading(false);
+        });
       }
     }
 
@@ -81,7 +114,7 @@ export function DomainDetailLoader() {
     return () => {
       active = false;
     };
-  }, [domainId]);
+  }, [domainId, retryCount]);
 
   if (loading) {
     return (
@@ -104,15 +137,39 @@ export function DomainDetailLoader() {
               Failed to load domain
             </h3>
             <p className="text-sm text-neutral-500 leading-relaxed">
-              {error ?? "This domain could not be found."}
+              {isRateLimitError
+                ? "Too many requests, please wait a moment before trying again."
+                : (error ?? "This domain could not be found.")}
             </p>
           </div>
-          <Button
-            asChild
-            className="w-full mt-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold h-11"
-          >
-            <Link href="/domain">Back to Domains</Link>
-          </Button>
+          {isRateLimitError ? (
+            <div className="w-full flex flex-col gap-2 mt-2">
+              <Button
+                onClick={() => setRetryCount((c) => c + 1)}
+                disabled={cooldown > 0}
+                className={`w-full font-semibold h-11 transition-colors ${
+                  cooldown > 0 
+                    ? "bg-neutral-200 text-neutral-500 cursor-not-allowed hover:bg-neutral-200 opacity-100" 
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                }`}
+              >
+                {cooldown > 0 ? `Retry in ${cooldown}s...` : "Try Again"}
+              </Button>
+              <Link
+                href="/domain"
+                className="text-sm font-medium text-neutral-500 hover:text-neutral-700 transition-colors"
+              >
+                Back to Domains
+              </Link>
+            </div>
+          ) : (
+            <Button
+              asChild
+              className="w-full mt-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold h-11"
+            >
+              <Link href="/domain">Back to Domains</Link>
+            </Button>
+          )}
         </div>
       </div>
     );
