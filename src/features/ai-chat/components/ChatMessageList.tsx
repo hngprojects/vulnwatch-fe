@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import type { Message } from "@/features/ai-chat/types/chat.types";
 
 interface ChatMessageListProps {
@@ -13,6 +14,7 @@ const CHARACTER_LIMIT = 250;
 function ChatBubble({ msg }: { msg: Message }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isUser = msg.role === "user";
+  const isStreaming = msg.role === "streaming";
   const isLong = isUser && msg.text.length > CHARACTER_LIMIT;
 
   const wrapperClass = isUser ? "flex justify-end" : "flex justify-start";
@@ -42,7 +44,40 @@ function ChatBubble({ msg }: { msg: Message }) {
         role={isLong && !isExpanded ? "button" : undefined}
         aria-expanded={isLong ? isExpanded : undefined}
       >
-        {msg.text}
+        {isUser ? (
+          <>
+            {msg.text}
+            {isStreaming && (
+              <span
+                aria-hidden
+                className="inline-block w-[2px] h-[1em] bg-brand-dark/60 ml-0.5 align-middle animate-[blink_0.8s_step-end_infinite]"
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>,
+                li: ({ children }) => <li>{children}</li>,
+                code: ({ children }) => (
+                  <code className="bg-brand-sidebar-bg px-1 py-0.5 rounded text-sm font-mono">{children}</code>
+                ),
+              }}
+            >
+              {msg.text}
+            </ReactMarkdown>
+            {isStreaming && (
+              <span
+                aria-hidden
+                className="inline-block w-[2px] h-[1em] bg-brand-dark/60 ml-0.5 align-middle animate-[blink_0.8s_step-end_infinite]"
+              />
+            )}
+          </>
+        )}
         
         {isLong && !isExpanded && (
           <div className={`absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t ${gradientClass} pointer-events-none`} />
