@@ -86,7 +86,10 @@ export function ScanFindingsLayout({ children }: { children: React.ReactNode }) 
         if (active) {
           const axiosError = err as { response?: { status?: number; data?: { isSuccess?: boolean; error?: { message?: string } } } };
           const responseData = axiosError.response?.data;
-          if (responseData && responseData.error?.message) {
+          
+          if (axiosError.response?.status === 429) {
+            setError("429 Too Many Requests");
+          } else if (responseData && responseData.error?.message) {
             setError(responseData.error.message);
           } else {
             const msg = err instanceof Error ? err.message : "An unexpected error occurred.";

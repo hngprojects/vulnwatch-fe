@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import { getSafeReturnUrl } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
@@ -88,7 +89,7 @@ export function SocialAuthButton({
 
         useAuthStore.getState().login(data.value.accessToken, email, picture);
         const returnUrl = searchParams.get("returnUrl");
-        router.push(returnUrl || "/dashboard");
+        router.push(getSafeReturnUrl(returnUrl));
       } else {
         toast.error(data.message || "Backend rejected token");
         console.error("Backend rejected token:", data);

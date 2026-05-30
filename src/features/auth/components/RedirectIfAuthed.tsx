@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
+import { getSafeReturnUrl } from "@/lib/utils";
 
 type RedirectIfAuthedProps = {
   redirectTo?: string;
@@ -20,7 +21,7 @@ export function RedirectIfAuthed({
 
     if (token) {
       const returnUrl = searchParams.get("returnUrl");
-      router.replace(returnUrl || redirectTo);
+      router.replace(getSafeReturnUrl(returnUrl, redirectTo));
     }
   }, [redirectTo, router, searchParams]);
 

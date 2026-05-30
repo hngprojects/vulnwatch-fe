@@ -151,9 +151,7 @@ privateApi.interceptors.response.use(
       isRefreshing = false;
       processQueue(refreshError, null);
 
-      if (axios.isAxiosError(refreshError) && refreshError.response?.status === 429) {
-        // Do NOT log the user out if the failure was just a 429, let the ui handles that
-      } else {
+      if (!(axios.isAxiosError(refreshError) && refreshError.response?.status === 429)) {
         performLogout();
       }
 

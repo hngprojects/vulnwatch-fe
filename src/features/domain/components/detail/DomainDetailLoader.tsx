@@ -90,23 +90,23 @@ export function DomainDetailLoader() {
           );
         }
 
-        if (active) {
-          queueMicrotask(() => {
+        queueMicrotask(() => {
+          if (active) {
             setData(
               mapToDomainDetailData(baseDomain, domainValue, settingsValue),
             );
-          });
-        }
+          }
+        });
       } catch (err: unknown) {
-        if (active) {
-          const msg =
-            err instanceof Error ? err.message : "Failed to load domain details.";
-          queueMicrotask(() => setError(msg));
-        }
+        const msg =
+          err instanceof Error ? err.message : "Failed to load domain details.";
+        queueMicrotask(() => {
+          if (active) setError(msg);
+        });
       } finally {
-        if (active) {
-          queueMicrotask(() => setLoading(false));
-        }
+        queueMicrotask(() => {
+          if (active) setLoading(false);
+        });
       }
     }
 

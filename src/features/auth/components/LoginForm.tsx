@@ -20,6 +20,7 @@ import { AuthInput } from "./AuthInput";
 import { PasswordInput } from "./PasswordInput";
 import { AuthDivider } from "./AuthDivider";
 import { SocialAuthButton } from "./SocialAuthButton";
+import { getSafeReturnUrl } from "@/lib/utils";
 
 export function LoginForm() {
   const router = useRouter();
@@ -46,7 +47,7 @@ export function LoginForm() {
           .login(response.value.accessToken, data.email);
         
         const returnUrl = searchParams.get("returnUrl");
-        router.push(returnUrl || "/dashboard");
+        router.push(getSafeReturnUrl(returnUrl));
       } else {
         const isNotVerified =
           response.error?.code === "403" ||
