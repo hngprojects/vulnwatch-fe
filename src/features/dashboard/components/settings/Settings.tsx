@@ -4,12 +4,14 @@ import { useState } from "react";
 import GeneralSettings from "./GeneralSettings";
 import ComingSoon from "./ComingSoon";
 import SecurityPrivacySettings from "./SecurityPrivacySettings";
+import IntegrationsSettings from "./IntegrationsSettings";
 
-type Tab = "general" | "security" | "session";
+type Tab = "general" | "security" | "session" | "integrations";
 
 const TABS: { label: string; value: Tab }[] = [
   { label: "General", value: "general" },
   { label: "Security", value: "security" },
+  { label: "Integrations", value: "integrations" },
   { label: "Session Management", value: "session" },
 ];
 
@@ -44,6 +46,7 @@ const Settings = ({ initialTab = "general" }: SettingsProps) => {
       <div className="mt-6">
         {activeTab === "general" && <GeneralSettings />}
         {activeTab === "security" && <SecurityPrivacySettings />}
+        {activeTab === "integrations" && <IntegrationsSettings />}
         {activeTab === "session" && <ComingSoon title="Session Management" />}
       </div>
     </div>
